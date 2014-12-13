@@ -1,0 +1,113 @@
+Installation
+----------------------------
+1. CMake: (http://www.cmake.org/cmake/resources/software.html)
+
+./bootstrap --prefix="path to installation"
+make
+make install
+Add CMAKE_INSTALL_DIR/bin to PATH
+
+
+2. LLVM-3.1 and Clang: (svn locations specified at http://llvm.org/docs/GettingStarted.html#quickstart)
+(Note: LLVM version <= 3.1 is required)
+
+mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX:PATH="path to installation" -DCMAKE_BUILD_TYPE:STRING=Release ../llvm/
+make -j 8
+make install
+Add LLVM_INSTALL_DIR/bin path to PATH and LLVM_INSTALL_DIR/lib to LD_LIBRARY_PATH
+
+
+3. Dragon egg: (http://dragonegg.llvm.org/)
+
+make CPPFLAGS="-I/opt/gcc/4.5.1/gmp-5.0.1/include"
+Copy "dragonegg.so" to the installation directory
+
+
+4. zlib (needed by boost): (http://www.zlib.net/)
+./configure --prefix="path to installation"
+make
+make install
+
+
+5. Boost: (http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.tar.gz/download)
+
+./bootstrap.sh --with-libraries=iostreams
+./b2 install -s NO_BZIP2=1 -s ZLIB_LIBPATH=<ZLIB_INSTALL_PATH>/lib/ -s ZLIB_INCLUDE=<ZLIB_INSTALL_PATH>/include/ --prefix="path to installation"
+Add BOOST_INSTALL_DIR/lib to LD_LIBRARY_PATH
+
+6. Berkeley DB: (http://www.oracle.com/technetwork/products/berkeleydb/downloads/index.html)
+(Note: Newer versions are known to cause compilation issues. The tool was tested against version 5.3.15)
+
+cd build_unix
+../dist/configure --enable-cxx --prefix="path to installation"
+make
+make install
+Add DB_INSTALL_PATH/lib to LD_LIBRARY_PATH
+
+
+7. DDG: 
+
+export PATH=$PATH:<BOOST_INSTALL_PATH>/include:<BOOST_INSTALL_PATH>/lib
+mkdir build && cd build
+cmake ../trunk/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="path to installation" -DDB_INCLUDE_DIR=/home/shashank/db-5.3.28/include/ -DDB_LIBRARY=/home/shashank/db-5.3.28/lib/libdb_cxx.so
+make install
+Add <DDG_INSTALL_DIR>/bin and <DDG_INSTALL_DIR>/lib to PATH and LD_LIBRARY_PATH respectively
+
+
+Generating Dynamic Data Dependence Graph
+--------------------------------------------
+1. Annotate the region of interest by inserting calls to runtime functions ddg_start_trace and ddg_stop_trace.
+e.g.:
+        ddg_start_trace();
+        for(i=0; i<N; i++)
+        	for(j=0; j<N; j++)
+        		for(k=0; k<N; k++)
+                	C[i][j] += A[i][k] * B[k][j];
+        ddg_stop_trace();
+
+2. Compile the program to LLVM IR and run the passes to instrument the code
+e.g.:
+	$ clang -c -flto prog1.c
+	$ clang -c -flto prog2.c
+	$ llvm-ld -link-as-library prog1.o prog2.o -o test.combined.bc
+	$ opt -load $(DDG_INSTALL_DIR)/lib/ddg-instr.so -mem2reg -indvars \
+	    -instrument-ddg -instrument-indvars test.combined.bc -o test.instr.bc
+
+3. Compile the instrumented LLVM IR to exe and run the program to generate the trace
+e.g.:
+	$ clang -L $(DDG_INSTALL_DIR)/lib/ -lddg-rt test.instr.bc
+	$ ./a.out
+	
+4. Run dynamic-graph (found in <DDG_INSTALL_DIR>/bin folder) to generate the DDG. It prints the information of the graph to stdout and also writes the graph in DOT format to the file dyn_graph.dot.
+e.g.:
+	$ dynamic-graph test.instr.bc
+
+
+Running vectorization potential analysis (ddg-vect)
+-------------------------------------------------------
+1. Annotate the region of interest by inserting calls to runtime functions ddg_start_trace and ddg_stop_trace.
+
+2. Compile the program to LLVM IR and run the passes to instrument the code
+e.g.:
+	$ clang -c -flto prog1.c
+	$ clang -c -flto prog2.c
+	$ llvm-ld -link-as-library prog1.o prog2.o -o test.combined.bc
+	$ opt -load $(DDG_INSTALL_DIR)/lib/ddg-instr.so -mem2reg -indvars \
+	    -instrument-ddg -instrument-indvars test.combined.bc -o test.instr.bc
+
+3. Compile the instrumented LLVM IR to exe and run the program to generate the trace
+e.g.:
+	$ clang -L $(DDG_INSTALL_DIR)/lib/ -lddg-rt test.instr.bc
+	$ ./a.out
+	
+4. Run ddg-vect (found in <DDG_INSTALL_DIR>/bin folder) to analyze the vectorization potential.
+e.g.:
+	$ ddg-vect --force test.instr.bc
+	$ ddg-vect --metrics test.instr.bc
+The first step creates berkeleydb database files containing the partition
+details.  The second step calculates metrics using the partition database and
+dumps it into metrics.csv file.
+Note: The --force option is needed in the first step to allow overwriting
+existing database files if any.
+
