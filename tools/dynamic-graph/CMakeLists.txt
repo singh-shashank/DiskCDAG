@@ -18,14 +18,6 @@ target_link_libraries(value-flow-graph
   ${Boost_LIBRARIES}
 )
 
-add_executable(region-dynamic-graph region-dynamic-graph.cxx)
-target_link_libraries(region-dynamic-graph
-  ddg-analysis
-  ${LLVM_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-
 install(TARGETS dynamic-graph DESTINATION bin)
 install(TARGETS value-flow-graph DESTINATION bin)
-install(TARGETS region-dynamic-graph DESTINATION bin)
 

@@ -328,6 +328,10 @@ public:
 
   virtual void visitFnReturn(Instruction *call) { }
 
+  virtual void visitRegionBegin() { }
+
+  virtual void visitRegionEnd() { }
+
   void visit(Ids &ids);
 
 protected:
@@ -378,6 +382,8 @@ public:
   void loopEnter(LoopEnter *loopEnter);
   void loopExit(LoopExit *loopExit);
   void loopIndVar(LoopIndVar *loopIndVar);
+  void regionBegin();
+  void regionEnd();
 
 private:
   bool addLastWriterToPreds(Value *value, Predecessors &preds);
@@ -602,6 +608,18 @@ void LazyGraphBuilder<T>::loopExit(LoopExit *loopExit)
 template <typename T>
 void LazyGraphBuilder<T>::loopIndVar(LoopIndVar *loopIndVar)
 {
+}
+
+template <typename T>
+void LazyGraphBuilder<T>::regionBegin()
+{
+  visitor.visitRegionBegin();
+}
+
+template <typename T>
+void LazyGraphBuilder<T>::regionEnd()
+{
+  visitor.visitRegionEnd();
 }
 
 template <typename T>

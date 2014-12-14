@@ -85,6 +85,7 @@ bool InstrumentDDG::runOnModule(Module &module)
     else
     {
       std::cout << "\n ddg_region_begin marker found at ";
+      splitAtUse(regionBeginFn);
     }
 
     
@@ -96,6 +97,7 @@ bool InstrumentDDG::runOnModule(Module &module)
     else
     {
       std::cout << "\n ddg_region_end marker found at ";
+      splitAtUse(regionEndFn);
     }
   }
   else
