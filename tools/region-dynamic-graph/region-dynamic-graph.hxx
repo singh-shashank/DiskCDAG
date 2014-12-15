@@ -42,6 +42,12 @@ struct RegionNode
 		{
 			cout << (*it)->id << ", ";
 		}
+		cout <<"\n Pred List : ";
+		for(vector<RegionNode*>::iterator it = predList.begin();
+			it != predList.end(); ++it)
+		{
+			cout << (*it)->id << ", ";
+		}
 		//cout <<"\n ---------------------------------------------------------";		
 	}
 
@@ -169,7 +175,7 @@ public:
 	Address getAddress(int nodeId);
 	
 	void printRegionGraph();
-	void performBFS(int &numEdges);
+	void performBFS(int &numEdges, int &noOfComp);
 
 	vector<RegionNode*> regionIdToNodeMap;
 	unsigned long numOfRegionNodes;

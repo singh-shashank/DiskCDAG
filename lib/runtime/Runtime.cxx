@@ -29,16 +29,16 @@ static void write_as_chars(ostream &o, T *t)
 template <typename T>
 static void write_trace_as_txt(T *t)
 {
-	std::stringstream temp;
-	temp << (*t);
-	if (outfile.is_open())
-	{
-		outfile << temp.str();
-	}
-	else
-	{
-		std::cout << "\n trace.txt not open";
-	}
+	//std::stringstream temp;
+	//temp << (*t);
+	//if (outfile.is_open())
+	//{
+	//	outfile << temp.str();
+	//}
+	//else
+	//{
+	//	std::cout << "\n trace.txt not open";
+	//}
 }
 
 enum TraceType {

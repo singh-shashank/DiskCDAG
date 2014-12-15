@@ -618,8 +618,8 @@ void TraceParser::parse(TraceEventsHandler<Visitor> &handler)
     tracecnt++;
     if(tracecnt%1000 == 0)
     {
-      std::cout << "traceno: " << tracecnt << '\n';
-      fflush(stdout);
+      //std::cout << "traceno: " << tracecnt << '\n';
+      //fflush(stdout);
     }
     char traceType = -1;
     in.get(traceType);
