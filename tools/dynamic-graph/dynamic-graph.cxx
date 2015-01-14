@@ -47,6 +47,13 @@ int main(int argc, char **argv)
   //dynGraph->printDOTGraph("dyn_graph.dot");
   //std::cout << "count: " << count << "\n";
   //std::cout << "numnodes: " << dynGraph->getNumNodes() << "\n";
+  int nodes = dynGraph->getNumNodes();
+  size_t edges = 0;
+  for(int i=0; i<nodes; i++)
+  {
+    edges += dynGraph->getNumSuccessors(i);
+  }
+  std::cout << "Nodes: " << nodes << "; Edges: " << edges << '\n';
 
   delete dynGraph;
 }

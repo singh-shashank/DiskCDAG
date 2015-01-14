@@ -49,13 +49,14 @@ int main(int argc, char **argv)
   std::cout << "region count  = " << regionCount << '\n';
   RegionDynamicGraph *dynGraph = RegionDynamicGraph::generateGraph(ids, count);
   cout << "\n";
-  dynGraph->printRegionGraph();
+  //dynGraph->printRegionGraph();
+  dynGraph->parallelism();
   cout << "\n";
 
   int numEdges = 0;
   int numOfComp = 0;
   dynGraph->performBFS(numEdges, numOfComp);
-  cout << "\n Actual Number of Region Nodes = " << dynGraph->numOfRegionNodes;
+  cout << "\n Actual Number of Region Nodes = " << dynGraph->numOfRegionNodes << '\n';
   cout << "\n Total number of edges = " << numEdges;
   cout << "\n Total number of components = " << numOfComp;
 
@@ -65,6 +66,7 @@ int main(int argc, char **argv)
   //std::cout << "numnodes: " << dynGraph->getNumNodes() << "\n";
 
   delete dynGraph;
+  cout << '\n';
 }
 
 
@@ -336,7 +338,7 @@ namespace ddg
     RegionNode *startNode = root;
     while(startNode)
     {
-      cout << "\n Start Node : " << startNode->id;
+      //cout << "\n Start Node : " << startNode->id;
       ++noOfComp;
       int edges = 0;
       int nodes = 0;
@@ -349,7 +351,7 @@ namespace ddg
       {
         RegionNode *temp = q.front();
         q.pop();
-        cout << "id: " << temp->id << '\n';
+        //cout << "id: " << temp->id << '\n';
         ++nodes;
         numEdges += temp->succsList.size();
 
@@ -371,7 +373,7 @@ namespace ddg
         }
       }
 
-      cout << " Nodes : " << nodes << " Edges : " << edges;
+      //cout << " Nodes : " << nodes << " Edges : " << edges;
       startNode = NULL;
       for(std::map<int, bool>::iterator it = visited.begin();
         it != visited.end(); ++it)
@@ -389,11 +391,42 @@ namespace ddg
   {
     for(int i=0; i<nodeCnt; ++i)
     {
+      //try {
+      //  currNode = regionIdToNodeMap.at(i);
+      //}
+      //catch(const std::out_of_range& oor) {
+      //  cerr << "Error: regionIdToNodeMap out of range. NodeID: " << i << "; nodeCnt: " << nodeCnt << '\n';
+      //  return;
+      //}
       if(regionIdToNodeMap[i])
       {
         regionIdToNodeMap[i]->print();
       }
     }
+  }
+
+  void RegionDynamicGraph::parallelism()
+  {
+    int maxTs = 0;
+    RegionNode *currNode;
+    for(int i=0; i<nodeCnt; ++i)
+    {
+      //try {
+      //  currNode = regionIdToNodeMap.at(i);
+      //}
+      //catch(const std::out_of_range& oor) {
+      //  cerr << "Error: regionIdToNodeMap out of range. NodeID: " << i << "; nodeCnt: " << nodeCnt << '\n';
+      //  return;
+      //}
+      if(regionIdToNodeMap[i])
+      {
+        currNode = regionIdToNodeMap[i];
+        int currTs = currNode->ts;
+        if(currTs > maxTs)
+          maxTs = currTs;
+      }
+    }
+    cout << "\nTotal nodes: " << numOfRegionNodes << "; Critical path size: " << maxTs+1 << "; Available parallelism: " << ((double)(numOfRegionNodes))/((double)(maxTs+1)) << '\n';
   }
 
   RegionDynamicGraphBuilder::RegionDynamicGraphBuilder(RegionDynamicGraph *dynGraph) : 
@@ -416,6 +449,7 @@ namespace ddg
     ++regionId;
     currNode = dynGraph->getNewNode(regionId);
     allPredsForRegion.clear();
+    //cout << "\n Starting Region " << regionId;
   }
 
   void RegionDynamicGraphBuilder::visitRegionEnd()
@@ -429,7 +463,8 @@ namespace ddg
     {
       // Create new edges in the graph
       std::set<int>::iterator it = allPredsForRegion.begin();
-      cout << "\nRegion " << regionId << " : allPredsSize = " <<allPredsForRegion.size();
+      //cout << "\nRegion " << regionId << " : allPredsSize = " <<allPredsForRegion.size();
+      int currTs = 0;
       for(; it != allPredsForRegion.end(); ++it)
       {
 
@@ -440,19 +475,24 @@ namespace ddg
         {
           predNode->succsList.push_back(currNode);
           currNode->predList.push_back(predNode);
+          int predTs = predNode->ts;
+          if(predTs > currTs-1)
+            currTs = predTs+1;
         }
         else
         {
           cout << "\n Unexpected Error :  A predecessor with null node pointer ";
         }
       }
+      currNode->ts = currTs;
       dynGraph->addNodeToGraph(currNode);
     }
+    //cout << "\n Ending Region " << regionId;
   }
 
   void RegionDynamicGraphBuilder::visitNode(LazyNode<std::set<int> > *node, Predecessors &predecessors, Operands &operands)
   {
-    cout <<"\n==========\n";
+    //cout <<"\n==========\n";
     int idx = 0;
     unsigned long nodeId;
     int predSize;
@@ -470,43 +510,43 @@ namespace ddg
     //predList = new int[predSize];
 
     std::set<int> predRegionIdSet;
-    cout << "preds:\n";
-    int max_size=0;
+    //cout << "preds:\n";
+    //int max_size=0;
     for(Predecessors::iterator pred = predecessors.begin(), predEnd = predecessors.end(); pred != predEnd;  ++pred)
     {
       //predList[idx++] = (*pred)->get();
       
       predRegionIdSet.insert((*pred)->get().begin(), (*pred)->get().end());
-      int sz = (*pred)->get().size();
-      max_size = (sz>max_size) ? sz : max_size;
+      //int sz = (*pred)->get().size();
+      //max_size = (sz>max_size) ? sz : max_size;
 
       
-    cout << cast<ConstantInt>((*pred)->getInstruction()->getMetadata("id")->getOperand(0))->getZExtValue() << ": ";
-       for(std::set<int>::iterator it = (*pred)->get().begin();
-         it != (*pred)->get().end(); ++it)
-       {
-         cout << (*it) << ", ";
-       }
-       cout << '\n';
+    //cout << cast<ConstantInt>((*pred)->getInstruction()->getMetadata("id")->getOperand(0))->getZExtValue() << ": ";
+    //   for(std::set<int>::iterator it = (*pred)->get().begin();
+    //     it != (*pred)->get().end(); ++it)
+    //   {
+    //     cout << (*it) << ", ";
+    //   }
+    //   cout << '\n';
     }
-    cout << "----\n";
+    //cout << "----\n";
 
     // If we are outside a region then Lazy Node set should be re-created
     // merging all the predeccessor
     node->get().clear();
     if(withinRegion)
     {
-    cout << "\nRegion id " << cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue() << ":" << regionId << '\n'; 
+    //cout << "\nRegion id " << cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue() << ":" << regionId << '\n'; 
       allPredsForRegion.insert(predRegionIdSet.begin(), predRegionIdSet.end());
       node->get().insert(regionId);
     }
     else 
     {
-      cout << "size b4: " << node->get().size() << "\n";
-      cout << "\nRegion id " << cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue() << ":" << "-2\n"; 
+      //cout << "size b4: " << node->get().size() << "\n";
+      //cout << "\nRegion id " << cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue() << ":" << "-2\n"; 
       node->get().insert(predRegionIdSet.begin(), predRegionIdSet.end());
-      cout << "pred size: " << max_size << "\n";
-      cout << "size after: " << node->get().size() << "\n";
+      //cout << "pred size: " << max_size << "\n";
+      //cout << "size after: " << node->get().size() << "\n";
     }
 
     // if(regionId != -1 && predRegionIdSet.size() > 0) // check if we haven't encountered a region yet

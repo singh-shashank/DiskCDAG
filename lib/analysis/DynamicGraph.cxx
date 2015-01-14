@@ -277,11 +277,11 @@ namespace ddg
 		dynGraph->addPredecessor(nodeId, predList, predSize);
 		node->set(dynId);
 		++dynId;
-    if(dynId % 1000 == 0)
-    {
-    std::cout << "dynid: " << dynId << '\n';
-    fflush(stdout);
-    }
+    //if(dynId % 1000 == 0)
+    //{
+    //std::cout << "dynid: " << dynId << '\n';
+    //fflush(stdout);
+    //}
 	}
 
 #if 0

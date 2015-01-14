@@ -25,8 +25,9 @@ struct RegionNode
 	int id;
 	vector<RegionNode*> succsList;
 	vector<RegionNode*> predList;
+  int ts;
 
-	RegionNode(int id):id(id)
+	RegionNode(int id):id(id), ts(-1)
 	{
 
 	}
@@ -35,6 +36,7 @@ struct RegionNode
 	{
 		cout <<"\n ---------------------------------------------------------";
 		cout <<"\n Region Id : " << id;
+    cout << "\nTimestep: " << ts;
 		//cout <<"\n***************************************";
 		cout <<"\n Successor List : ";
 		for(vector<RegionNode*>::iterator it = succsList.begin();
@@ -176,6 +178,7 @@ public:
 	
 	void printRegionGraph();
 	void performBFS(int &numEdges, int &noOfComp);
+  void parallelism();
 
 	vector<RegionNode*> regionIdToNodeMap;
 	unsigned long numOfRegionNodes;

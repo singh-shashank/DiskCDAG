@@ -75,7 +75,13 @@ bool InstrumentDDG::runOnModule(Module &module)
   }
 
   Function *regionBeginFn = module.getFunction("ddg_region_begin");
+  if(!regionBeginFn) {
+    regionBeginFn = module.getFunction("ddg_region_begin_");
+  }
   Function *regionEndFn = module.getFunction("ddg_region_end");
+  if(!regionEndFn) {
+    regionEndFn = module.getFunction("ddg_region_end_");
+  }
   if(startTraceFn && stopTraceFn)
   {
     if(!regionBeginFn)

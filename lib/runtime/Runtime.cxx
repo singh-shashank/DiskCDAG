@@ -129,6 +129,11 @@ void ddg_region_begin()
   write_trace_as_txt(&linend);
 }
 
+void ddg_region_begin_()
+{
+  ddg_region_begin();
+}
+
 void ddg_region_end()
 {
   CHECK_TRACING
@@ -139,6 +144,11 @@ void ddg_region_end()
   string type = "ddg_region_end";
   write_trace_as_txt(&type);
   write_trace_as_txt(&linend);
+}
+
+void ddg_region_end_()
+{
+  ddg_region_end();
 }
 
 void ddg_load(Id dest, void* src)
