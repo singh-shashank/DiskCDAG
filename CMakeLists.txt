@@ -10,7 +10,7 @@ project(ddg-analysis)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(Boost COMPONENTS iostreams REQUIRED)
+find_package(Boost COMPONENTS iostreams REQUIRED program_options REQUIRED)
 find_package(LLVM REQUIRED)
 
 include(AddLLVM)
@@ -21,6 +21,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_subdirectory(lib/instrument)
 add_subdirectory(lib/analysis)
 add_subdirectory(lib/runtime)
+add_subdirectory(tools/reuse-analysis)
 add_subdirectory(tools/ddg-vect)
 add_subdirectory(tools/dynamic-graph)
 add_subdirectory(tools/region-dynamic-graph)
@@ -32,3 +33,4 @@ add_subdirectory(tools/count-nodes)
 #add_subdirectory(tools/parallel-prof)
 #add_subdirectory(tools/loop-prof)
 #add_subdirectory(tools/print-ddg)
+
