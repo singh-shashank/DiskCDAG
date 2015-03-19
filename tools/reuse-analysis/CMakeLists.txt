@@ -10,21 +10,24 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/include")
 #
 # Define our sources.
 #
-SET(_SOURCES  "src/Main.cxx")
+SET(_SOURCES  "src/GraphNode.cxx"
+			  "src/Main.cxx")
               
-SET(_HEADERS  "")
+SET(_HEADERS  "include/GraphAnalysis.hxx"
+			  "include/GraphNode.hxx"
+			  "include/ReadCDAG.hxx")
 
 
 
-ADD_EXECUTABLE(reuse-analysis
+ADD_EXECUTABLE(reuse-analysis-v2
                ${_SOURCES}
                ${_HEADERS})
                
-target_link_libraries(reuse-analysis
+target_link_libraries(reuse-analysis-v2
   ddg-analysis
   ${LLVM_LIBRARIES}
   ${Boost_LIBRARIES}
 )
 
-install(TARGETS reuse-analysis DESTINATION bin)
+install(TARGETS reuse-analysis-v2 DESTINATION bin)
 

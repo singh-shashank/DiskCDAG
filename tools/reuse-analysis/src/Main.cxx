@@ -19,18 +19,7 @@
 #include <iostream>
 #include <tr1/unordered_map>
 
-#include "ddg/analysis/CDAG.hxx"
-#include <llvm/LLVMContext.h>
-#include <llvm/Module.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/IRReader.h>
-#include <llvm/Support/ManagedStatic.h>
-#include <llvm/Support/raw_ostream.h>
-
-using namespace ddg;
-using namespace llvm;
-
-
+#include "ReadCDAG.hxx"
 
 #define LEVEL1 0
 #define MAX( X, Y) ( X > Y ? X : Y)
@@ -88,10 +77,6 @@ void printUsage(const opt::options_description& desc)
 
 int main(int argc, char* argv[])
 {
-	llvm_shutdown_obj shutdownObj;  // Call llvm_shutdown() on exit.
-  	LLVMContext &context = getGlobalContext();
-
-  	SMDiagnostic err;
 
 	double ts1, te1, ttotal;
 
@@ -178,6 +163,12 @@ int main(int argc, char* argv[])
 		//}
 		//
 
+		for(fileIter = files.begin(); fileIter != files.end(); ++fileIter)
+		{
+			ReadCDAG rcg;
+			rcg.init(*fileIter);
+		}
+
 	}
 	else
 	{
@@ -195,6 +186,8 @@ int main(int argc, char* argv[])
 	{
 		std::cerr << "[TILABILITY-ANALYSIS]  Summary:" << std::endl;
 	}
+
+
 
 
 	te1 = rtclock();
