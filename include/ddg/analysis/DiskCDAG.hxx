@@ -28,8 +28,63 @@ typedef size_t payload_type;
 typedef std::set<size_t> payload_type;
 #endif
 
+typedef unsigned char BYTE;
+
 class DiskCDAGBuilder;
 class DiskCDAG;
+
+// Method for calculating storage space needed to represent
+// each node by a bit.
+inline int convertNumNodesToBytes(const int &numNodes)
+{
+	// You can represent 8 nodes with a byte
+	if(numNodes % 8 == 0)
+		return int(numNodes >> 3);
+	else
+		return int(numNodes >> 3) + 1;
+}
+
+void dumpBitSet(BYTE *bitSet, int numSets)
+{
+	cout << "\n";
+	for(int i=0;i<numSets; ++i)
+	{
+		cout << (int)bitSet[i] << " ";
+	}
+	cout << "\n";
+	cout << flush;
+}
+
+void setBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
+{
+	int groupIndex = bitNum >> 3;  // divide by 8
+	assert(groupIndex < numBitSets);
+	int bitIndex = bitNum % 8;
+	BYTE byteMask = (1 << 7) >> bitIndex;
+	bitSet[groupIndex] = bitSet[groupIndex] | byteMask;
+	cout << "\n In setBitInBitset";
+	dumpBitSet(bitSet, numBitSets);
+}
+
+void getOnesPositionsInBitSet(BYTE *bitSet, int numBitSets, std::vector<Id> &setPos)
+{
+	BYTE zeroMask = 0;
+
+	for(unsigned int i=0; i<numBitSets; ++i)
+	{
+		if(bitSet[i] | zeroMask != 0)
+		{
+			// we have some 1's in this byte
+			for(unsigned int j=(1<<7), pos=0; j>0; j=j>>1, ++pos)
+			{
+				if(bitSet[i] & j)
+				{
+					setPos.push_back(i*8 + pos);
+				}
+			}
+		}
+	}
+}
 
 class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 {
@@ -161,14 +216,18 @@ class DiskCDAG
 
 		static const size_t CDAGNODE_SIZE = sizeof(CDAGNode);
 
+		BYTE *succsBitSet;
+		size_t numOfBytesForSuccBS;
+
+
 		size_t blockSize;
 		size_t blockCount;
 		size_t curBlockSize;
 
 		std::map<Id, CDAGNode*> idToCDAGNodeMap;
-		Id *immediateSuccs;
 
 		fstream graphDumpFile;
+		fstream succsListTempFile;
 
 		// TODO : Temp ofstreams - remove these!
 		ofstream printBeforeWriteFile;
@@ -192,7 +251,15 @@ class DiskCDAG
 			staticId = new size_t[count];
 			type = new unsigned int[count];
 
-			immediateSuccs = new Id[count];
+			numOfBytesForSuccBS = convertNumNodesToBytes(count);
+			cout << "\ncount :" <<count;
+			cout << "\n numOfBytesForSuccBS: " <<numOfBytesForSuccBS;
+			succsBitSet = new BYTE[numOfBytesForSuccBS];
+			memset(succsBitSet, 0, numOfBytesForSuccBS);
+
+			cout << "\nSize of succsBitSet " << sizeof(BYTE);
+			cout << "\nSize of succsBitSet " << sizeof(succsBitSet);
+			cout << "\nSize of *succsBitSet " << sizeof(*succsBitSet);
 
 			// TODO : compare with CDAGNODE_WITHSUCC_SIZE
 			if(blockSize != 0 && blockSize < CDAGNODE_SIZE)
@@ -201,9 +268,45 @@ class DiskCDAG
 				cout << "\n Block size is passed as zero - memory based graph will be generated.";
 			}
 
-			graphDumpFile.open("graphdump");
+
+			//  TODO : revisit this part for checking corner cases and add some comments
+			graphDumpFile.open("graphdump", std::fstream::out | std::fstream::trunc);
+			graphDumpFile.close();
+			graphDumpFile.open("graphdump", std::fstream::in | std::fstream::out);
+			
+			succsListTempFile.open("succslisttemp", std::fstream::out | std::fstream::trunc);
+			succsListTempFile.close();
+			succsListTempFile.open("succslisttemp", std::fstream::in | std::fstream::out | std::fstream::binary);
+			
 			printBeforeWriteFile.open("printbeforewrite");
 			printAfterReadFile.open("printafterread");
+
+			// dumping blocks of memory to the file
+			for(int i=0; i < count; ++i)
+			{
+				succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
+			}
+
+			testSuccessorsReadWrite();
+		}
+
+		void testSuccessorsReadWrite()
+		{
+			writeSuccessorInFile(1, 101);
+			writeSuccessorInFile(1, 109);
+			writeSuccessorInFile(1, 117);
+			writeSuccessorInFile(1, 124);
+			writeSuccessorInFile(1, 200);
+
+			cout <<"\n Printing succs list in testSuccessorsReadWrite()\n";
+			std::vector<Id> succsList;
+			readSuccessorsFromFile(1, succsList);
+			for(std::vector<Id>::iterator it = succsList.begin();
+				it != succsList.end(); ++it)
+			{
+				cout << *it << " ";
+			}
+			cout <<"\n";
 		}
 
 		//Adds the successor 'scsrId' to node 'nodeId'
@@ -247,6 +350,8 @@ class DiskCDAG
 			delete []type;
 			delete []staticId;
 
+			delete []succsBitSet;
+
 			// delete the graph nodes and clean up the maps
 			std::map<Id, CDAGNode*>::iterator it1 = idToCDAGNodeMap.begin();
 			for(; it1 != idToCDAGNodeMap.end(); ++it1)
@@ -267,6 +372,11 @@ class DiskCDAG
 			if(printAfterReadFile)
 			{
 				printAfterReadFile.close();
+			}
+			if(succsListTempFile)
+			{
+				succsListTempFile.close();
+				// /remove(succsListTempFile);
 			}
 		}
 
@@ -408,6 +518,34 @@ class DiskCDAG
 					addSuccessor(predList[i][j], i);
 				}
 			}
+		}
+
+		void writeSuccessorInFile(int parentNodeId, int childNodeId)
+		{
+			// Start by getting the successor bitset for parent node
+			streampos pos((numOfBytesForSuccBS*sizeof(BYTE)) * parentNodeId);
+			succsListTempFile.seekg(pos, ios::beg);
+			succsListTempFile.read((char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
+
+			// Update the bitset vector with the childNodeId
+			setBitInBitset(succsBitSet, childNodeId, numOfBytesForSuccBS);
+
+			// Write back the updated successor list to the file
+			succsListTempFile.seekp(pos, ios::beg);
+			succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
+		}
+
+		void readSuccessorsFromFile(int nodeId, std::vector<Id> &succsList)
+		{
+			// Get to the node in the file
+			streampos pos((numOfBytesForSuccBS*sizeof(BYTE)) * nodeId);
+			succsListTempFile.seekg(pos, ios::beg);
+
+			// Read the successor bitset from the file
+			succsListTempFile.read((char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
+
+			// fill in the result vector
+			getOnesPositionsInBitSet(succsBitSet, numOfBytesForSuccBS, succsList);
 		}
 
 		//Generates the DiskCDAG using DiskCDAGBuilder
