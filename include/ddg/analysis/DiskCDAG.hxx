@@ -66,6 +66,15 @@ void setBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
 	bitSet[groupIndex] = bitSet[groupIndex] | byteMask;
 }
 
+bool isBitSet(BYTE *bitSet, int bitNum, int numBitSets)
+{
+	int groupIndex = bitNum >> 3;  // divide by 8
+	assert(groupIndex < numBitSets); 
+	int bitIndex = bitNum % 8;
+	BYTE byteMask = 1 << (7 - bitIndex);
+	return bitSet[groupIndex] & byteMask;
+}
+
 void unsetBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
 {
 	int groupIndex = bitNum >> 3;  // divide by 8
@@ -130,6 +139,8 @@ class DiskCDAG
 						blockId(0)
 			{
 			}
+
+			Id getId(){return dynId;}
 
 			void print(ostream &out) const
 			{
@@ -576,6 +587,7 @@ class DiskCDAG
 		// Mark a node
 		void markNode(Id nodeId)
 		{
+			cout << "\n Marking node :" << nodeId;
 			if(!nodeMarkerBitSet)
 			{
 				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);
@@ -607,6 +619,12 @@ class DiskCDAG
 				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
 			}
 			memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet);
+		}
+
+		// Is node marked/unmarked
+		bool isNodeMarked(const Id &nodeId)
+		{
+			return isBitSet(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);
 		}
 
 		// Finds the first unmarked node (i.e. the first 0 in bitset)
@@ -851,8 +869,15 @@ class DiskCDAG
 					for(vector<Id>::const_iterator it = curNode->succsList.begin();
 						it != curNode->succsList.end(); ++it)
 					{
-						q.push(*it);
-						markNode(*it);
+						if(!isNodeMarked(*it))
+						{
+							q.push(*it);
+							markNode(*it);	
+						}
+						else
+						{
+							// its already visited
+						}
 					}
 				}
 				if(error)
@@ -867,7 +892,6 @@ class DiskCDAG
 			}
 			cout <<"\n";
 			delete lruCache;
-
 		}
 
 		//Pretty prints the graph in text format
