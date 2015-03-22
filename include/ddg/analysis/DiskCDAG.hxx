@@ -62,8 +62,17 @@ void setBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
 	int groupIndex = bitNum >> 3;  // divide by 8
 	assert(groupIndex < numBitSets);
 	int bitIndex = bitNum % 8;
-	BYTE byteMask = (1 << 7) >> bitIndex;
+	BYTE byteMask = 1 << (7 - bitIndex);
 	bitSet[groupIndex] = bitSet[groupIndex] | byteMask;
+}
+
+void unsetBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
+{
+	int groupIndex = bitNum >> 3;  // divide by 8
+	assert(groupIndex < numBitSets);
+	int bitIndex = bitNum % 8;
+	BYTE byteMask = ~(byteMask & 0) ^ (1 << (7 - bitIndex));
+	bitSet[groupIndex] = bitSet[groupIndex] & byteMask;
 }
 
 void getOnesPositionsInBitSet(BYTE *bitSet, int numBitSets, std::vector<Id> &setPos)
@@ -239,7 +248,9 @@ class DiskCDAG
 		static const size_t CDAGNODE_SIZE = sizeof(CDAGNode);
 
 		BYTE *succsBitSet;
+		BYTE *nodeMarkerBitSet;
 		size_t numOfBytesForSuccBS;
+		size_t numOfBytesFornodeMarkerBitSet;
 
 
 		size_t blockSize;
@@ -277,6 +288,7 @@ class DiskCDAG
 			cout << "\ncount :" <<count;
 			cout << "\n numOfBytesForSuccBS: " <<numOfBytesForSuccBS;
 			succsBitSet = new BYTE[numOfBytesForSuccBS];
+			nodeMarkerBitSet = 0; // to be initialized if we get actual node count
 			memset(succsBitSet, 0, numOfBytesForSuccBS);
 
 			cout << "\nSize of succsBitSet " << sizeof(BYTE);
@@ -403,6 +415,11 @@ class DiskCDAG
 			delete []staticId;
 
 			delete []succsBitSet;
+
+			if(nodeMarkerBitSet)
+			{
+				delete []nodeMarkerBitSet;
+			}
 
 			// delete the graph nodes and clean up the maps
 			std::map<Id, CDAGNode*>::iterator it1 = idToCDAGNodeMap.begin();
@@ -554,6 +571,72 @@ class DiskCDAG
 			if(scsrCnt[nodeId] == 0)
 				return true;
 			return false;
+		}
+		
+		// Mark a node
+		void markNode(Id nodeId)
+		{
+			if(!nodeMarkerBitSet)
+			{
+				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);
+				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
+				memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default
+			}
+			setBitInBitset(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);
+		}
+
+		// Unmark a node
+		void unmarkNode(Id nodeId)
+		{
+			if(!nodeMarkerBitSet)
+			{
+				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);
+				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
+				memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default
+				return;
+			}
+			unsetBitInBitset(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);
+		}
+
+		// Unmark all the nodes
+		void unmarkAllNodes()
+		{
+			if(!nodeMarkerBitSet)
+			{
+				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);
+				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
+			}
+			memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet);
+		}
+
+		// Finds the first unmarked node (i.e. the first 0 in bitset)
+		// If there is a node it returns true
+		// Otherwise false. 
+		bool getFirstReadyNode(Id &nodeId)
+		{
+			bool retVal = false;
+			BYTE oneMask = ~0;
+			for(unsigned int i=0; i<numOfBytesFornodeMarkerBitSet; ++i)
+			{
+				if(nodeMarkerBitSet[i] ^ oneMask != 0)
+				{
+					// we have zero in here somewhere
+					for(unsigned int j=(1<<7), pos=0; j>0; j=j>>1, ++pos)
+					{
+						if((nodeMarkerBitSet[i] & j) == 0)
+						{
+							nodeId = i*8 + pos;
+							retVal = true;
+							break;
+						}
+					}
+				}
+				if(retVal)
+					break; // node found so break;
+			}
+			if(nodeId >= numNodes) // is there a better way to handle this?
+				retVal = false;
+			return retVal;
 		}
 
 		//Populates successor list for all the nodes in the cdag using the predecessor info.
@@ -727,6 +810,64 @@ class DiskCDAG
 		{
 			assert(nodeId < numNodes);
 			return staticId[nodeId];
+		}
+
+		void performBFS()
+		{
+			cout << "\n Starting BFS on graph with " << numNodes << " nodes.";
+
+			cout << "\n Initialize LRU cache";
+
+			DiskCache<CDAGNode, Id> *lruCache = new DiskCache<CDAGNode, Id>(512, 4);
+			if(!lruCache->init("diskgraph", "diskgraph_index" ))
+			{
+				cout <<"\n Cache initialization failed..stopping BFS";
+				return;
+			}
+			cout << "\n LRU Disk Cache initialized.";
+
+			unmarkAllNodes(); // mark all nodes as ready
+			queue<Id> q;
+			Id startV;
+			vector<Id> bfsOutput;
+			bool error = false;
+			while(getFirstReadyNode(startV))
+			{
+				cout << "\n Starting vertex :" <<startV;
+				q.push(startV);
+				markNode(startV);			
+				while(!q.empty())
+				{
+					const CDAGNode *curNode = lruCache->getData(q.front());
+					if(!curNode)
+					{
+						cout <<"\n Failed to get " << q.front() << " node..stopping BFS";
+						error = true;
+						break;
+					}
+					q.pop();
+					//cout << curNode->dynId << " ";
+					bfsOutput.push_back(curNode->dynId);
+					for(vector<Id>::const_iterator it = curNode->succsList.begin();
+						it != curNode->succsList.end(); ++it)
+					{
+						q.push(*it);
+						markNode(*it);
+					}
+				}
+				if(error)
+					break;
+			}
+
+			cout << "\n Listing nodes in BFS order : \n";
+			for(vector<Id>::iterator it = bfsOutput.begin(); 
+				it != bfsOutput.end(); ++it)
+			{
+				cout << *it << " ";
+			}
+			cout <<"\n";
+			delete lruCache;
+
 		}
 
 		//Pretty prints the graph in text format

@@ -67,7 +67,7 @@ namespace ddg{
 			}
 
 			policy = p;
-			filename = file;
+			dataFileName = file;
 			slots = new SLOT[NUM_SLOTS];
 
 			// Setup slotid to range map
@@ -92,7 +92,7 @@ namespace ddg{
 			useListTail = curNode;
 
 			// open handles to required files
-			if(!initFileHandle(file, dataFileHandle)){
+			if(!initFileHandle(dataFileName, dataFileHandle)){
 				cout << "\n Error in opening data file";
 				initFlag = false;
 			}
@@ -126,6 +126,21 @@ namespace ddg{
 				cout << "\n getData : " << id << ", seeking to " << dataIdToBlockMap[id];
 				dataFileHandle.seekg(dataIdToBlockMap[id], ios::beg);
 				cout << "\n and seeked to " << dataFileHandle.tellg();
+				if(dataFileHandle.tellg() == -1)
+				{
+					if(dataFileHandle.peek() == EOF)
+					{
+						dataFileHandle.clear();
+						dataFileHandle.seekg(dataIdToBlockMap[id], ios::beg); //reset to beginning
+						cout <<"\n Reached end of file - reset to beginning";
+					}
+					else
+					{
+						// dataFileHandle.seekg(0, ios::beg); //reset to beginning
+						cout << "\n Cache error in stream associated with file :" << dataFileName;
+						retVal = 0;
+					}
+				}
 
 				// Read the block in slot.
 				readBlockInSlot(slotId);
@@ -141,8 +156,8 @@ namespace ddg{
 			if(it == slots[slotId].end())
 			{
 				cout <<"\n FATAL CACHE ERROR : Sync error between cache data structures!";
-				cout <<"\n Was trying to fetch data :" << id;
-				exit(-1);
+				cout <<"\n Was trying to fetch data with id :" << id;
+				retVal = 0;
 			}
 			else
 			{
@@ -388,14 +403,14 @@ namespace ddg{
 
 		void readDataIndexFile()
 		{
-			cout << "\n In disk cache readDataIndexFile \n";
+			//cout << "\n In disk cache readDataIndexFile \n";
 			int i=0;
 			streampos pos(0);
 			while(dataIndexFileHandle.read((char*)&pos, sizeof(streampos)).good())
 			{				
 				dataIdToBlockMap[i] = pos;
 				++i;
-				cout << (long)pos <<" ";
+				//cout << (long)pos <<" ";
 				pos = 0;
 			}
 		}
@@ -443,7 +458,7 @@ namespace ddg{
 
 		const size_t BLOCK_SIZE;
 		const int NUM_SLOTS;
-		string filename;
+		string dataFileName;
 		bool initFlag;
 		unsigned int policy;
 

@@ -85,7 +85,9 @@ public:
 
       cdag->updateGraphWithSuccessorInfo(512);
 
-      cdag->testMethodForDiskCache();
+      //cdag->testMethodForDiskCache();
+
+      cdag->performBFS();
 
       // map<size_t,GraphNode*> idToGraphNodeMap; // maps dyn id to a GraphNode object
 
