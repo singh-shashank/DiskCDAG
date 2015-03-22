@@ -17,6 +17,8 @@
 #include <sstream>
 #include <istream>
 
+#include "ddg/analysis/DiskCache.hxx"
+
 namespace ddg
 {
 using namespace llvm;
@@ -62,8 +64,6 @@ void setBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
 	int bitIndex = bitNum % 8;
 	BYTE byteMask = (1 << 7) >> bitIndex;
 	bitSet[groupIndex] = bitSet[groupIndex] | byteMask;
-	cout << "\n In setBitInBitset";
-	dumpBitSet(bitSet, numBitSets);
 }
 
 void getOnesPositionsInBitSet(BYTE *bitSet, int numBitSets, std::vector<Id> &setPos)
@@ -122,29 +122,31 @@ class DiskCDAG
 			{
 			}
 
-			void print(ostream &out)
+			void print(ostream &out) const
 			{
 				out << "\n" << dynId << ". ";
 				out << "Instruction :" << llvm::Instruction::getOpcodeName(type) << " ";
 				out << "StaticID : " << staticId << " ";
 				out << " \n Num Predecessors: " << predsList.size() <<"\n";
-				for(std::vector<Id>::iterator it = predsList.begin();
+				for(std::vector<Id>::const_iterator it = predsList.begin();
 					it != predsList.end();
 					++it)
 				{
 					out << *it << ",";
 				}
 				out << " \n Num Successor: " << succsList.size() <<"\n";
-				for(std::vector<Id>::iterator it = succsList.begin();
+				for(std::vector<Id>::const_iterator it = succsList.begin();
 					it != succsList.end();
 					++it)
 				{
 					out << *it << ",";
 				}
 				out << "\n Block Id : " << blockId;
-				out << "\n----------------------------------------";
+				out << "\n------------------------------------------------------\n";
 			}
 
+			// TODO : try taking in a output stream directly
+			// 		  instead of returning a string
 			void getStringToWriteNode(stringstream &ss)
 			{
 				ss.str(std::string());				
@@ -176,41 +178,61 @@ class DiskCDAG
 			bool readNodeFromASCIIFile(istream &file)
 			{
 				std::string temp, line;
-				std::stringstream tempss;
+				
 
 				// Read dynId, static Id, type and addr
-				getline(file, line);
-				tempss << line;
-				getline(tempss, temp, ' ');
-				dynId = atoi(temp.c_str());
-				getline(tempss, temp, ' ');
-				staticId = atoi(temp.c_str());
-				getline(tempss, temp, ' ');
-				type = atoi(temp.c_str());
-				getline(tempss, temp, ' ');
-				addr = atol(temp.c_str());
+				{
+					std::stringstream tempss;
+					getline(file, line);
+					tempss << line;
+					getline(tempss, temp, ' ');
+					dynId = atoi(temp.c_str());
+					getline(tempss, temp, ' ');
+					staticId = atoi(temp.c_str());
+					getline(tempss, temp, ' ');
+					type = atoi(temp.c_str());
+					getline(tempss, temp, ' ');
+					addr = atol(temp.c_str());
+				}
 
 				// Read the predecessors
-				getline(file, line);
-				tempss.str(string());
-				tempss.str(line);
-				getline(tempss, temp, ' '); // read the count
-				while(getline(tempss, temp, ' ')) // start reading the preds
 				{
-					predsList.push_back(atoi(temp.c_str()));
+					std::stringstream tempss;
+					getline(file, line);
+					tempss.str(string());
+					tempss.str(line);
+					getline(tempss, temp, ' '); // read the count
+					while(getline(tempss, temp, ' ')) // start reading the preds
+					{
+						predsList.push_back(atoi(temp.c_str()));
+					}
 				}
 
 				// Read the successors
-				getline(file, line);
-				tempss.str(string());
-				tempss.str(line);
-				getline(tempss, temp, ' '); // read the count
-				while(getline(tempss, temp, ' ')) // start reading the succs
 				{
-					predsList.push_back(atoi(temp.c_str()));
-				}	
+					std::stringstream tempss;
+					getline(file, line);
+					tempss.str(string());
+					tempss.str(line);
+					getline(tempss, temp, ' '); // read the count
+					while(getline(tempss, temp, ' ')) // start reading the succs
+					{
+						succsList.push_back(atoi(temp.c_str()));
+					}		
+				}
 
 				return false; // TODO compelete this. Return true if errors
+			}
+
+			void reset()
+			{
+				dynId = 0;
+				blockId = 0;
+				staticId = 0;
+				addr = 0;
+				type = 0;
+				predsList.clear();
+				succsList.clear();
 			}
 		};
 
@@ -287,7 +309,7 @@ class DiskCDAG
 				succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
 			}
 
-			testSuccessorsReadWrite();
+			//testSuccessorsReadWrite();
 		}
 
 		void testSuccessorsReadWrite()
@@ -336,8 +358,38 @@ class DiskCDAG
 			init(count);
 		}
 
+		void testMethodForDiskCache()
+		{
+			// DiskCache<CDAGNode, Id> cache(512,9);
+			// cache.init("diskgraph", "diskgraph_index" );
+			// cache.testCacheLRUPolicy();
+
+			DiskCache<CDAGNode, Id> cache(512,4);
+			cache.init("diskgraph", "diskgraph_index" );
+			cache.testReadOfDiskGraph(numNodes);
+			//cache.testGetData(numNodes);
+		}
+
 		~DiskCDAG()
 		{
+			// // Check successor implementation
+			// ofstream t("test_succ");
+			// t << "\n Printing successors : \n";
+			// for(int i=0; i<numNodes; ++i)
+			// {
+			// 	t << i << " : ";
+			// 	vector<Id> temp;
+			// 	readSuccessorsFromFile(i, temp);
+			// 	for(vector<Id>::iterator it = temp.begin();
+			// 		it != temp.end(); ++it)
+			// 	{
+			// 		t<< *it << " ";
+			// 	}
+			// 	t << "\n---------------------------------\n";
+			// }
+			// t <<"\n";
+			// t.close();
+
 			for(size_t i=0; i<numNodes; ++i)
 			{
 				delete [](predList[i]);
@@ -434,6 +486,8 @@ class DiskCDAG
 			for(size_t i=0; i<size; ++i)
 			{
 				idToCDAGNodeMap[nodeId]->predsList.push_back(*it);
+				writeSuccessorInFile((*it), nodeId);
+
 				list[i] = *it;
 				++it;
 			}
@@ -537,6 +591,7 @@ class DiskCDAG
 
 		void readSuccessorsFromFile(int nodeId, std::vector<Id> &succsList)
 		{
+			succsList.clear();
 			// Get to the node in the file
 			streampos pos((numOfBytesForSuccBS*sizeof(BYTE)) * nodeId);
 			succsListTempFile.seekg(pos, ios::beg);
@@ -546,6 +601,89 @@ class DiskCDAG
 
 			// fill in the result vector
 			getOnesPositionsInBitSet(succsBitSet, numOfBytesForSuccBS, succsList);
+		}
+
+		void updateGraphWithSuccessorInfo(size_t bs)
+		{
+			ofstream diskGraph("diskgraph");
+			ofstream diskGraphIndex("diskgraph_index", ios::binary);
+
+
+			streampos pos(0);
+			size_t curBlockSize = 0;
+
+			graphDumpFile.clear();
+	 		graphDumpFile.seekg(0, ios::beg);
+	 		blockCount = 0;
+
+			while(!readBlockFromFile(graphDumpFile))
+			{
+				writeGraphWithSuccessorInfoToFile(diskGraph, diskGraphIndex, 
+					bs, pos, curBlockSize);
+				++blockCount;
+			}
+
+			writeGraphWithSuccessorInfoToFile(diskGraph, diskGraphIndex,
+			 bs, pos, curBlockSize);
+			diskGraph.close();
+			diskGraphIndex.close();
+		}
+
+		void writeGraphWithSuccessorInfoToFile(ofstream &diskGraph,
+											   ofstream &diskGraphIndex,
+											   size_t bs,
+											   streampos &pos,
+											   size_t &curBlockSize)
+		{
+			
+			vector<CDAGNode*> nodesToWriteList;
+			vector<Id> succList;
+			stringstream ss;
+
+			map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
+			for(; it != idToCDAGNodeMap.end(); ++it)
+			{
+				readSuccessorsFromFile(it->first, succList);
+				CDAGNode *curNode = it->second;
+				if(succList.size() > 0)
+				{
+					curNode->succsList = succList;
+				}
+
+				// Check if we reached the write block size
+				size_t curNodeSize = sizeof(*curNode);
+				if(curBlockSize + curNodeSize > bs)
+				{
+					// dump out nodesToWriteList
+					vector<CDAGNode*>::iterator it1 = nodesToWriteList.begin();
+					for(; it1 != nodesToWriteList.end(); ++it1)
+					{
+						(*it1)->getStringToWriteNode(ss);
+						diskGraph << ss.str();
+						diskGraphIndex.write((const char*)&pos, sizeof(streampos));
+					}
+					cout << pos << " ";
+					pos = diskGraph.tellp();
+					
+					// reset the variables
+					nodesToWriteList.clear();
+					curBlockSize = 0;
+				}	
+				curBlockSize += curNodeSize;
+				nodesToWriteList.push_back(curNode);					
+			}
+
+			// dump out any remaining nodes
+			if(nodesToWriteList.size() > 0)
+			{
+				vector<CDAGNode*>::iterator it1 = nodesToWriteList.begin();
+				for(; it1 != nodesToWriteList.end(); ++it1)
+				{
+					(*it1)->getStringToWriteNode(ss);
+					diskGraph << ss.str();
+					diskGraphIndex.write((const char*)&pos, sizeof(streampos));
+				}
+			}
 		}
 
 		//Generates the DiskCDAG using DiskCDAGBuilder
@@ -592,26 +730,26 @@ class DiskCDAG
 		}
 
 		//Pretty prints the graph in text format
-		void printGraph()
+		void printGraph(ofstream& out)
 		{
-			std::cout << numNodes << '\n';
+			out << numNodes << '\n';
 			for(size_t i=0; i<numNodes; ++i)
 			{
-				std::cout << i << ". Instruction: " << llvm::Instruction::getOpcodeName(type[i]) << "; StaticID: " << staticId[i] << "\n";
+				out << i << ". Instruction: " << llvm::Instruction::getOpcodeName(type[i]) << "; StaticID: " << staticId[i] << "\n";
 				size_t numPreds = predCnt[i];
-				std::cout << "num predecessors: " << numPreds << "\n";
+				out << "num predecessors: " << numPreds << "\n";
 				for(size_t j=0; j<numPreds; j++)
 				{
-					std::cout << predList[i][j] << '\t';
+					out << predList[i][j] << '\t';
 				}
-				std::cout << '\n';
+				out << '\n';
 				size_t numScsrs = scsrCnt[i];
-				std::cout << "num successors: " << numScsrs << '\n';
+				out << "num successors: " << numScsrs << '\n';
 				for(size_t j=0; j<numScsrs; j++)
 				{
-					std::cout << scsrList[i][j] << '\t';
+					out << scsrList[i][j] << '\t';
 				}
-				std::cout << "\n------------------------------------------------------\n";
+				out << "\n------------------------------------------------------\n";
 			}
 		}
 

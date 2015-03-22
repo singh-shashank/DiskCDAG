@@ -10,6 +10,11 @@
 #include <llvm/Support/raw_ostream.h>
 
 
+#include <cassert>
+#include <fstream>
+#include <string>
+#include <iostream>
+
 
 using namespace std;
 using namespace GraphAnalysis;
@@ -73,8 +78,14 @@ public:
 
     if(cdag)
     {
-      //cdag->printDiskGraph();
+      //ofstream test("succtest");
+      //cdag->printDiskGraph(test);
+      //cdag->printGraph();
       cdag->flushCurrentBlockToDisk(true);
+
+      cdag->updateGraphWithSuccessorInfo(512);
+
+      cdag->testMethodForDiskCache();
 
       // map<size_t,GraphNode*> idToGraphNodeMap; // maps dyn id to a GraphNode object
 
