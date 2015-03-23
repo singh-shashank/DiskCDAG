@@ -56,7 +56,7 @@ namespace ddg{
 		}
 
 		bool init(const string file, 
-					const string indexFile,
+					const string indexFile ="",
 					const unsigned int p=0)
 		{
 			initFlag = true;
@@ -104,20 +104,47 @@ namespace ddg{
 				else
 				{
 					// no data index file specified
-					createDataIndex();
+					createDataIndex(false);
 				}
 			}
 
 			return initFlag;
 		}
 
-		virtual void createDataIndex()
+		virtual void createDataIndex(bool dumpToFile)
 		{
 			// clear any flags set and reset the file pointer to beginning
 			dataFileHandle.clear();
 			dataFileHandle.seekg(0, ios::beg);
 
 			// start creating the index
+			streampos startPos = 0;
+			while(dataFileHandle.peek() != EOF)
+			{
+				startPos = dataFileHandle.tellg();
+				int slotId = getAvailableSlot();
+				readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in
+				int count = slots[slotId].size();
+				if(count > 0)
+				{
+					DataIdRange range;
+					range.setRange(slots[slotId][0]->dynId,
+									slots[slotId][count-1]->dynId,
+									startPos);
+					dataIdBlockRangeList.push_back(range);
+				}
+			}
+
+			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());
+
+			// Test code: Iterate over set to print block range
+			cout << "\n Priting block offset range";
+			typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
+			for(; it != dataIdBlockRangeList.end(); ++it)
+			{
+				(*it).printRange();
+			}
+
 		}
 
 		// Gets a read-only pointer to the data
@@ -242,9 +269,10 @@ namespace ddg{
 			while(true)
 			{
 				Data* node = getAvailableDataNode();
+				streampos beforeReadOff = dataFileHandle.tellg();
 				node->readNodeFromASCIIFile(dataFileHandle);
 				curSize += sizeof(*node);
-				if(curSize < BLOCK_SIZE)
+				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
 				{
 					slots[slotId].push_back(node);
 					SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);
@@ -254,6 +282,9 @@ namespace ddg{
 				}
 				else
 				{
+					// we have read an extra data node.
+					// Seek back by the size of the node read
+					dataFileHandle.seekg(beforeReadOff, ios::beg);
 					break;
 				}
 			}
@@ -390,13 +421,13 @@ namespace ddg{
 			dataIdBlockRangeList.push_back(range);
 			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());
 
-			// // Test code: Iterate over set to print block range
-			// cout << "\n Priting block offset range";
-			// typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
-			// for(; it != dataIdBlockRangeList.end(); ++it)
-			// {
-			// 	(*it).printRange();
-			// }
+			// Test code: Iterate over set to print block range
+			cout << "\n Priting block offset range";
+			typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
+			for(; it != dataIdBlockRangeList.end(); ++it)
+			{
+				(*it).printRange();
+			}
 		}
 
 		streampos getStreamOffsetForDataId(DataId &id)

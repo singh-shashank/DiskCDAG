@@ -838,6 +838,7 @@ class DiskCDAG
 
 			DiskCache<CDAGNode, Id> *lruCache = new DiskCache<CDAGNode, Id>(512, 4);
 			if(!lruCache->init("diskgraph", "diskgraph_index" ))
+			//if(!lruCache->init("diskgraph"))
 			{
 				cout <<"\n Cache initialization failed..stopping BFS";
 				return;

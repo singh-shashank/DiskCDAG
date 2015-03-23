@@ -89,39 +89,6 @@ public:
 
       cdag->performBFS();
 
-      // map<size_t,GraphNode*> idToGraphNodeMap; // maps dyn id to a GraphNode object
-
-      // // Iterate over all the nodes creating a corresponding
-      // // GraphNode object for each CDAG node
-      // for(size_t gid=0; gid < cdag->getNumNodes(); ++gid)
-      // {
-      //   map<size_t,GraphNode*>::iterator nodeIt = idToGraphNodeMap.find(gid);
-      //   GraphNode *curNode;
-
-      //   if( nodeIt != idToGraphNodeMap.end() ){
-      //     // GraphNode object already created for this object
-      //     // get the reference to this node
-      //     curNode = nodeIt->second;
-      //     cout << "\n Node with gid : " << gid << " already created!";
-      //   }
-      //   else{
-      //     // create a new GraphNode
-      //     curNode = new GraphNode();
-      //     curNode->setGlobalID(gid);
-      //     curNode->setInstructionID(cdag->getStaticId(gid));
-      //     curNode->setType(convertType(cdag->getType(gid)));
-
-      //     // add node to map
-      //     idToGraphNodeMap[gid] = curNode;
-
-      //     // push node to GraphNode list
-      //     graphNodeCDAGList.push_back(curNode);
-      //   }
-
-
-
-      //}
-
 
       delete cdag;
     }
