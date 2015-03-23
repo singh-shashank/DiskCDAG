@@ -127,7 +127,6 @@ class DiskCDAG
 			Address addr;	// Addresses represented by this node if any
 			unsigned int type;	// LLVM Type of the node
 			Id staticId;
-			size_t blockId;
 			std::vector<Id> predsList;	// Vector containing list of predecessors
 			std::vector<Id> succsList;	// Vector containing list of successors
 
@@ -135,8 +134,7 @@ class DiskCDAG
 			CDAGNode(): dynId(0),
 						addr(0),
 						type(0),
-						staticId(0),
-						blockId(0)
+						staticId(0)
 			{
 			}
 
@@ -161,7 +159,6 @@ class DiskCDAG
 				{
 					out << *it << ",";
 				}
-				out << "\n Block Id : " << blockId;
 				out << "\n------------------------------------------------------\n";
 			}
 
@@ -247,7 +244,6 @@ class DiskCDAG
 			void reset()
 			{
 				dynId = 0;
-				blockId = 0;
 				staticId = 0;
 				addr = 0;
 				type = 0;
@@ -279,22 +275,9 @@ class DiskCDAG
 
 		size_t numNodes; //No. of nodes created so far
 		size_t count; //Total expected no. of nodes
-		size_t *predCnt; //Array containing predecessor count of each node
-		size_t *scsrCnt; //Array containing successor count of each node
-		size_t **predList; //2D array pointing to array of predecessor ids of each node
-		size_t **scsrList; //2D array pointing to array of successor ids of each node
-		size_t *staticId; //Array containing static id of each node
-		unsigned int *type; //Array containing instruction type of each node
 
 		void init(size_t count)
 		{
-			predCnt = new size_t[count]();
-			scsrCnt = new size_t[count]();
-			predList = new size_t*[count]();
-			scsrList = new size_t*[count]();
-			staticId = new size_t[count];
-			type = new unsigned int[count];
-
 			numOfBytesForSuccBS = convertNumNodesToBytes(count);
 			cout << "\ncount :" <<count;
 			cout << "\n numOfBytesForSuccBS: " <<numOfBytesForSuccBS;
@@ -354,12 +337,6 @@ class DiskCDAG
 			cout <<"\n";
 		}
 
-		//Adds the successor 'scsrId' to node 'nodeId'
-		void addSuccessor(size_t nodeId, size_t scsrId)
-		{
-			scsrList[nodeId][scsrCnt[nodeId]++] = scsrId;
-		}
-
 	public:
 		DiskCDAG(size_t count) : numNodes(0),
 								 count(count),
@@ -381,50 +358,8 @@ class DiskCDAG
 			init(count);
 		}
 
-		void testMethodForDiskCache()
-		{
-			// DiskCache<CDAGNode, Id> cache(512,9);
-			// cache.init("diskgraph", "diskgraph_index" );
-			// cache.testCacheLRUPolicy();
-
-			DiskCache<CDAGNode, Id> cache(512,4);
-			cache.init("diskgraph", "diskgraph_index" );
-			cache.testReadOfDiskGraph(numNodes);
-			//cache.testGetData(numNodes);
-		}
-
 		~DiskCDAG()
 		{
-			// // Check successor implementation
-			// ofstream t("test_succ");
-			// t << "\n Printing successors : \n";
-			// for(int i=0; i<numNodes; ++i)
-			// {
-			// 	t << i << " : ";
-			// 	vector<Id> temp;
-			// 	readSuccessorsFromFile(i, temp);
-			// 	for(vector<Id>::iterator it = temp.begin();
-			// 		it != temp.end(); ++it)
-			// 	{
-			// 		t<< *it << " ";
-			// 	}
-			// 	t << "\n---------------------------------\n";
-			// }
-			// t <<"\n";
-			// t.close();
-
-			for(size_t i=0; i<numNodes; ++i)
-			{
-				delete [](predList[i]);
-				delete [](scsrList[i]);
-			}
-			delete []predCnt;
-			delete []scsrCnt;
-			delete []predList;
-			delete []scsrList;
-			delete []type;
-			delete []staticId;
-
 			delete []succsBitSet;
 
 			if(nodeMarkerBitSet)
@@ -470,8 +405,6 @@ class DiskCDAG
 		size_t addNode(unsigned int currType, size_t id, Address addr)
 		{
 			assert(numNodes < count);
-			type[numNodes] = currType;
-			staticId[numNodes] = id;
 
 			CDAGNode *node = new CDAGNode();
 			node->dynId = numNodes;
@@ -490,98 +423,19 @@ class DiskCDAG
 			return numNodes++;
 		}
 
-		//Sets the predecessor list for the node 'nodeId'
-		void setPredecessor(size_t nodeId, size_t *preds, size_t size)
-		{
-			assert(nodeId < numNodes);
-			predList[nodeId] = preds;
-			predCnt[nodeId] = size;
-
-			/*Set the successor count alone here. Successor list will be
-			 * populated finally when the graph is generated. This is needed
-			 * to get the successor count to dynamically allocate the
-			 * successor list*/
-			for(size_t i=0; i<size; ++i)
-				++scsrCnt[preds[i]];
-		}
-
 		void setPredecessor(size_t nodeId, const set<size_t> &predSet)
 		{
 			assert(nodeId < numNodes);
 			size_t size = predSet.size();
-			size_t *list = new size_t[size];
 			set<size_t>::const_iterator it = predSet.begin();
 			for(size_t i=0; i<size; ++i)
 			{
 				idToCDAGNodeMap[nodeId]->predsList.push_back(*it);
 				writeSuccessorInFile((*it), nodeId);
-
-				list[i] = *it;
 				++it;
 			}
 
 			addUpdateNodeToBlock(idToCDAGNodeMap[nodeId]);
-			
-			setPredecessor(nodeId, list, size);
-		}
-
-		//Returns the successor list of 'nodeId'
-		void getSuccessors(size_t nodeId, const size_t *&list, size_t &size)
-		{
-			assert(nodeId < numNodes);
-			size = scsrCnt[nodeId];
-			/*if(size == 0)
-			{
-				list = NULL;
-				return;
-			}*/
-			list = scsrList[nodeId];
-		}
-
-		//Returns the predecessor list of 'nodeId'
-		void getPredecessors(size_t nodeId, const size_t *&list, size_t &size)
-		{
-			assert(nodeId < numNodes);
-			size = predCnt[nodeId];
-			/*if(size == 0)
-			{
-				list = NULL;
-				return;
-			}*/
-			list = predList[nodeId];
-		}
-
-		//Returns no. of successors of 'nodeId'
-		size_t getNumSuccessors(size_t nodeId)
-		{
-			assert(nodeId < numNodes);
-			return scsrCnt[nodeId];
-		}
-
-		//Returns no. of predecessors of 'nodeId'
-		size_t getNumPredecessors(size_t nodeId)
-		{
-			assert(nodeId < numNodes);
-			return predCnt[nodeId];
-		}
-
-
-		//Returns True if 'nodeId' is input node, false otherwise
-		bool isInputNode(size_t nodeId)
-		{
-			//Currently doesn't support input tagging. Any node with zero predecessors are considered as inputs.
-			if(predCnt[nodeId] == 0 )
-				return true;
-			return false;
-		}
-
-		//Returns True if 'nodeId' is output node, false otherwise
-		bool isOutputNode(size_t nodeId)
-		{
-			//Currently doesn't support output tagging. Any node with zero successors are considered as outputs.
-			if(scsrCnt[nodeId] == 0)
-				return true;
-			return false;
 		}
 		
 		// Mark a node
@@ -655,24 +509,6 @@ class DiskCDAG
 			if(nodeId >= numNodes) // is there a better way to handle this?
 				retVal = false;
 			return retVal;
-		}
-
-		//Populates successor list for all the nodes in the cdag using the predecessor info.
-		void setSuccessors()
-		{
-			for(size_t i=0; i<numNodes; ++i)
-			{
-				scsrList[i] = new size_t[scsrCnt[i]];
-				scsrCnt[i] = 0; //Reset the count to zero. This will be updated later by addSuccessor().
-			}
-			for(size_t i=0; i<numNodes; ++i)
-			{
-				size_t numPreds = predCnt[i];
-				for(size_t j=0; j<numPreds; ++j)
-				{
-					addSuccessor(predList[i][j], i);
-				}
-			}
 		}
 
 		void writeSuccessorInFile(int parentNodeId, int childNodeId)
@@ -795,9 +631,6 @@ class DiskCDAG
 
 			builder.visit(ids);
 
-			//Populate the successor list. Successor count has been already set by setPredecessor()
-			cdag->setSuccessors();
-
 			return cdag;
 		}
 
@@ -810,25 +643,8 @@ class DiskCDAG
 
 				builder.visit(ids);
 
-				//Populate the successor list. Successor count is already set by setPredecessor()
-				cdag->setSuccessors();
-
 				return cdag;
 			}
-
-		//Returns the instruction type of 'nodeId'
-		unsigned int getType(size_t nodeId)
-		{
-			assert(nodeId < numNodes);
-			return type[nodeId];
-		}
-
-		//Returns static id of 'nodeId'
-		unsigned int getStaticId(size_t nodeId)
-		{
-			assert(nodeId < numNodes);
-			return staticId[nodeId];
-		}
 
 		void performBFS()
 		{
@@ -895,30 +711,6 @@ class DiskCDAG
 			delete lruCache;
 		}
 
-		//Pretty prints the graph in text format
-		void printGraph(ofstream& out)
-		{
-			out << numNodes << '\n';
-			for(size_t i=0; i<numNodes; ++i)
-			{
-				out << i << ". Instruction: " << llvm::Instruction::getOpcodeName(type[i]) << "; StaticID: " << staticId[i] << "\n";
-				size_t numPreds = predCnt[i];
-				out << "num predecessors: " << numPreds << "\n";
-				for(size_t j=0; j<numPreds; j++)
-				{
-					out << predList[i][j] << '\t';
-				}
-				out << '\n';
-				size_t numScsrs = scsrCnt[i];
-				out << "num successors: " << numScsrs << '\n';
-				for(size_t j=0; j<numScsrs; j++)
-				{
-					out << scsrList[i][j] << '\t';
-				}
-				out << "\n------------------------------------------------------\n";
-			}
-		}
-
 	 	void printDiskGraph(ostream &out)
 	 	{
 	 		std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
@@ -932,49 +724,49 @@ class DiskCDAG
 		//Prints the graph in dot format
 		void printDOTGraph(const char *filename)
 		{
-			ofstream file;
-			file.open(filename);
-			file << "digraph \"ddg\" {\n";
+			// ofstream file;
+			// file.open(filename);
+			// file << "digraph \"ddg\" {\n";
 
-			for(size_t i=0; i<numNodes; i++)
-			{
-				file << "\tNode" << i << " [label=\"" << i << ". " << llvm::Instruction::getOpcodeName(type[i]) << "\"];\n";
-				size_t numPreds = predCnt[i];
-				for(size_t j=0; j<numPreds; j++)
-				{
-					file << "\tNode" << predList[i][j] << " -> Node" << i << ";\n";
-				}
-			}
+			// for(size_t i=0; i<numNodes; i++)
+			// {
+			// 	file << "\tNode" << i << " [label=\"" << i << ". " << llvm::Instruction::getOpcodeName(type[i]) << "\"];\n";
+			// 	size_t numPreds = predCnt[i];
+			// 	for(size_t j=0; j<numPreds; j++)
+			// 	{
+			// 		file << "\tNode" << predList[i][j] << " -> Node" << i << ";\n";
+			// 	}
+			// }
 
-			file << "}";
-			file.close();
+			// file << "}";
+			// file.close();
 		}
 
 		//Prints the graph in YAML format
 		void printYAMLGraph(const char *filename)
 		{
-			ofstream file;
-			file.open(filename);
+			// ofstream file;
+			// file.open(filename);
 
-			file << "Nodes: \n";
-			for(size_t i=0; i<numNodes; ++i)
-			{
-				file << "  " << i << ": {null: 0}\n";
-			}
-			file << "Edges: \n";
-			for(size_t i=0; i<numNodes; ++i)
-			{
-				size_t numScsrs = scsrCnt[i];
-				if(numScsrs == 0)
-					continue;
-				file << "  " << i << ": {";
-				for(size_t j=0; j<numScsrs-1; ++j)
-				{
-					file << scsrList[i][j] << ": 1, ";
-				}
-				file << scsrList[i][numScsrs-1] << ": 1}\n";
-			}
-			file.close();
+			// file << "Nodes: \n";
+			// for(size_t i=0; i<numNodes; ++i)
+			// {
+			// 	file << "  " << i << ": {null: 0}\n";
+			// }
+			// file << "Edges: \n";
+			// for(size_t i=0; i<numNodes; ++i)
+			// {
+			// 	size_t numScsrs = scsrCnt[i];
+			// 	if(numScsrs == 0)
+			// 		continue;
+			// 	file << "  " << i << ": {";
+			// 	for(size_t j=0; j<numScsrs-1; ++j)
+			// 	{
+			// 		file << scsrList[i][j] << ": 1, ";
+			// 	}
+			// 	file << scsrList[i][numScsrs-1] << ": 1}\n";
+			// }
+			// file.close();
 		}
 
 		// Disk CDAG block management
@@ -1022,7 +814,6 @@ class DiskCDAG
 				CDAGNode *node = new CDAGNode();
 				err = node->readNodeFromASCIIFile(file);
 				curBlockSize += sizeof(*node);
-				node->blockId = blockCount;
 				if(curBlockSize < blockSize)
 				{
 					idToCDAGNodeMap[node->dynId] = node;
@@ -1128,8 +919,6 @@ class DiskCDAG
 				// update curBlockSize
 				curBlockSize = sizeof(*node);
 			}
-
-			node->blockId = blockCount;
 			idToCDAGNodeMap[nodeId] =  node;
 
 			return blockCount;
@@ -1142,6 +931,45 @@ class DiskCDAG
 			curBlockSize = 0;
 
 			// TODO : should delete all the CDAGNodes in map here
+		}
+
+	public:
+		// Other API  : NOT YET IMPLEMENTED
+		//Returns the successor list of 'nodeId'
+		void getSuccessors(size_t nodeId, const size_t *&list, size_t &size)
+		{
+			assert(nodeId < numNodes);
+		}
+
+		//Returns the predecessor list of 'nodeId'
+		void getPredecessors(size_t nodeId, const size_t *&list, size_t &size)
+		{
+			assert(nodeId < numNodes);
+		}
+
+		//Returns no. of successors of 'nodeId'
+		size_t getNumSuccessors(size_t nodeId)
+		{
+			assert(nodeId < numNodes);
+		}
+
+		//Returns no. of predecessors of 'nodeId'
+		size_t getNumPredecessors(size_t nodeId)
+		{
+			assert(nodeId < numNodes);
+		}
+
+
+		//Returns True if 'nodeId' is input node, false otherwise
+		bool isInputNode(size_t nodeId)
+		{
+		
+		}
+
+		//Returns True if 'nodeId' is output node, false otherwise
+		bool isOutputNode(size_t nodeId)
+		{
+			
 		}
 };
 
