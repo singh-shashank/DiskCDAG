@@ -18,8 +18,9 @@ namespace ddg{
 	class DiskCache
 	{
 	public:
-		DiskCache(int bs, int numSlots): BLOCK_SIZE(bs),
+		DiskCache(int bs, int numSlots, bool flag = false): BLOCK_SIZE(bs),
 									  NUM_SLOTS(numSlots),
+									  writeBackFlag(flag),
 									  initFlag(false)
 		{}
 
@@ -49,13 +50,9 @@ namespace ddg{
 				curNode = curNode->next;
 				delete temp;
 			}
-
-			// Close file handles
-			dataFileHandle.close();
-			dataIndexFileHandle.close();
 		}
 
-		bool init(const string file, 
+		bool init(const string file,					
 					const string indexFile ="",
 					const unsigned int p=0)
 		{
@@ -86,7 +83,7 @@ namespace ddg{
 			useListTail = curNode;
 
 			// open handles to required files
-			if(!initFileHandle(dataFileName, dataFileHandle)){
+			if(!initFileHandle(dataFileName, dataFileHandle, writeBackFlag)){
 				cout << "\n Error in opening data file";
 				initFlag = false;
 			}
@@ -104,7 +101,10 @@ namespace ddg{
 				else
 				{
 					// no data index file specified
+					bool temp = writeBackFlag;
+					writeBackFlag = false;
 					createDataIndex(false);
+					writeBackFlag = temp;
 				}
 			}
 
@@ -113,6 +113,7 @@ namespace ddg{
 
 		virtual void createDataIndex(bool dumpToFile)
 		{
+			cout <<"\n Create index for the data file in cache.\n";
 			// clear any flags set and reset the file pointer to beginning
 			dataFileHandle.clear();
 			dataFileHandle.seekg(0, ios::beg);
@@ -123,13 +124,15 @@ namespace ddg{
 			{
 				startPos = dataFileHandle.tellg();
 				int slotId = getAvailableSlot();
+				// Invalidate the current slot before reading
+				invalidateSlot(slotId);
 				readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in
 				int count = slots[slotId].size();
 				if(count > 0)
 				{
 					DataIdRange range;
-					range.setRange(slots[slotId][0]->dynId,
-									slots[slotId][count-1]->dynId,
+					range.setRange(slots[slotId][0]->getId(),
+									slots[slotId][count-1]->getId(),
 									startPos);
 					dataIdBlockRangeList.push_back(range);
 				}
@@ -138,17 +141,17 @@ namespace ddg{
 			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());
 
 			// Test code: Iterate over set to print block range
-			cout << "\n Priting block offset range";
+			cout << "\n Printing block offset range";
 			typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
 			for(; it != dataIdBlockRangeList.end(); ++it)
 			{
 				(*it).printRange();
 			}
-
+			cout << "\n Index created for thed data file\n";
 		}
 
 		// Gets a read-only pointer to the data
-		virtual const Data* getData(const DataId id)
+		virtual Data* getData(const DataId id)
 		{
 			Data *retVal = 0;
 			SlotIdSlotIndex* dataInfo = isInCache(id);
@@ -160,29 +163,17 @@ namespace ddg{
 				cout << "\n" << id <<" is not in cache";
 				// Get a slot id to read a block into.
 				slotId = getAvailableSlot();
+				// Invalidate the current slot before reading
+				invalidateSlot(slotId);
 
 				// Find the block having the data and its 
 				// seek position in the file.
 				// Seek to the required block in the file.
 				streampos off = getStreamOffsetForDataId(id);
 				cout << "\n getData : " << id << ", seeking to " << off;
-				dataFileHandle.seekg(off, ios::beg);
+				seekForRead(dataFileHandle, off);
 				cout << "\n and seeked to " << dataFileHandle.tellg();
-				if(dataFileHandle.tellg() == -1)
-				{
-					if(dataFileHandle.peek() == EOF)
-					{
-						dataFileHandle.clear();
-						dataFileHandle.seekg(off, ios::beg); //reset to beginning
-						cout <<"\n Reached end of file - reset to beginning";
-					}
-					else
-					{
-						// dataFileHandle.seekg(0, ios::beg); //reset to beginning
-						cout << "\n Cache error in stream associated with file :" << dataFileName;
-						retVal = 0;
-					}
-				}
+				
 
 				// Read the block in slot.
 				slotIndex = readBlockInSlot(slotId, id);
@@ -198,6 +189,7 @@ namespace ddg{
 			{
 				cout <<"\n FATAL CACHE ERROR : Sync error between cache data structures!";
 				cout <<"\n Was trying to fetch data with id :" << id;
+				cout <<flush;
 				retVal = 0;
 			}
 			else
@@ -254,9 +246,6 @@ namespace ddg{
 			assert(slotId < NUM_SLOTS);
 			cout <<"\n readBlockInSlot "<<slotId;
 
-			// Invalidate the current slot before reading
-			invalidateSlot(slotId);
-
 			// Start reading from the file
 			// Implementation Note :-
 			// From the API perspective its good idea to stop reading 
@@ -276,26 +265,46 @@ namespace ddg{
 				{
 					slots[slotId].push_back(node);
 					SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);
-					dataIdToSlotMap[node->dynId] = dataInfo;
-					if(id == node->dynId)
+					dataIdToSlotMap[node->getId()] = dataInfo;
+					if(id == node->getId())
 						slotIndex = slots[slotId].size()-1;
 				}
 				else
 				{
 					// we have read an extra data node.
 					// Seek back by the size of the node read
-					dataFileHandle.seekg(beforeReadOff, ios::beg);
+					//dataFileHandle.seekg(beforeReadOff, ios::beg);
+					if(dataFileHandle.eof())
+					{
+						// If we reached the eof then beforeReadOff is
+						// set to -1 and the subsequent read would set
+						// the fail bit. (TODO fix the subsquent read)
+						// Go to the beginning of the file.
+						//seekForRead(dataFileHandle, 0);
+
+						// THERE IS SOMETHING FISHY HERE. COMMENTING IT FOR
+						// NOW. 
+					}
+					else
+					{
+						seekForRead(dataFileHandle, beforeReadOff);
+					}
 					break;
 				}
 			}
 
-			cout <<"\n readBlockInSlot : done reading the slot. Dumping slot\n";
+			cout <<"\nreadBlockInSlot : done reading the slot. Dumping slot\n";
 			dumpSlot(slotId);
 			return slotIndex;
 		}
 
 		void dumpSlot(int slotId)
 		{
+			if(slots[slotId].size() < 1)
+			{
+				cout << "Empty Slot";
+				return;
+			}
 			SLOT_ITERATOR it = slots[slotId].begin();
 			for(; it != slots[slotId].end(); ++it)
 			{
@@ -306,6 +315,21 @@ namespace ddg{
 		void invalidateSlot(const unsigned int slotId)
 		{
 			assert(slotId < NUM_SLOTS);
+
+			if(writeBackFlag && slots[slotId].size() > 0)
+			{
+				cout << "\n Doing a write back for slot : "<<slotId;
+				SLOT_ITERATOR it = slots[slotId].begin();
+				Id firstEleId = (*it)->getId();
+				seekForWrite(dataFileHandle, getStreamOffsetForDataId(firstEleId));
+				cout << " with tellp() value at : " << dataFileHandle.tellp();
+				for(; it != slots[slotId].end(); ++it)
+				{
+					(*it)->writeToStream(dataFileHandle);
+					//(*it)->print(cout);
+				}
+				dataFileHandle.flush();
+			}
 
 			// move all the used data nodes to available queue
 			// and then empty the dictionary container
@@ -381,14 +405,22 @@ namespace ddg{
 			useListTail = curNode;
 		}
 
-		bool initFileHandle(const string &name, ifstream &handle)
+		bool initFileHandle(const string &name, fstream &handle, bool rwMode=false)
 		{
 			bool retVal = true;
 			if(name.empty())
 			{
 				retVal = false;
 			}
-			handle.open(name.c_str());
+			if(rwMode)
+			{
+				handle.open(name.c_str(), fstream::in|fstream::out);
+			}
+			else
+			{
+				handle.open(name.c_str(), fstream::in);
+			}
+
 			if(!handle)
 				retVal = false;
 			return retVal;
@@ -454,6 +486,84 @@ namespace ddg{
 			return retVal;
 		}
 
+		void seekForRead(fstream &handle, streampos offset)
+		{
+			if(handle.is_open())
+			{
+				cout <<"\n In seekForRead - Handle is open."	;
+			}
+			if(handle.fail())
+			{
+				cout <<"\n In seekForRead - Fail bit set";
+			}
+			if(handle.bad())
+			{
+				cout <<"\n In seekForRead - bad bit set";
+			}
+			if(handle.good())
+			{
+				cout <<"\n In seekForRead - Good bit set";
+			}
+			if(handle.eof())
+			{
+				cout << "\n In seekForRead - Eof bit set";
+			}
+			handle.seekg(offset, ios::beg);
+			if(handle.tellg() == -1)
+			{
+				if(handle.eof() || handle.fail())
+				{
+					handle.clear();
+					handle.seekg(offset, ios::beg); //reset to beginning
+					cout <<"\n Reached end of file - reset to beginning";
+				}
+				else
+				{
+					// handle.seekg(0, ios::beg); //reset to beginning
+					cout << "\n Cache error in stream associated with file :" << dataFileName;
+				}
+			}
+		}
+
+		void seekForWrite(fstream &handle, streampos offset)
+		{
+			if(handle.is_open())
+			{
+				cout <<"\n In seekForWrite - Handle is open."	;
+			}
+			if(handle.fail())
+			{
+				cout <<"\n In seekForWrite - Fail bit set";
+			}
+			if(handle.bad())
+			{
+				cout <<"\n In seekForWrite - bad bit set";
+			}
+			if(handle.good())
+			{
+				cout <<"\n In seekForWrite - Good bit set";
+			}
+			if(handle.eof())
+			{
+				cout << "\n In seekForWrite - Eof bit set";
+			}
+			handle.seekp(offset, ios::beg);
+			if(handle.tellp() == -1)
+			{
+				if(handle.eof() || handle.fail())
+				{
+					handle.clear();
+					handle.seekp(offset, ios::beg); //reset to beginning
+					cout <<"\n Reached end of file - reset to beginning";
+				}
+				else
+				{
+					// handle.seekg(0, ios::beg); //reset to beginning
+					cout << "\n Cache error in stream associated with file :" << dataFileName;
+				}
+			}
+		}
+
 		// Member variables and data structures
 		struct ListNode
 		{
@@ -510,6 +620,7 @@ namespace ddg{
 		string dataFileName;
 		bool initFlag;
 		unsigned int policy;
+		bool writeBackFlag;
 
 		SLOT *slots;
 		DATA_TO_SLOT_MAP dataIdToSlotMap;	
@@ -518,8 +629,8 @@ namespace ddg{
 		ListNode *useListTail; // represents the MRU slot
 		map<int, ListNode*>  slotIdToListNodeMap; // map for a quick markSlotAsMRU() implementation
 
-		ifstream dataFileHandle;
-		ifstream dataIndexFileHandle;
+		fstream dataFileHandle;
+		fstream dataIndexFileHandle;
 
 		vector<DataIdRange> dataIdBlockRangeList;
 
