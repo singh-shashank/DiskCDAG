@@ -283,6 +283,7 @@ namespace ddg{
 				}
 				else
 				{
+					availableDataNodesQ.push(node);
 					// we have read an extra data node.
 					// Seek back by the size of the node read
 					//dataFileHandle.seekg(beforeReadOff, ios::beg);

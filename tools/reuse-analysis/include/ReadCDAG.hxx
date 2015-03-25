@@ -75,21 +75,18 @@ public:
     ids.runOnModule(*module.get());
 
     const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
-    DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName, 256); // 512MB is the block size
+    DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName, 4); // 4KB is the block size
 
     if(cdag)
     {
       //ofstream test("succtest");
       //cdag->printDiskGraph(test);
       //cdag->printGraph();
-      cdag->flushCurrentBlockToDisk(true);
+      
 
-      cout <<"\n Updating graph with successor information \n" << flush;
-      cdag->updateGraphWithSuccessorInfo();
-      cout << "\n Done updating graph with successor information \n" << flush;
+      
 
       //cdag->testMethodForDiskCache();
-
       cdag->performBFS();
 
 

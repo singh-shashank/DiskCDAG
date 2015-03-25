@@ -156,6 +156,11 @@ struct DataList
 
 	}
 
+	~DataList()
+	{
+		list.clear();
+	}
+
 	Id getId(){return id;}
 
 	void writeToStream(fstream &file)
@@ -387,9 +392,15 @@ class DiskCDAG
 		string diskGraphIndexFileName;
 
 		DiskCache<DataList, Id> *succsCache;
+		DiskCache<CDAGNode, Id> *lruCache;
+
+		queue<CDAGNode*> availableCDAGNodesQ;
+
+		int numAllocs;
 
 		void init(size_t count)
 		{
+			numAllocs = 0;
 			diskGraphFileName = string(bcFileName+"diskgraph");
 			diskGraphIndexFileName = string(bcFileName+"diskgraph_index");
 
@@ -423,8 +434,8 @@ class DiskCDAG
 			succsListNewTempFile.close();
 			succsListNewTempFile.open(string(bcFileName+"succslistnewtemp").c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 			
-			printBeforeWriteFile.open(string(bcFileName+"printbeforewrite").c_str());
-			printAfterReadFile.open(string(bcFileName+"printafterread").c_str());
+			//printBeforeWriteFile.open(string(bcFileName+"printbeforewrite").c_str());
+			//printAfterReadFile.open(string(bcFileName+"printafterread").c_str());
 
 			// // dumping blocks of memory to the file
 			// cout <<"\n Dumping blockss for succesor file" <<flush;
@@ -520,6 +531,19 @@ class DiskCDAG
 			// cin.get();
 		}
 
+		void initLRUCacheForDiskGraph()
+		{
+			cout << "\n Initialize LRU cache";
+      		lruCache = new DiskCache<CDAGNode, Id>(blockSize, NUM_SLOTS);
+			//if(!lruCache->init(diskGraphFileName, diskGraphIndexFileName ))
+			if(!lruCache->init(diskGraphFileName))
+			{
+				cout <<"\n Cache initialization failed..stopping BFS";
+				return;
+			}
+			cout << "\n LRU Disk Cache initialized.";
+		}
+
 	public:
 		DiskCDAG(size_t count) : numNodes(0),
 								 count(count),
@@ -547,6 +571,7 @@ class DiskCDAG
 
 		~DiskCDAG()
 		{
+
 			delete []succsBitSet;
 
 			if(nodeMarkerBitSet)
@@ -559,10 +584,30 @@ class DiskCDAG
 			for(; it1 != idToCDAGNodeMap.end(); ++it1)
 			{
 				delete it1->second;
+				it1->second = 0;
 			}
 			idToCDAGNodeMap.clear();
 
-			delete succsCache;
+			if(lruCache)
+			{
+				delete lruCache;
+				lruCache = 0;
+			}
+		}
+
+		CDAGNode* getAvailableCDAGNode()
+		{
+			CDAGNode *retVal = 0;
+			if(availableCDAGNodesQ.empty())
+			{
+				retVal = new CDAGNode();
+				availableCDAGNodesQ.push(retVal);
+			}			
+			retVal = availableCDAGNodesQ.front();
+			availableCDAGNodesQ.pop();
+			retVal->reset();
+
+			return retVal;
 		}
 
 		//Returns the no. of nodes in the cdag
@@ -576,7 +621,7 @@ class DiskCDAG
 		{
 			assert(numNodes < count);
 
-			CDAGNode *node = new CDAGNode();
+			CDAGNode *node = getAvailableCDAGNode();
 			node->dynId = numNodes;
 			node->type = currType;
 			node->staticId = id;
@@ -755,6 +800,29 @@ class DiskCDAG
 			diskGraphIndex.close();
 
 			cout << "\n Done writing the disk graph";
+
+			cout << "\n Closing handle to graph dump file and removing it";
+			if(graphDumpFile)
+			{
+				graphDumpFile.close();
+			}
+			remove(string(bcFileName+"graphdump").c_str());
+			resetGraphState();
+
+			if(succsCache)
+			{
+				delete succsCache;
+				succsCache = 0;
+			}
+
+			// we can also clear up the memory pool here
+			// clear up all the Data nodes
+			while(!availableCDAGNodesQ.empty())
+			{
+				CDAGNode* head = availableCDAGNodesQ.front();
+				availableCDAGNodesQ.pop();
+				delete head;
+			}
 		}
 
 		void writeGraphWithSuccessorInfoToFile(ofstream &diskGraph,
@@ -831,7 +899,14 @@ class DiskCDAG
 			cout << "\n Writing graphdump now!"<<flush;
 			DiskCDAGBuilder builder(cdag);
 			builder.visit(ids);
+			cdag->flushCurrentBlockToDisk(true);
 			cout << "\n Done writing graphdump now!" <<flush;
+
+			cout <<"\n Updating graph with successor information \n" << flush;
+      		cdag->updateGraphWithSuccessorInfo();
+      		cout << "\n Done updating graph with successor information \n" << flush;
+
+      		cdag->initLRUCacheForDiskGraph();
 
 			return cdag;
 		}
@@ -862,16 +937,7 @@ class DiskCDAG
 		{
 			cout << "\n Starting BFS on graph with " << numNodes << " nodes.";
 
-			cout << "\n Initialize LRU cache";
-
-			DiskCache<CDAGNode, Id> *lruCache = new DiskCache<CDAGNode, Id>(blockSize, NUM_SLOTS);
-			//if(!lruCache->init(diskGraphFileName, diskGraphIndexFileName ))
-			if(!lruCache->init(diskGraphFileName))
-			{
-				cout <<"\n Cache initialization failed..stopping BFS";
-				return;
-			}
-			cout << "\n LRU Disk Cache initialized.";
+			
 
 			unmarkAllNodes(); // mark all nodes as ready
 			queue<Id> q;
@@ -920,8 +986,6 @@ class DiskCDAG
 				if(error)
 					break;
 			}
-
-			delete lruCache;
 		}
 
 	 	void printDiskGraph(ostream &out)
@@ -1032,7 +1096,7 @@ class DiskCDAG
 			while(!file.eof())
 			{
 				pos = file.tellg();
-				CDAGNode *node = new CDAGNode();
+				CDAGNode *node = getAvailableCDAGNode();
 				err = node->readNodeFromASCIIFile(file);
 				curBlockSize += sizeof(*node);
 				if(curBlockSize < blockSize*NUM_SLOTS && !file.eof())
@@ -1041,6 +1105,7 @@ class DiskCDAG
 				}
 				else
 				{
+					availableCDAGNodesQ.push(node);
 					// we have read an extra node move back 
 					// if we have not reached the end of file
 					// yet
@@ -1150,9 +1215,9 @@ class DiskCDAG
 			std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
 			for(; it!=idToCDAGNodeMap.end(); ++it)
 			{
-				delete it->second;
+				availableCDAGNodesQ.push(it->second);
+				it->second = 0;
 			}
-
 			idToCDAGNodeMap.clear();
 			curBlockSize = 0;
 		}
