@@ -9,6 +9,15 @@
 #include <climits>
 #include <algorithm>
 
+#define DEBUG(msg) do { if (!DEBUG_ENABLED) {} \
+                   else std::cout << __FILE__ << ":" << __LINE__ << " " << msg; \
+               		} while(0)
+#ifdef DEBUG_FLAG
+#define DEBUG_ENABLED 1
+#else
+#define DEBUG_ENABLED 0
+#endif
+
 namespace ddg{
 
 	using namespace std;
@@ -52,8 +61,8 @@ namespace ddg{
 			}
 		}
 
-		bool init(const string file,					
-					const string indexFile ="",
+		bool init(const string &file,					
+					const string &indexFile ="",
 					const unsigned int p=0)
 		{
 			initFlag = true;
@@ -113,7 +122,7 @@ namespace ddg{
 
 		virtual void createDataIndex(bool dumpToFile)
 		{
-			cout <<"\n Create index for the data file in cache.\n";
+			DEBUG("\n Create index for the data file in cache.\n");
 			// clear any flags set and reset the file pointer to beginning
 			dataFileHandle.clear();
 			dataFileHandle.seekg(0, ios::beg);
@@ -141,13 +150,16 @@ namespace ddg{
 			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());
 
 			// Test code: Iterate over set to print block range
-			cout << "\n Printing block offset range";
-			typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
-			for(; it != dataIdBlockRangeList.end(); ++it)
+			if(DEBUG_ENABLED)
 			{
-				(*it).printRange();
+				DEBUG("\n Printing block offset range");
+				typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
+				for(; it != dataIdBlockRangeList.end(); ++it)
+				{
+					(*it).printRange();
+				}
+				DEBUG("\n Index created for thed data file\n");
 			}
-			cout << "\n Index created for thed data file\n";
 		}
 
 		// Gets a read-only pointer to the data
@@ -160,7 +172,7 @@ namespace ddg{
 			dataInfo = 0;
 			if(slotId < 0)
 			{
-				cout << "\n" << id <<" is not in cache";
+				DEBUG("\n" << id <<" is not in cache");
 				// Get a slot id to read a block into.
 				slotId = getAvailableSlot();
 				// Invalidate the current slot before reading
@@ -170,9 +182,9 @@ namespace ddg{
 				// seek position in the file.
 				// Seek to the required block in the file.
 				streampos off = getStreamOffsetForDataId(id);
-				cout << "\n getData : " << id << ", seeking to " << off;
+				DEBUG("\n getData : " << id << ", seeking to " << off);
 				seekForRead(dataFileHandle, off);
-				cout << "\n and seeked to " << dataFileHandle.tellg();
+				DEBUG("\n and seeked to " << dataFileHandle.tellg());
 				
 
 				// Read the block in slot.
@@ -181,7 +193,7 @@ namespace ddg{
 			}
 			else
 			{
-				cout << "\n" << id <<" is in cache at slot : " << slotId;
+				DEBUG("\n" << id <<" is in cache at slot : " << slotId);
 			}
 
 			// The requested data should exists in cache.
@@ -244,7 +256,7 @@ namespace ddg{
 		int readBlockInSlot(const unsigned int slotId, DataId id)
 		{
 			assert(slotId < NUM_SLOTS);
-			cout <<"\n readBlockInSlot "<<slotId;
+			DEBUG("\n readBlockInSlot "<<slotId);
 
 			// Start reading from the file
 			// Implementation Note :-
@@ -293,8 +305,11 @@ namespace ddg{
 				}
 			}
 
-			cout <<"\nreadBlockInSlot : done reading the slot. Dumping slot\n";
-			dumpSlot(slotId);
+			if(DEBUG_ENABLED)
+			{
+				DEBUG("\nreadBlockInSlot : done reading the slot. Dumping slot\n");
+				dumpSlot(slotId);
+			}
 			return slotIndex;
 		}
 
@@ -318,11 +333,11 @@ namespace ddg{
 
 			if(writeBackFlag && slots[slotId].size() > 0)
 			{
-				cout << "\n Doing a write back for slot : "<<slotId;
+				DEBUG("\n Doing a write back for slot : "<<slotId);
 				SLOT_ITERATOR it = slots[slotId].begin();
 				Id firstEleId = (*it)->getId();
 				seekForWrite(dataFileHandle, getStreamOffsetForDataId(firstEleId));
-				cout << " with tellp() value at : " << dataFileHandle.tellp();
+				DEBUG(" with tellp() value at : " << dataFileHandle.tellp());
 				for(; it != slots[slotId].end(); ++it)
 				{
 					(*it)->writeToStream(dataFileHandle);
@@ -454,11 +469,14 @@ namespace ddg{
 			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());
 
 			// Test code: Iterate over set to print block range
-			cout << "\n Priting block offset range";
-			typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
-			for(; it != dataIdBlockRangeList.end(); ++it)
+			if(DEBUG_ENABLED)
 			{
-				(*it).printRange();
+				DEBUG("\n Priting block offset range");
+				typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();
+				for(; it != dataIdBlockRangeList.end(); ++it)
+				{
+					(*it).printRange();
+				}
 			}
 		}
 
@@ -488,26 +506,26 @@ namespace ddg{
 
 		void seekForRead(fstream &handle, streampos offset)
 		{
-			if(handle.is_open())
-			{
-				cout <<"\n In seekForRead - Handle is open."	;
-			}
-			if(handle.fail())
-			{
-				cout <<"\n In seekForRead - Fail bit set";
-			}
-			if(handle.bad())
-			{
-				cout <<"\n In seekForRead - bad bit set";
-			}
-			if(handle.good())
-			{
-				cout <<"\n In seekForRead - Good bit set";
-			}
-			if(handle.eof())
-			{
-				cout << "\n In seekForRead - Eof bit set";
-			}
+			// if(handle.is_open())
+			// {
+			// 	cout <<"\n In seekForRead - Handle is open."	;
+			// }
+			// if(handle.fail())
+			// {
+			// 	cout <<"\n In seekForRead - Fail bit set";
+			// }
+			// if(handle.bad())
+			// {
+			// 	cout <<"\n In seekForRead - bad bit set";
+			// }
+			// if(handle.good())
+			// {
+			// 	cout <<"\n In seekForRead - Good bit set";
+			// }
+			// if(handle.eof())
+			// {
+			// 	cout << "\n In seekForRead - Eof bit set";
+			// }
 			handle.seekg(offset, ios::beg);
 			if(handle.tellg() == -1)
 			{
@@ -527,26 +545,26 @@ namespace ddg{
 
 		void seekForWrite(fstream &handle, streampos offset)
 		{
-			if(handle.is_open())
-			{
-				cout <<"\n In seekForWrite - Handle is open."	;
-			}
-			if(handle.fail())
-			{
-				cout <<"\n In seekForWrite - Fail bit set";
-			}
-			if(handle.bad())
-			{
-				cout <<"\n In seekForWrite - bad bit set";
-			}
-			if(handle.good())
-			{
-				cout <<"\n In seekForWrite - Good bit set";
-			}
-			if(handle.eof())
-			{
-				cout << "\n In seekForWrite - Eof bit set";
-			}
+			// if(handle.is_open())
+			// {
+			// 	cout <<"\n In seekForWrite - Handle is open."	;
+			// }
+			// if(handle.fail())
+			// {
+			// 	cout <<"\n In seekForWrite - Fail bit set";
+			// }
+			// if(handle.bad())
+			// {
+			// 	cout <<"\n In seekForWrite - bad bit set";
+			// }
+			// if(handle.good())
+			// {
+			// 	cout <<"\n In seekForWrite - Good bit set";
+			// }
+			// if(handle.eof())
+			// {
+			// 	cout << "\n In seekForWrite - Eof bit set";
+			// }
 			handle.seekp(offset, ios::beg);
 			if(handle.tellp() == -1)
 			{

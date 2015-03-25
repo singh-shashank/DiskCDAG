@@ -1,7 +1,7 @@
 #ifndef DiskCDAG_HXX
 #define DiskCDAG_HXX
 
-#define FULL_DAG //If defined, whole ddg is built, else just the CDAG is built
+//#define FULL_DAG //If defined, whole ddg is built, else just the CDAG is built
 
 #include "ddg/analysis/LazyGraph.hxx"
 #include "CDAGCounter.hxx"
@@ -150,8 +150,8 @@ struct DataList
 {
 	Id id;
 	std::vector<Id> list;
-	Id count;
-	DataList(): id(0), count(0)
+	Id listCapacity;
+	DataList(): id(0), listCapacity(0)
 	{
 
 	}
@@ -162,9 +162,9 @@ struct DataList
 	{
 		Id temp =0;
 		file.write((const char*)&id, sizeof(Id));
-		file.write((const char*)&count, sizeof(Id));
+		file.write((const char*)&listCapacity, sizeof(Id));
 		file.write((const char*)&list[0], sizeof(Id)*list.size());
-		for(int i=0; i<(count-list.size()); ++i)
+		for(int i=0; i<(listCapacity-list.size()); ++i)
 		{
 			file.write((const char*)&temp, sizeof(Id));
 		}
@@ -172,10 +172,10 @@ struct DataList
 
 	bool readNodeFromASCIIFile(istream &file)
 	{
-		count = 0;
+		listCapacity = 0;
 		file.read((char*)&id, sizeof(Id));
-		file.read((char*)&count, sizeof(Id));		
-		for(int i=0; i<count;++i)
+		file.read((char*)&listCapacity, sizeof(Id));		
+		for(int i=0; i<listCapacity;++i)
 		{
 			Id temp =0;
 			file.read((char*)&temp, sizeof(Id));
@@ -189,7 +189,7 @@ struct DataList
 	void print(ostream &out) const
 	{
 		out << "\n Id : " << id;
-		out << " Count : " << count;
+		out << " ListCapacity : " << listCapacity;
 		out << " List (size = " << list.size() <<") : ";
 		for(vector<Id>::const_iterator it = list.begin();
 			it != list.end(); ++it)
@@ -201,7 +201,7 @@ struct DataList
 
 	void addToList(Id item)
 	{
-		if(list.size() == count)
+		if(list.size() == listCapacity)
 		{
 			cout << "\nError : in addToList() trying to add item : "<< item <<" in already full list";
 			return;
@@ -211,7 +211,7 @@ struct DataList
 
 	void reset()
 	{
-		id =0, count = 0, list.clear();
+		id =0, listCapacity = 0, list.clear();
 	}
 
 };
@@ -295,11 +295,12 @@ class DiskCDAG
 
 			bool readNodeFromASCIIFile(istream &file)
 			{
-				std::string temp, line;
+				
 				
 
 				// Read dynId, static Id, type and addr
 				{
+					std::string temp, line;
 					std::stringstream tempss;
 					getline(file, line);
 					tempss << line;
@@ -315,6 +316,7 @@ class DiskCDAG
 
 				// Read the predecessors
 				{
+					std::string temp, line;
 					std::stringstream tempss;
 					getline(file, line);
 					tempss.str(string());
@@ -328,6 +330,7 @@ class DiskCDAG
 
 				// Read the successors
 				{
+					std::string temp, line;
 					std::stringstream tempss;
 					getline(file, line);
 					tempss.str(string());
@@ -369,7 +372,6 @@ class DiskCDAG
 
 		fstream graphDumpFile;
 		fstream succsListTempFile;
-		fstream succsCountTempFile;
 		fstream succsListNewTempFile;
 
 		// TODO : Temp ofstreams - remove these!
@@ -399,8 +401,6 @@ class DiskCDAG
 			memset(succsBitSet, 0, numOfBytesForSuccBS);
 
 			cout << "\nSize of succsBitSet " << sizeof(BYTE);
-			cout << "\nSize of succsBitSet " << sizeof(succsBitSet);
-			cout << "\nSize of *succsBitSet " << sizeof(*succsBitSet);
 
 			// TODO : compare with CDAGNODE_WITHSUCC_SIZE
 			if(blockSize != 0 && blockSize < CDAGNODE_SIZE)
@@ -422,19 +422,17 @@ class DiskCDAG
 			succsListNewTempFile.open(string(bcFileName+"succslistnewtemp").c_str(), std::fstream::out | std::fstream::trunc);
 			succsListNewTempFile.close();
 			succsListNewTempFile.open(string(bcFileName+"succslistnewtemp").c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
-
-			succsCountTempFile.open(string(bcFileName+"succscounttemp").c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 			
 			printBeforeWriteFile.open(string(bcFileName+"printbeforewrite").c_str());
 			printAfterReadFile.open(string(bcFileName+"printafterread").c_str());
 
-			// dumping blocks of memory to the file
-			cout <<"\n Dumping blockss for succesor file" <<flush;
-			for(int i=0; i < count; ++i)
-			{
-				succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
-			}
-			cout << "\n Done creating the successor file" <<flush;
+			// // dumping blocks of memory to the file
+			// cout <<"\n Dumping blockss for succesor file" <<flush;
+			// for(int i=0; i < count; ++i)
+			// {
+			// 	succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
+			// }
+			// cout << "\n Done creating the successor file" <<flush;
 
 			// initialize the new successor list file
 			initSuccessorListFile();
@@ -456,6 +454,9 @@ class DiskCDAG
 
 		void initSuccessorListFile()
 		{
+			fstream succsCountTempFile;
+			string succsCountTempFileName = bcFileName+"succscounttemp";
+			succsCountTempFile.open(succsCountTempFileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 			succsCountTempFile.seekg(0, ios::beg);
 			Id succCount =0;
 			Id id = 0;
@@ -471,6 +472,9 @@ class DiskCDAG
 				++id;
 			}
 			succsListNewTempFile.close();
+
+			// Delete the temp count file
+			remove(succsCountTempFileName.c_str());
 
 			// // TODO : Test code
 			// {
@@ -529,6 +533,7 @@ class DiskCDAG
 		DiskCDAG(Ids &ids, const string &bcFile, 
 			size_t bs, Id nodeCount) : numNodes(0),
 									 	blockSize(bs*1024*1024), // block size is passed in MB
+									 	//blockSize(bs),
 									 	blockCount(0),
 									 	curBlockSize(0),
 									 	bcFileName(bcFile),
@@ -558,20 +563,6 @@ class DiskCDAG
 			idToCDAGNodeMap.clear();
 
 			delete succsCache;
-			{
-			DiskCache<DataList, Id> succsCache(blockSize, 2);
-			cin.get();
-			if(!succsCache.init(bcFileName+"succslistnewtemp"))
-			{
-				cout << "\n Cache initialization for successor's list failed...";
-				return;
-			}
-			for(int i=0; i<count; ++i)
-			{
-				DataList* l = succsCache.getData(i);
-				l->print(cout);
-			}
-			}
 		}
 
 		//Returns the no. of nodes in the cdag
@@ -610,8 +601,8 @@ class DiskCDAG
 			for(size_t i=0; i<size; ++i)
 			{
 				idToCDAGNodeMap[nodeId]->predsList.push_back(*it);
-				writeSuccessorInFile((*it), nodeId);
-				updateSuccessorCountInFile((*it), 1); // bump up the count by 1
+				//writeSuccessorInFile((*it), nodeId);
+				//updateSuccessorCountInFile((*it), 1); // bump up the count by 1
 				DataList *l = succsCache->getData((*it));
 				l->addToList(nodeId);
 				++it;
@@ -692,18 +683,18 @@ class DiskCDAG
 			return retVal;
 		}
 
-		void updateSuccessorCountInFile(Id nodeId, Id incCount)
-		{
-			streampos pos(sizeof(Id)*nodeId);
-			succsCountTempFile.seekg(pos, ios::beg);
-			Id curVal = 0;
-			succsCountTempFile.read((char*)&curVal, sizeof(Id));
+		// void updateSuccessorCountInFile(Id nodeId, Id incCount)
+		// {
+		// 	streampos pos(sizeof(Id)*nodeId);
+		// 	succsCountTempFile.seekg(pos, ios::beg);
+		// 	Id curVal = 0;
+		// 	succsCountTempFile.read((char*)&curVal, sizeof(Id));
 
-			curVal += incCount;
+		// 	curVal += incCount;
 
-			succsCountTempFile.seekg(pos, ios::beg);
-			succsCountTempFile.write((const char*)&curVal, sizeof(Id));
-		}
+		// 	succsCountTempFile.seekg(pos, ios::beg);
+		// 	succsCountTempFile.write((const char*)&curVal, sizeof(Id));
+		// }
 
 		void writeSuccessorInFile(int parentNodeId, int childNodeId)
 		{
@@ -736,6 +727,7 @@ class DiskCDAG
 
 		void updateGraphWithSuccessorInfo()
 		{
+			cout << "\n In updateGraphWithSuccessorInfo";
 			ofstream diskGraph(diskGraphFileName.c_str());
 			ofstream diskGraphIndex(diskGraphIndexFileName.c_str(), ios::binary);
 
@@ -746,6 +738,9 @@ class DiskCDAG
 			graphDumpFile.clear();
 	 		graphDumpFile.seekg(0, ios::beg);
 	 		blockCount = 0;
+
+	 		cout << "\n Starting to write the final graph";
+	 		//cin.get();
 
 			while(!readBlockFromFile(graphDumpFile))
 			{
@@ -758,6 +753,8 @@ class DiskCDAG
 			 blockSize, pos, curBlockSize);
 			diskGraph.close();
 			diskGraphIndex.close();
+
+			cout << "\n Done writing the disk graph";
 		}
 
 		void writeGraphWithSuccessorInfoToFile(ofstream &diskGraph,
@@ -774,11 +771,13 @@ class DiskCDAG
 			map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
 			for(; it != idToCDAGNodeMap.end(); ++it)
 			{
-				readSuccessorsFromFile(it->first, succList);
+				//readSuccessorsFromFile(it->first, succList);
+				succList.clear(); // optimization : use a pointer to the vector
+				DataList * l = succsCache->getData(it->first);
 				CDAGNode *curNode = it->second;
-				if(succList.size() > 0)
+				if(l->list.size() > 0)
 				{
-					curNode->succsList = succList;
+					curNode->succsList = l->list;
 				}
 
 				// Check if we reached the write block size
@@ -793,7 +792,6 @@ class DiskCDAG
 						diskGraph << ss.str();
 						//diskGraphIndex.write((const char*)&pos, sizeof(streampos));
 					}
-					cout << pos << " ";
 					pos = diskGraph.tellp();
 					
 					// reset the variables
@@ -846,7 +844,7 @@ class DiskCDAG
 				DiskCDAGBuilder countBuilder(bcFileName);
 				countBuilder.visit(ids);
 				cout <<"\n Pass complete. Number of nodes : "<<countBuilder.getNumNodes() << flush;
-				countBuilder.printSuccessorCountFile();
+				//countBuilder.printSuccessorCountFile();
 
 				DiskCDAG *cdag = new DiskCDAG(ids, bcFileName, 
 				block_size, countBuilder.getNumNodes());
@@ -911,17 +909,18 @@ class DiskCDAG
 						}
 					}
 				}
+				cout << "\n Listing reachable nodes in BFS order : \n";
+				for(vector<Id>::iterator it = bfsOutput.begin(); 
+					it != bfsOutput.end(); ++it)
+				{
+					cout << *it << " ";
+				}
+				cout <<"\n";
+				bfsOutput.clear();
 				if(error)
 					break;
 			}
 
-			cout << "\n Listing nodes in BFS order : \n";
-			for(vector<Id>::iterator it = bfsOutput.begin(); 
-				it != bfsOutput.end(); ++it)
-			{
-				cout << *it << " ";
-			}
-			cout <<"\n";
 			delete lruCache;
 		}
 
@@ -989,6 +988,8 @@ class DiskCDAG
 		{
 			//printDiskGraph(printBeforeWriteFile);
 
+			cout <<"\n Flushing current block to disk\n";
+
 			std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
 	 		stringstream ss;
 	 		for(; it!=idToCDAGNodeMap.end(); ++it)
@@ -997,6 +998,10 @@ class DiskCDAG
 	 			graphDumpFile << ss.str();
 	 		}
 	 		graphDumpFile.flush();
+
+	 		// reset all the required variables after flushing to
+			// disk
+			resetGraphState();
 
 
 	 		// TODO : test code for checking read of blocks - to remove
@@ -1019,6 +1024,7 @@ class DiskCDAG
 		// in memory map
 		bool readBlockFromFile(istream &file)
 		{
+			cout << "\n\n In readBlockFromFile \n";
 			bool err = true;
 			resetGraphState();
 
@@ -1029,7 +1035,7 @@ class DiskCDAG
 				CDAGNode *node = new CDAGNode();
 				err = node->readNodeFromASCIIFile(file);
 				curBlockSize += sizeof(*node);
-				if(curBlockSize < blockSize*NUM_SLOTS)
+				if(curBlockSize < blockSize*NUM_SLOTS && !file.eof())
 				{
 					idToCDAGNodeMap[node->dynId] = node;
 				}
@@ -1045,6 +1051,7 @@ class DiskCDAG
 					break; //we have read the block
 				}
 			}
+			cout << "\n Exiting readBlockFromFile method with return value " << (err || file.eof())<< "\n\n";
 
 			return (err || file.eof()); // return true if error or eof is reached
 		}
@@ -1124,10 +1131,6 @@ class DiskCDAG
 				// flush the current block to the disk
 				flushCurrentBlockToDisk(false);
 
-				// reset all the required variables after flushing to
-				// disk
-				resetGraphState();
-
 				// start using a new block now
 				++blockCount;
 
@@ -1142,10 +1145,16 @@ class DiskCDAG
 
 		void resetGraphState()
 		{
+			// TODO : try and create a CDAGNode pool instead of deleting the
+			//		  nodes everytime.
+			std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
+			for(; it!=idToCDAGNodeMap.end(); ++it)
+			{
+				delete it->second;
+			}
+
 			idToCDAGNodeMap.clear();
 			curBlockSize = 0;
-
-			// TODO : should delete all the CDAGNodes in map here
 		}
 
 	public:
@@ -1276,9 +1285,9 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 			size_t tempId;
 			if(it == loadMap.end())
 			{
-				size_t inputNodeId = cdag->addNode(Instruction::Load, 
+				size_t inputNodeId = cdag ? cdag->addNode(Instruction::Load, 
 					cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue(),
-					addr);
+					addr) : incNumNodesCounter();
 				loadMap.insert(make_pair(addr, inputNodeId));
 				tempId = inputNodeId;
 			}
@@ -1295,15 +1304,24 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 	if(instr->isBinaryOp() && instr->getType()->isFloatingPointTy())
 	{
 		//Create a cdag node
-		size_t nodeId = cdag->addNode(instr->getOpcode(), 
+		size_t nodeId = cdag ? cdag->addNode(instr->getOpcode(), 
 			cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue(),
-			0);
+			0) : incNumNodesCounter();
 		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)
 		{
 			payload_type pred_data = (*pred)->get();
 			predSet.insert(pred_data.begin(), pred_data.end());
+			if(successorCountFile)
+			{
+				// we are writing successor count to file
+				std::set<size_t>::iterator setIt = pred_data.begin();
+				for(; setIt != pred_data.end(); ++setIt)
+				{
+					incSuccessorCountInFile(*setIt);
+				}
+			}
 		}
-		cdag->setPredecessor(nodeId, predSet);
+		if(cdag) cdag->setPredecessor(nodeId, predSet);
 		node->get().clear();
 		node->get().insert(nodeId);
 	}
@@ -1330,8 +1348,9 @@ void DiskCDAGBuilder::incSuccessorCountInFile(Id nodeId)
 
 	curVal += 1;
 
-	successorCountFile.seekg(pos, ios::beg);
+	successorCountFile.seekp(pos, ios::beg);
 	successorCountFile.write((const char*)&curVal, sizeof(Id));
+	successorCountFile.flush();
 }
 
 size_t DiskCDAGBuilder::incNumNodesCounter()
@@ -1339,8 +1358,9 @@ size_t DiskCDAGBuilder::incNumNodesCounter()
 	if(successorCountFile)
 	{
 		Id temp = 0;
-		successorCountFile.seekg(0, fstream::end); // write to the end of the file
+		successorCountFile.seekp(0, fstream::end); // write to the end of the file
 		successorCountFile.write((const char*)&temp, sizeof(Id));
+		//successorCountFile.flush();
 	}
 	return numNodes++;
 }

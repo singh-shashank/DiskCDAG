@@ -90,7 +90,7 @@ public:
 
       //cdag->testMethodForDiskCache();
 
-      //cdag->performBFS();
+      cdag->performBFS();
 
 
       delete cdag;
