@@ -352,8 +352,7 @@ void LazyGraphVisitor<T>::visit(Ids &ids)
 {
     LazyGraphBuilder<T> builder(*this, ids);
 
-    TraceTraversal traversal(ids);
-    std::cout << "starting lazygraph traverse\n";
+    TraceTraversal traversal(ids);    
     traversal.traverse(builder);
 }
 

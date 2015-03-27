@@ -58,7 +58,9 @@ public:
     }
   }
 
-  void init(const std::string& llvmBCFilename){
+  void init(const std::string& llvmBCFilename, 
+    const std::string diskGraphFileName,
+    const std::string diskGraphIndexFileName){
     llvm_shutdown_obj shutdownObj;  // Call llvm_shutdown() on exit.
     LLVMContext &context = getGlobalContext();
 
@@ -74,8 +76,10 @@ public:
     Ids ids;
     ids.runOnModule(*module.get());
 
+    size_t bs = 524288;// 4KB is the block size
     const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
-    DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName, 4); // 4KB is the block size
+    DiskCDAG *cdag = cdag = DiskCDAG::generateGraph(ids, programName, 
+      diskGraphFileName, diskGraphIndexFileName, bs); 
 
     if(cdag)
     {

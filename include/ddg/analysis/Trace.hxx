@@ -587,12 +587,10 @@ class TraceParser
 {
 public:
   TraceParser(const string &traceFile) : in(gzip_decompressor() | file_source(traceFile)), tracecnt(0)
-  {std::cout << "init\n"; }
+  { }
 
   ~TraceParser()
   {
-    std::cout << "In TraceParser destructor : traceno: " << tracecnt << '\n';
-    fflush(stdout);
   }
 
   template <typename Visitor>

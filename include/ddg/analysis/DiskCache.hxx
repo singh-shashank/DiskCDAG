@@ -103,6 +103,7 @@ namespace ddg{
 
 			// If all is well till now, read in the index file
 			if(initFlag){
+				cout << "\n Indexing the graph file..." << flush;
 				if(!indexFile.empty())
 				{
 					readDataIndexFile();
@@ -115,9 +116,15 @@ namespace ddg{
 					createDataIndex(false);
 					writeBackFlag = temp;
 				}
+				cout << "done!" <<flush;
 			}
 
 			return initFlag;
+		}
+
+		Id getDataCount()
+		{
+			return dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;
 		}
 
 		virtual void createDataIndex(bool dumpToFile)
@@ -534,7 +541,7 @@ namespace ddg{
 				{
 					handle.clear();
 					handle.seekg(offset, ios::beg); //reset to beginning
-					cout <<"\n Reached end of file - reset to beginning";
+					DEBUG("\nReached end of file - reset to beginning");
 				}
 				else
 				{
@@ -573,7 +580,7 @@ namespace ddg{
 				{
 					handle.clear();
 					handle.seekp(offset, ios::beg); //reset to beginning
-					cout <<"\n Reached end of file - reset to beginning";
+					DEBUG("\n Reached end of file - reset to beginning");
 				}
 				else
 				{

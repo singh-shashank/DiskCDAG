@@ -82,11 +82,21 @@ int main(int argc, char* argv[])
 
 	ts1 = rtclock();
 
-	if(argc>2) Cs = atoi(argv[2]);
-	//Cs *= 2;				// 2-M RCCP
+	string diskGraphFileName("");
+	string diskGraphIndexFileName("");
 
-	if(argc>3) NCOUNT = atoi(argv[3]);
-	if(argc>4) CHILDCOUNT = atoi(argv[4]);
+	if(argc >= 3)
+	{
+		diskGraphFileName = string(argv[2]);
+		diskGraphIndexFileName = argc == 4 ? string(argv[3]) : "";
+	}
+
+
+	// if(argc>2) Cs = atoi(argv[2]);
+	// //Cs *= 2;				// 2-M RCCP
+
+	// if(argc>3) NCOUNT = atoi(argv[3]);
+	// if(argc>4) CHILDCOUNT = atoi(argv[4]);
 
 	#if 0
 	int flag=0;
@@ -163,10 +173,10 @@ int main(int argc, char* argv[])
 		//}
 		//
 
-		for(fileIter = files.begin(); fileIter != files.end(); ++fileIter)
+		//for(fileIter = files.begin(); fileIter != files.end(); ++fileIter)
 		{
 			ReadCDAG rcg;
-			rcg.init(*fileIter);
+			rcg.init(files[0], diskGraphFileName, diskGraphIndexFileName);
 		}
 
 	}
