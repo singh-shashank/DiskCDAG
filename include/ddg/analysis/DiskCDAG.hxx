@@ -70,11 +70,12 @@ bool isBitSet(BYTE *bitSet, int bitNum, int numBitSets)
 }
 
 void unsetBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)
-{
+{	
 	int groupIndex = bitNum >> 3;  // divide by 8
 	assert(groupIndex < numBitSets);
 	int bitIndex = bitNum % 8;
-	BYTE byteMask = ~(byteMask & 0) ^ (1 << (7 - bitIndex));
+	BYTE byteMask = 0;
+	byteMask = ~(byteMask) ^ (1 << (7 - bitIndex));
 	bitSet[groupIndex] = bitSet[groupIndex] & byteMask;
 }
 
@@ -104,7 +105,7 @@ namespace ddg
 using namespace llvm;
 using namespace std;
 
-#define NUM_SLOTS 4
+#define NUM_SLOTS 8
 
 #ifdef FULL_DAG
 typedef size_t payload_type;
@@ -197,6 +198,25 @@ struct DataList
 	}
 
 	bool readNodeFromASCIIFile(istream &file)
+	{
+		listCapacity = 0;
+		file.read((char*)&id, sizeof(Id));
+		file.read((char*)&listCapacity, sizeof(Id));		
+		for(int i=0; i<listCapacity;++i)
+		{
+			Id temp =0;
+			file.read((char*)&temp, sizeof(Id));
+			// TODO : comparing with 0 is a hack for successor list here
+			// because '0' in dynamic graph cannot be successor of any node
+			// thus this check works. 
+			if(temp > 0)
+			{
+				list.push_back(temp);
+			}
+		}
+	}
+
+	bool readNodeFromBinaryFile(istream &file)
 	{
 		listCapacity = 0;
 		file.read((char*)&id, sizeof(Id));
@@ -328,8 +348,10 @@ class DiskCDAG
 					it != predsList.end();
 					++it)
 				{
-					file.write((const char*)&(*it), sizeof(Id));
+					Id temp = *it;
+					file.write((const char*)&temp, sizeof(Id));
 				}
+				// copy(predsList.begin(), predsList.end(), ostream_iterator<Id>(file));
 
 				Id succCount = succsList.size();
 				file.write((const char*)&succCount, sizeof(Id));
@@ -337,8 +359,10 @@ class DiskCDAG
 					it != succsList.end();
 					++it)
 				{
-					file.write((const char*)&(*it), sizeof(Id));
+					Id temp = *it;
+					file.write((const char*)&temp, sizeof(Id));
 				}
+				//copy(succsList.begin(), succsList.end(), ostream_iterator<Id>(file));
 			}
 
 			void writeToStream(fstream &ss)
@@ -355,18 +379,22 @@ class DiskCDAG
 
 				Id predCount = 0;
 				file.read((char*)&predCount, sizeof(Id));
-				predsList.reserve(predCount);
 				for(int i=0; i < predCount; ++i)
 				{
-					file.read((char*)&predsList[i], sizeof(Id));
+					Id temp = 0;
+					file.read((char*)&temp, sizeof(Id));
+					predsList.push_back(temp);
+					// TODO : how to make this cleaner implementation work?
+					//file.read((char*)&predsList[i], sizeof(Id)); 
 				}
 
 				Id succCount = 0;
-				file.read((char*)&dynId, sizeof(Id));
-				succsList.reserve(succCount);
+				file.read((char*)&succCount, sizeof(Id));
 				for(int i=0; i < succCount; ++i)
 				{
-					file.read((char*)&succsList[i], sizeof(Id));
+					Id temp = 0;
+					file.read((char*)&temp, sizeof(Id));
+					succsList.push_back(temp);
 				}
 			}
 
@@ -514,7 +542,7 @@ class DiskCDAG
 			//  TODO : revisit this part for checking corner cases and add some comments
 			graphDumpFile.open((bcFileName+tempGraphDumpFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
 			graphDumpFile.close();
-			graphDumpFile.open((bcFileName+tempGraphDumpFNSuffix).c_str(), std::fstream::in | std::fstream::out);
+			graphDumpFile.open((bcFileName+tempGraphDumpFNSuffix).c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 			
 			succsListTempFile.open((bcFileName+tempSuccsListFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
 			succsListTempFile.close();
@@ -762,28 +790,28 @@ class DiskCDAG
 		}
 		
 		// Mark a node
-		void markNode(Id nodeId)
+		void markNode(BYTE *bitSet, Id nodeId)
 		{
-			if(!nodeMarkerBitSet)
+			if(!bitSet)
 			{
 				numOfBytesFornodeMarkerBitSet = utils::convertNumNodesToBytes(numNodes);
-				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
-				memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default
+				bitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
+				memset(bitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default
 			}
-			utils::setBitInBitset(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);
+			utils::setBitInBitset(bitSet, nodeId, numOfBytesFornodeMarkerBitSet);
 		}
 
 		// Unmark a node
-		void unmarkNode(Id nodeId)
+		void unmarkNode(BYTE* bitSet, Id nodeId)
 		{
-			if(!nodeMarkerBitSet)
+			if(!bitSet)
 			{
 				numOfBytesFornodeMarkerBitSet = utils::convertNumNodesToBytes(numNodes);
-				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
-				memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default
+				bitSet = new BYTE[numOfBytesFornodeMarkerBitSet];
+				memset(bitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default
 				return;
 			}
-			utils::unsetBitInBitset(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);
+			utils::unsetBitInBitset(bitSet, nodeId, numOfBytesFornodeMarkerBitSet);
 		}
 
 		// Unmark all the nodes
@@ -798,26 +826,26 @@ class DiskCDAG
 		}
 
 		// Is node marked/unmarked
-		bool isNodeMarked(const Id &nodeId)
+		bool isNodeMarked(BYTE *bitSet, const Id &nodeId)
 		{
-			return utils::isBitSet(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);
+			return utils::isBitSet(bitSet, nodeId, numOfBytesFornodeMarkerBitSet);
 		}
 
 		// Finds the first unmarked node (i.e. the first 0 in bitset)
 		// If there is a node it returns true
 		// Otherwise false. 
-		bool getFirstReadyNode(Id &nodeId)
+		bool getFirstReadyNode(BYTE *bitSet, Id &nodeId)
 		{
 			bool retVal = false;
 			BYTE oneMask = ~0;
 			for(unsigned int i=0; i<numOfBytesFornodeMarkerBitSet; ++i)
 			{
-				if(nodeMarkerBitSet[i] ^ oneMask != 0)
+				if(bitSet[i] ^ oneMask != 0)
 				{
 					// we have zero in here somewhere
 					for(unsigned int j=(1<<7), pos=0; j>0; j=j>>1, ++pos)
 					{
-						if((nodeMarkerBitSet[i] & j) == 0)
+						if((bitSet[i] & j) == 0)
 						{
 							nodeId = i*8 + pos;
 							retVal = true;
@@ -868,7 +896,7 @@ class DiskCDAG
 
 		void updateGraphWithSuccessorInfo()
 		{
-			ofstream diskGraph(diskGraphFileName.c_str());
+			ofstream diskGraph(diskGraphFileName.c_str(), ios::binary);
 			ofstream diskGraphIndex(diskGraphIndexFileName.c_str(), ios::binary);
 
 			streampos pos(0);
@@ -906,7 +934,6 @@ class DiskCDAG
 			vector<CDAGNode*> nodesToWriteList;
 			vector<Id> succList;
 			
-
 			map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
 			for(; it != idToCDAGNodeMap.end(); ++it)
 			{
@@ -954,14 +981,24 @@ class DiskCDAG
 		{
 			stringstream ss;
 			vector<CDAGNode*>::iterator it1 = nodesToWriteList.begin();
+			int prev = -1;
 			for(; it1 != nodesToWriteList.end(); ++it1)
 			{
-				(*it1)->writeToStream(ss);
-				diskGraph << ss.str();
+				// (*it1)->writeToStream(ss);
+				// diskGraph << ss.str();
+				(*it1)->writeToStreamInBinary(diskGraph);
+
 				Id curId = (*it1)->getId() + 1;
-				cout << "\r Processed node with id :" << curId;
-	 			cout << " ( of " << numNodes << "nodes) - ";
-	 			cout << (curId*100)/numNodes << "% done.";				//diskGraphIndex.write((const char*)&pos, sizeof(streampos));
+	 			int perc = (curId*100)/count;
+	 			if(perc%5 == 0 && prev != perc)
+	 			{
+	 				prev = perc;
+	 				cout << "\r\033[K ";
+	 				cout << "Processed node with id :" << curId;
+	 				cout << " ( of " << count << "nodes) - ";
+	 				cout << perc << "% done." << flush;
+	 			}
+			//diskGraphIndex.write((const char*)&pos, sizeof(streampos));
 			}
 			pos = diskGraph.tellp();
 		}
@@ -1048,13 +1085,14 @@ class DiskCDAG
 			unmarkAllNodes(); // mark all nodes as ready
 			queue<Id> q;
 			Id startV;
-			vector<Id> bfsOutput;
+			//vector<Id> bfsOutput;
+			ofstream bfsOutFile("bfsOut");
 			bool error = false;
-			while(getFirstReadyNode(startV))
+			while(getFirstReadyNode(nodeMarkerBitSet, startV))
 			{
-				cout << "\n Starting vertex :" <<startV <<"\n";
+				bfsOutFile << "\nStarting vertex : " << startV << "\n";
 				q.push(startV);
-				markNode(startV);
+				markNode(nodeMarkerBitSet, startV);
 				
 				while(!q.empty())
 				{
@@ -1066,14 +1104,15 @@ class DiskCDAG
 						break;
 					}
 					q.pop();
-					bfsOutput.push_back(curNode->dynId);
+					//bfsOutput.push_back(curNode->dynId);
+					bfsOutFile << curNode->dynId << " ";
 					for(vector<Id>::const_iterator it = curNode->succsList.begin();
 						it != curNode->succsList.end(); ++it)
 					{
-						if(!isNodeMarked(*it))
+						if(!isNodeMarked(nodeMarkerBitSet, *it))
 						{
 							q.push(*it);
-							markNode(*it);							
+							markNode(nodeMarkerBitSet, *it);							
 						}
 						else
 						{
@@ -1081,21 +1120,112 @@ class DiskCDAG
 						}
 					}
 					++processedNodeCount;
-					cout << "\r Number of nodes processed : " << processedNodeCount;
-					cout << " (of " << numNodes << ") - ";
-					cout << (processedNodeCount*100)/numNodes << " % done." <<flush;
+					int perc = (processedNodeCount*100)/numNodes;
+					int prev = 0;
+					if(perc % 5 == 0 && perc != prev)
+					{
+						cout << "\r\033[K ";
+						cout << "Number of nodes processed : " << processedNodeCount;
+						cout << " (of " << numNodes << ") - ";
+						cout << perc << " % done.";
+						cout << " | Number of (currently) discovered but unprocessed nodes : ";
+						cout << q.size() << flush;
+						prev = perc;
+					}
 				}
-				cout << "\n Listing reachable nodes in BFS order : \n";
-				for(vector<Id>::iterator it = bfsOutput.begin(); 
-					it != bfsOutput.end(); ++it)
-				{
-					cout << *it << " ";
-				}
-				cout <<"\n";
-				bfsOutput.clear();
+				// cout << "\n Listing reachable nodes in BFS order : \n";
+				// for(vector<Id>::iterator it = bfsOutput.begin(); 
+				// 	it != bfsOutput.end(); ++it)
+				// {
+				// 	cout << *it << " ";
+				// }
+				// cout <<"\n";
+				// bfsOutput.clear();
 				if(error)
 					break;
 			}
+		}
+
+		void performBFSWithoutQ()
+		{
+			cout << "\n Starting BFS on graph with " << numNodes << " nodes.\n";
+
+			if(!lruCache)
+			{
+				cout << "\n Error : Cache not initialized for the graph..exiting";
+				return;
+			}
+			
+			Id processedNodeCount = 0;
+			unmarkAllNodes(); // mark all nodes as ready
+			BYTE *qBitSetForNodes = new BYTE[numOfBytesFornodeMarkerBitSet];
+			//memset(qBitSetForNodes, 0, numOfBytesFornodeMarkerBitSet);
+			Id startV;
+			//vector<Id> bfsOutput;
+			ofstream bfsOutFile("bfsOut");
+			bool error = false;
+			int prev = -1;
+			while(getFirstReadyNode(nodeMarkerBitSet, startV))
+			{
+				//cout << "\nStarting vertex : " << startV << "\n";
+				bfsOutFile << "\nStarting vertex : " << startV << "\n";
+				//q.push(startV);
+				memset(qBitSetForNodes, ~0, numOfBytesFornodeMarkerBitSet);
+				unmarkNode(qBitSetForNodes, startV);
+				markNode(nodeMarkerBitSet, startV);
+				
+				Id onQNode;
+				while(getFirstReadyNode(qBitSetForNodes, onQNode))
+				{
+					const CDAGNode *curNode = lruCache->getData(onQNode);
+					if(!curNode)
+					{
+						cout <<"\n Failed to get " << onQNode << " node..stopping BFS";
+						error = true;
+						break;
+					}
+					markNode(qBitSetForNodes, onQNode);
+					//bfsOutput.push_back(curNode->dynId);
+					bfsOutFile << curNode->dynId << " ";
+					for(vector<Id>::const_iterator it = curNode->succsList.begin();
+						it != curNode->succsList.end(); ++it)
+					{
+						if(!isNodeMarked(nodeMarkerBitSet, *it))
+						{
+							//q.push(*it);
+							unmarkNode(qBitSetForNodes, *it);
+							markNode(nodeMarkerBitSet, *it);							
+						}
+						else
+						{
+							// its already visited
+						}
+					}
+					++processedNodeCount;
+					int perc = (processedNodeCount*100)/numNodes;
+					if((perc % 5) == 0 && perc != prev)
+					{
+						cout << "\r\033[K ";
+						cout << "Number of nodes processed : " << processedNodeCount;
+						cout << " (of " << numNodes << ") - ";
+						cout << perc << " % done.";
+						cout << " | Number of (currently) discovered but unprocessed nodes : ";
+						cout << flush;
+						prev = perc;
+					}
+				}
+				// cout << "\n Listing reachable nodes in BFS order : \n";
+				// for(vector<Id>::iterator it = bfsOutput.begin(); 
+				// 	it != bfsOutput.end(); ++it)
+				// {
+				// 	cout << *it << " ";
+				// }
+				// cout <<"\n";
+				// bfsOutput.clear();
+				if(error)
+					break;
+			}
+			delete []qBitSetForNodes;
 		}
 
 	 	void printDiskGraph(ostream &out)
@@ -1162,14 +1292,22 @@ class DiskCDAG
 		{
 			std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();
 	 		stringstream ss;
+	 		int prev = -1;
 	 		for(; it!=idToCDAGNodeMap.end(); ++it)
 	 		{
 	 			Id curId = it->second->getId() + 1;
-	 			cout << "\r Processed node with id :" << curId;
-	 			cout << " ( of " << numNodes << "nodes) - ";
-	 			cout << (curId*100)/numNodes << "% done.";
-	 			it->second->writeToStream(ss);
-	 			graphDumpFile << ss.str();
+	 			int perc = (curId*100)/count;
+	 			if(perc%5 == 0 && prev != perc)
+	 			{
+	 				prev = perc;
+	 				cout << "\r\033[K ";
+	 				cout << "Processed node with id :" << curId;
+	 				cout << " ( of " << count << "nodes) - ";
+	 				cout << perc << "% done." << flush;
+	 			}
+	 			// it->second->writeToStream(ss);
+	 			// graphDumpFile << ss.str();
+	 			it->second->writeToStreamInBinary(graphDumpFile);
 	 		}
 	 		graphDumpFile.flush();
 
@@ -1191,7 +1329,8 @@ class DiskCDAG
 			{
 				pos = file.tellg();
 				CDAGNode *node = getAvailableCDAGNode();
-				err = node->readNodeFromASCIIFile(file);
+				// err = node->readNodeFromASCIIFile(file);
+				err = node->readNodeFromBinaryFile(file);
 				curBlockSize += sizeof(*node);
 				if(curBlockSize < blockSize*NUM_SLOTS && !file.eof())
 				{

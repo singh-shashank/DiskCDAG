@@ -14,6 +14,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <ctime>
 
 
 using namespace std;
@@ -76,22 +77,29 @@ public:
     Ids ids;
     ids.runOnModule(*module.get());
 
-    size_t bs = 524288;// 4KB is the block size
+    //size_t bs = 524288;// 512MB is the block size
+    size_t bs = 131072;// 128MB is the block size
     const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
+
+    clock_t begin = clock();
     DiskCDAG *cdag = cdag = DiskCDAG::generateGraph(ids, programName, 
       diskGraphFileName, diskGraphIndexFileName, bs); 
+    clock_t end = clock();
+    double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
+    cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;
 
     if(cdag)
     {
       //ofstream test("succtest");
       //cdag->printDiskGraph(test);
       //cdag->printGraph();
-      
-
-      
 
       //cdag->testMethodForDiskCache();
-      cdag->performBFS();
+      begin = clock();
+      cdag->performBFSWithoutQ();
+      end = clock();
+      elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
+      cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;
 
 
       delete cdag;

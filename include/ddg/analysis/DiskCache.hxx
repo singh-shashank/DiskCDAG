@@ -8,6 +8,7 @@
 #include <queue>
 #include <climits>
 #include <algorithm>
+#include <deque>
 
 #define DEBUG(msg) do { if (!DEBUG_ENABLED) {} \
                    else std::cout << __FILE__ << ":" << __LINE__ << " " << msg; \
@@ -30,7 +31,10 @@ namespace ddg{
 		DiskCache(int bs, int numSlots, bool flag = false): BLOCK_SIZE(bs),
 									  NUM_SLOTS(numSlots),
 									  writeBackFlag(flag),
-									  initFlag(false)
+									  initFlag(false),
+									  dataCount(),
+									  MAX_ITEMS_PER_SLOT(BLOCK_SIZE/sizeof(Data)),
+									  MAX_ITEMS_IN_CACHE(MAX_ITEMS_PER_SLOT*NUM_SLOTS)
 		{}
 
 		~DiskCache()
@@ -45,7 +49,7 @@ namespace ddg{
 			while(!availableDataNodesQ.empty())
 			{
 				delete availableDataNodesQ.front();
-				availableDataNodesQ.pop();
+				availableDataNodesQ.pop_front();
 			}
 
 			// Delete slots
@@ -76,6 +80,22 @@ namespace ddg{
 			policy = p;
 			dataFileName = file;
 			slots = new SLOT[NUM_SLOTS];
+
+			// // Reserve memory for slots
+			// for(int i=0; i<NUM_SLOTS; ++i)
+			// {
+			// 	slots[i].reserve(MAX_ITEMS_PER_SLOT+1);
+			// }
+
+			// // Pre-allocate Data and SlotIdSlotIndex objects
+			// for(int i=0; i<MAX_ITEMS_IN_CACHE; ++i)
+			// {
+			// 	Data *node = new Data();
+			// 	availableDataNodesQ.push_back(node);
+
+			// 	SlotIdSlotIndex *obj = new SlotIdSlotIndex();
+			// 	availableSlotIdIndexObjs.push_back(obj);
+			// }
 
 			// Initialize use list
 			useListHead = new ListNode(0);
@@ -117,6 +137,7 @@ namespace ddg{
 					writeBackFlag = temp;
 				}
 				cout << "done!" <<flush;
+				dataCount = dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;
 			}
 
 			return initFlag;
@@ -124,7 +145,7 @@ namespace ddg{
 
 		Id getDataCount()
 		{
-			return dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;
+			return dataCount;
 		}
 
 		virtual void createDataIndex(bool dumpToFile)
@@ -278,7 +299,8 @@ namespace ddg{
 			{
 				Data* node = getAvailableDataNode();
 				streampos beforeReadOff = dataFileHandle.tellg();
-				node->readNodeFromASCIIFile(dataFileHandle);
+				//node->readNodeFromASCIIFile(dataFileHandle);
+				node->readNodeFromBinaryFile(dataFileHandle);
 				curSize += sizeof(*node);
 				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
 				{
@@ -290,7 +312,7 @@ namespace ddg{
 				}
 				else
 				{
-					availableDataNodesQ.push(node);
+					availableDataNodesQ.push_back(node);
 					// we have read an extra data node.
 					// Seek back by the size of the node read
 					//dataFileHandle.seekg(beforeReadOff, ios::beg);
@@ -360,7 +382,7 @@ namespace ddg{
 			for(; it != slots[slotId].end(); ++it)
 			{
 				dataIdToSlotMap.erase((*it)->getId());
-				availableDataNodesQ.push(*it);
+				availableDataNodesQ.push_back(*it);
 			}
 
 			slots[slotId].clear();
@@ -372,11 +394,13 @@ namespace ddg{
 			if(!availableDataNodesQ.empty())
 			{
 				retVal = availableDataNodesQ.front();
-				availableDataNodesQ.pop();
+				availableDataNodesQ.pop_front();
 				retVal->reset();
 			}
 			else
 			{
+				cout << "\n Warning : Allocating a new Data node!";
+				cout << " Shouldn't happen if the nodes were pre-allocated";
 				retVal = new Data();
 			}
 			return retVal;
@@ -647,6 +671,9 @@ namespace ddg{
 		bool initFlag;
 		unsigned int policy;
 		bool writeBackFlag;
+		const unsigned int MAX_ITEMS_PER_SLOT;
+		const unsigned int MAX_ITEMS_IN_CACHE;
+		DataId dataCount;
 
 		SLOT *slots;
 		DATA_TO_SLOT_MAP dataIdToSlotMap;	
@@ -660,7 +687,8 @@ namespace ddg{
 
 		vector<DataIdRange> dataIdBlockRangeList;
 
-		queue<Data*> availableDataNodesQ;
+		deque<Data*> availableDataNodesQ;
+		deque<SlotIdSlotIndex*> availableSlotIdIndexObjs;
 
 
 	public:
