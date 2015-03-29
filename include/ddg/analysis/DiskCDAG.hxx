@@ -17,6 +17,7 @@
 #include <typeinfo>
 #include <sstream>
 #include <istream>
+#include <deque>
 
 #include "ddg/analysis/DiskCache.hxx"
 
@@ -270,8 +271,8 @@ class DiskCDAG
 			Address addr;	// Addresses represented by this node if any
 			unsigned int type;	// LLVM Type of the node
 			Id staticId;
-			std::vector<Id> predsList;	// Vector containing list of predecessors
-			std::vector<Id> succsList;	// Vector containing list of successors
+			std::deque<Id> predsList;	// Vector containing list of predecessors
+			std::deque<Id> succsList;	// Vector containing list of successors
 
 			// TODO : initialize it with proper values
 			CDAGNode(): dynId(0),
@@ -289,14 +290,14 @@ class DiskCDAG
 				out << "Instruction :" << llvm::Instruction::getOpcodeName(type) << " ";
 				out << "StaticID : " << staticId << " ";
 				out << " \n Num Predecessors: " << predsList.size() <<"\n";
-				for(std::vector<Id>::const_iterator it = predsList.begin();
+				for(std::deque<Id>::const_iterator it = predsList.begin();
 					it != predsList.end();
 					++it)
 				{
 					out << *it << ",";
 				}
 				out << " \n Num Successor: " << succsList.size() <<"\n";
-				for(std::vector<Id>::const_iterator it = succsList.begin();
+				for(std::deque<Id>::const_iterator it = succsList.begin();
 					it != succsList.end();
 					++it)
 				{
@@ -317,7 +318,7 @@ class DiskCDAG
 				ss << "\n";
 				
 				ss << predsList.size() << " ";
-				for(std::vector<Id>::iterator it = predsList.begin();
+				for(std::deque<Id>::iterator it = predsList.begin();
 					it != predsList.end();
 					++it)
 				{
@@ -326,7 +327,7 @@ class DiskCDAG
 				ss << "\n";
 
 				ss << succsList.size() << " ";
-				for(std::vector<Id>::iterator it = succsList.begin();
+				for(std::deque<Id>::iterator it = succsList.begin();
 					it != succsList.end();
 					++it)
 				{
@@ -344,7 +345,7 @@ class DiskCDAG
 
 				Id predCount = predsList.size();
 				file.write((const char*)&predCount, sizeof(Id));
-				for(std::vector<Id>::iterator it = predsList.begin();
+				for(std::deque<Id>::iterator it = predsList.begin();
 					it != predsList.end();
 					++it)
 				{
@@ -355,7 +356,7 @@ class DiskCDAG
 
 				Id succCount = succsList.size();
 				file.write((const char*)&succCount, sizeof(Id));
-				for(std::vector<Id>::iterator it = succsList.begin();
+				for(std::deque<Id>::iterator it = succsList.begin();
 					it != succsList.end();
 					++it)
 				{
@@ -943,7 +944,12 @@ class DiskCDAG
 				CDAGNode *curNode = it->second;
 				if(l->list.size() > 0)
 				{
-					curNode->succsList = l->list;
+					//curNode->succsList = l->list;
+					for(vector<Id>::iterator it1 = l->list.begin();
+						it1 != l->list.end(); ++it1)
+					{
+						curNode->succsList.push_back(*it1);
+					}
 				}
 
 				// Check if we reached the write block size
@@ -1106,7 +1112,7 @@ class DiskCDAG
 					q.pop();
 					//bfsOutput.push_back(curNode->dynId);
 					bfsOutFile << curNode->dynId << " ";
-					for(vector<Id>::const_iterator it = curNode->succsList.begin();
+					for(std::deque<Id>::const_iterator it = curNode->succsList.begin();
 						it != curNode->succsList.end(); ++it)
 					{
 						if(!isNodeMarked(nodeMarkerBitSet, *it))
@@ -1187,7 +1193,7 @@ class DiskCDAG
 					markNode(qBitSetForNodes, onQNode);
 					//bfsOutput.push_back(curNode->dynId);
 					bfsOutFile << curNode->dynId << " ";
-					for(vector<Id>::const_iterator it = curNode->succsList.begin();
+					for(std::deque<Id>::const_iterator it = curNode->succsList.begin();
 						it != curNode->succsList.end(); ++it)
 					{
 						if(!isNodeMarked(nodeMarkerBitSet, *it))

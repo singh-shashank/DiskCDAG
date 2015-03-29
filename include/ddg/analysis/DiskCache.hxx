@@ -19,6 +19,8 @@
 #define DEBUG_ENABLED 0
 #endif
 
+//#define DEBUG_ENABLED 1
+
 namespace ddg{
 
 	using namespace std;
@@ -45,11 +47,16 @@ namespace ddg{
 				invalidateSlot(i);
 			}
 
-			// clear up all the Data nodes
+			// clear up all the pre-allocated objects
 			while(!availableDataNodesQ.empty())
 			{
 				delete availableDataNodesQ.front();
 				availableDataNodesQ.pop_front();
+			}
+			while(!availableSlotIdIndexObjsQ.empty())
+			{
+				delete availableSlotIdIndexObjsQ.front();
+				availableSlotIdIndexObjsQ.pop_front();
 			}
 
 			// Delete slots
@@ -81,22 +88,6 @@ namespace ddg{
 			dataFileName = file;
 			slots = new SLOT[NUM_SLOTS];
 
-			// // Reserve memory for slots
-			// for(int i=0; i<NUM_SLOTS; ++i)
-			// {
-			// 	slots[i].reserve(MAX_ITEMS_PER_SLOT+1);
-			// }
-
-			// // Pre-allocate Data and SlotIdSlotIndex objects
-			// for(int i=0; i<MAX_ITEMS_IN_CACHE; ++i)
-			// {
-			// 	Data *node = new Data();
-			// 	availableDataNodesQ.push_back(node);
-
-			// 	SlotIdSlotIndex *obj = new SlotIdSlotIndex();
-			// 	availableSlotIdIndexObjs.push_back(obj);
-			// }
-
 			// Initialize use list
 			useListHead = new ListNode(0);
 			ListNode *curNode = useListHead;
@@ -123,7 +114,7 @@ namespace ddg{
 
 			// If all is well till now, read in the index file
 			if(initFlag){
-				cout << "\n Indexing the graph file..." << flush;
+				cout << "\n Indexing the data file..." << flush;
 				if(!indexFile.empty())
 				{
 					readDataIndexFile();
@@ -136,14 +127,44 @@ namespace ddg{
 					createDataIndex(false);
 					writeBackFlag = temp;
 				}
-				cout << "done!" <<flush;
 				dataCount = dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;
+				cout << "done!";
 			}
+
+			// We have a valid data count now
+			DEBUG("\nData count for " << dataFileName << ": " << dataCount);
+			unsigned int maxDataObjectsRequired = MAX_ITEMS_IN_CACHE+1;
+			if(dataCount > MAX_ITEMS_IN_CACHE)
+			{
+				// Reserve memory for slots
+				for(int i=0; i<NUM_SLOTS; ++i)
+				{
+					slots[i].reserve(MAX_ITEMS_PER_SLOT+1);
+				}
+			}
+			else
+			{
+				// We have enough space in cache to avoid data eviction.
+				// Just pre-allocate Data and SlotIdSlotIndex objects
+				maxDataObjectsRequired = dataCount + 10;
+
+			}
+			// Pre-allocate Data and SlotIdSlotIndex objects
+			for(int i=0; i<maxDataObjectsRequired; ++i)
+			{
+				Data *node = new Data();
+				availableDataNodesQ.push_back(node);
+
+				SlotIdSlotIndex *obj = new SlotIdSlotIndex();
+				availableSlotIdIndexObjsQ.push_back(obj);
+			}
+			DEBUG("\n availableDataNodes : " << availableDataNodesQ.size());
+			DEBUG("\n availableSlotIdIndexObjs : " << availableSlotIdIndexObjsQ.size());
 
 			return initFlag;
 		}
 
-		Id getDataCount()
+		DataId getDataCount()
 		{
 			return dataCount;
 		}
@@ -157,22 +178,30 @@ namespace ddg{
 
 			// start creating the index
 			streampos startPos = 0;
+			DataId begin = 0, end = 0;
 			while(dataFileHandle.peek() != EOF)
 			{
 				startPos = dataFileHandle.tellg();
-				int slotId = getAvailableSlot();
-				// Invalidate the current slot before reading
-				invalidateSlot(slotId);
-				readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in
-				int count = slots[slotId].size();
-				if(count > 0)
-				{
-					DataIdRange range;
-					range.setRange(slots[slotId][0]->getId(),
-									slots[slotId][count-1]->getId(),
-									startPos);
-					dataIdBlockRangeList.push_back(range);
-				}
+				// int slotId = getAvailableSlot();
+				// // Invalidate the current slot before reading
+				// invalidateSlot(slotId);
+				// readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in
+				// int count = slots[slotId].size();
+				// if(count > 0)
+				// {
+				// 	DataIdRange range;
+				// 	range.setRange(slots[slotId][0]->getId(),
+				// 					slots[slotId][count-1]->getId(),
+				// 					startPos);
+				// 	dataIdBlockRangeList.push_back(range);
+				// }
+				begin = 0, end =0;
+				readBlockForDataIndexing(begin, end);
+				DataIdRange range;
+				range.setRange(begin,
+								end,
+								startPos);
+				dataIdBlockRangeList.push_back(range);
 			}
 
 			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());
@@ -275,6 +304,16 @@ namespace ddg{
 				slotIndex = rhs.slotIndex;
 				return *this;
 			}
+			void reset()
+			{
+				slotId = -1, slotIndex = -1;
+			}	
+
+			void setValues(unsigned int &s, unsigned int &ind)
+			{
+				slotId = s;
+				slotIndex = ind;
+			}
 		};
 
 		// This method assumes that dataFileHandle is pointing to 
@@ -301,11 +340,15 @@ namespace ddg{
 				streampos beforeReadOff = dataFileHandle.tellg();
 				//node->readNodeFromASCIIFile(dataFileHandle);
 				node->readNodeFromBinaryFile(dataFileHandle);
+				// TODO : a check to see if the read node is valid
 				curSize += sizeof(*node);
 				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
 				{
 					slots[slotId].push_back(node);
-					SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);
+					//SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);
+					SlotIdSlotIndex *dataInfo = getAvailableSlotIdSlotIndexObj();
+					unsigned int ind = (slots[slotId].size()-1);
+					dataInfo->setValues(slotId, ind);
 					dataIdToSlotMap[node->getId()] = dataInfo;
 					if(id == node->getId())
 						slotIndex = slots[slotId].size()-1;
@@ -341,6 +384,62 @@ namespace ddg{
 				dumpSlot(slotId);
 			}
 			return slotIndex;
+		}
+
+		void readBlockForDataIndexing(DataId &begin, DataId &end)
+		{
+			DEBUG("\n readBlockForDataIndexing ");
+
+			// Start reading from the file
+			// Implementation Note :-
+			// From the API perspective its good idea to stop reading 
+			// when you reach the Block size and not when you reached 
+			// the next block offset as specified by the data index 
+			// data structure
+			size_t curSize = 0;
+			bool firstNode = true;
+			Data* node = new Data();
+			while(true)
+			{
+				node->reset();
+				streampos beforeReadOff = dataFileHandle.tellg();
+				//node->readNodeFromASCIIFile(dataFileHandle);
+				node->readNodeFromBinaryFile(dataFileHandle);
+				// TODO : a check to see if the read node is valid
+				curSize += sizeof(*node);
+				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
+				{
+					if(firstNode)
+					{
+						firstNode = false;
+						begin = node->getId();
+					}
+					end = node->getId();
+				}
+				else
+				{
+					// we have read an extra data node.
+					// Seek back by the size of the node read
+					//dataFileHandle.seekg(beforeReadOff, ios::beg);
+					if(dataFileHandle.eof())
+					{
+						// If we reached the eof then beforeReadOff is
+						// set to -1 and the subsequent read would set
+						// the fail bit. (TODO fix the subsquent read)
+						// Go to the beginning of the file.
+						//seekForRead(dataFileHandle, 0);
+
+						// THERE IS SOMETHING FISHY HERE. COMMENTING IT FOR
+						// NOW. 
+					}
+					else
+					{
+						seekForRead(dataFileHandle, beforeReadOff);
+					}
+					break;
+				}
+			}
+			delete node;
 		}
 
 		void dumpSlot(int slotId)
@@ -381,6 +480,7 @@ namespace ddg{
 			SLOT_ITERATOR it = slots[slotId].begin();
 			for(; it != slots[slotId].end(); ++it)
 			{
+				availableSlotIdIndexObjsQ.push_back(dataIdToSlotMap[(*it)->getId()]);
 				dataIdToSlotMap.erase((*it)->getId());
 				availableDataNodesQ.push_back(*it);
 			}
@@ -405,6 +505,23 @@ namespace ddg{
 			}
 			return retVal;
 		}
+		SlotIdSlotIndex* getAvailableSlotIdSlotIndexObj()
+		{
+			SlotIdSlotIndex *retVal = 0;
+			if(!availableSlotIdIndexObjsQ.empty())
+			{
+				retVal = availableSlotIdIndexObjsQ.front();
+				availableSlotIdIndexObjsQ.pop_front();
+				retVal->reset();
+			}
+			else
+			{
+				cout << "\n Warning : Allocating a new SlotIdSlotIndex object!";
+				cout << " Shouldn't happen if the nodes were pre-allocated";
+				retVal = new SlotIdSlotIndex();
+			}
+			return retVal;
+		}
 
 		SlotIdSlotIndex* isInCache(const DataId id)
 		{
@@ -412,7 +529,7 @@ namespace ddg{
 			DATA_TO_SLOT_MAP_ITERATOR it = dataIdToSlotMap.find(id);
 			if(it != dataIdToSlotMap.end())
 			{
-				dataInfo = &(it->second);
+				dataInfo = (it->second);
 			}
 			return dataInfo;
 		}
@@ -660,10 +777,13 @@ namespace ddg{
 		 	}
 		};
 
+		// Use Vectors for slots because we want to exploit spatial 
+		// locality and its optimized because indexing a file tells
+		// us the number of items we are expecting in cache.
 		typedef typename std::vector<Data*> SLOT;
 		typedef typename std::vector<Data*>::iterator SLOT_ITERATOR;
-		typedef typename std::map<DataId, SlotIdSlotIndex> DATA_TO_SLOT_MAP;
-		typedef typename std::map<DataId, SlotIdSlotIndex>::iterator DATA_TO_SLOT_MAP_ITERATOR;
+		typedef typename std::map<DataId, SlotIdSlotIndex*> DATA_TO_SLOT_MAP;
+		typedef typename std::map<DataId, SlotIdSlotIndex*>::iterator DATA_TO_SLOT_MAP_ITERATOR;
 
 		const size_t BLOCK_SIZE;
 		const int NUM_SLOTS;
@@ -687,8 +807,11 @@ namespace ddg{
 
 		vector<DataIdRange> dataIdBlockRangeList;
 
+		// Object pool for BIG performance improvements
+		// especially when we are dealing with millions of
+		// data items.
 		deque<Data*> availableDataNodesQ;
-		deque<SlotIdSlotIndex*> availableSlotIdIndexObjs;
+		deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;
 
 
 	public:
