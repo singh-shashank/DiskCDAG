@@ -231,6 +231,7 @@ struct DataList
 				list.push_back(temp);
 			}
 		}
+		return false; // TODO : Check for errors and return
 	}
 
 	void print(ostream &out) const
@@ -397,6 +398,7 @@ class DiskCDAG
 					file.read((char*)&temp, sizeof(Id));
 					succsList.push_back(temp);
 				}
+				return false; // TODO : check for errors and return
 			}
 
 			bool readNodeFromASCIIFile(istream &file)
@@ -499,6 +501,8 @@ class DiskCDAG
 
 		bool graphCreatedFlag;
 
+		ofstream graphInAscii;
+
 		void init(size_t count)
 		{
 			lruCache = 0;
@@ -548,6 +552,8 @@ class DiskCDAG
 			succsListTempFile.open((bcFileName+tempSuccsListFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
 			succsListTempFile.close();
 			succsListTempFile.open((bcFileName+tempSuccsListFNSuffix).c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
+
+			graphInAscii.open("asciiGraphPrint");
 			
 			//printBeforeWriteFile.open(string(bcFileName+"printbeforewrite").c_str());
 			//printAfterReadFile.open(string(bcFileName+"printafterread").c_str());
@@ -576,6 +582,7 @@ class DiskCDAG
 			// 	DataList* l = succsCache->getData(i);
 			// 	l->print(cout);
 			// }
+			// cin.get();
 		}
 
 		void initSuccessorListFile()
@@ -1031,6 +1038,8 @@ class DiskCDAG
 				// (*it1)->writeToStream(ss);
 				// diskGraph << ss.str();
 				(*it1)->writeToStreamInBinary(diskGraph);
+				// Enable this to get a human-readble graph output
+				//(*it1)->print(graphInAscii);
 
 				Id curId = (*it1)->getId() + 1;
 	 			int perc = (curId*100)/count;
@@ -1062,9 +1071,12 @@ class DiskCDAG
 				cout <<"\n-----Pass complete. Number of nodes : "<<countBuilder.getNumNodes() << flush;
 				//countBuilder.printSuccessorCountFile();
 				//cin.get();
-
 				cdag = new DiskCDAG(ids, bcFileName, 
 					block_size, countBuilder.getNumNodes());
+
+				// int tempNodeCount = 16120000;
+				// cdag = new DiskCDAG(ids, bcFileName, 
+				// 	block_size, tempNodeCount);
 
 				cout << "\n \n ";
 				cout <<"\n-----Starting Second Pass over the trace to dump out the graph.\n";
@@ -1115,7 +1127,7 @@ class DiskCDAG
 				return cdag;
 			}
 
-		void performBFS()
+		void performBFS(string outFile)
 		{
 			cout << "\n Starting BFS on graph with " << numNodes << " nodes.\n";
 
@@ -1130,9 +1142,10 @@ class DiskCDAG
 			deque<Id> q;
 			Id startV;
 			//vector<Id> bfsOutput;
-			ofstream bfsOutFile("bfsOut");
+			ofstream bfsOutFile(outFile.c_str());
 			bool error = false;
 			unsigned int bitSetIndex = 0;
+			int prev = -1;
 			while(getFirstReadyNode(nodeMarkerBitSet, startV, bitSetIndex))
 			{
 				bfsOutFile << "\nStarting vertex : " << startV << "\n";
@@ -1166,7 +1179,6 @@ class DiskCDAG
 					}
 					++processedNodeCount;
 					int perc = (processedNodeCount*100)/numNodes;
-					int prev = 0;
 					if(perc % 1 == 0 && perc != prev)
 					{
 						cout << "\r\033[K ";
@@ -1191,7 +1203,7 @@ class DiskCDAG
 			}
 		}
 
-		void performBFSWithoutQ()
+		void performBFSWithoutQ(string outFile)
 		{
 			cout << "\n Starting BFS on graph with " << numNodes << " nodes.\n";
 
@@ -1207,7 +1219,7 @@ class DiskCDAG
 			//memset(qBitSetForNodes, 0, numOfBytesFornodeMarkerBitSet);
 			Id startV;
 			//vector<Id> bfsOutput;
-			ofstream bfsOutFile("bfsOut");
+			ofstream bfsOutFile(outFile.c_str());
 			bool error = false;
 			int prev = -1;
 			unsigned int bitSetIndex = 0;

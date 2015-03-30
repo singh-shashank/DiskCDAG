@@ -835,8 +835,8 @@ namespace ddg{
 		// Object pool for BIG performance improvements
 		// especially when we are dealing with millions of
 		// data items.
-		//deque<Data*> availableDataNodesQ;
-		//deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;
+		// deque<Data*> availableDataNodesQ;
+		// deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;
 		// Using circular queue to check performance improvement
 
 
@@ -1045,4 +1045,3 @@ namespace ddg{
 		
 	};
 }
-

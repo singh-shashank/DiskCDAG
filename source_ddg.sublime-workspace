@@ -4,6 +4,190 @@
 		"selected_items":
 		[
 			[
+				"avai",
+				"availableDataNodesQ"
+			],
+			[
+				"Pool",
+				"PoolHandlerCircularQ"
+			],
+			[
+				"print",
+				"printPoolHandlerQ"
+			],
+			[
+				"getI",
+				"getItemFromPool"
+			],
+			[
+				"push",
+				"push_back"
+			],
+			[
+				"pool",
+				"poolVec"
+			],
+			[
+				"add",
+				"addItemToPool"
+			],
+			[
+				"cur",
+				"curSize"
+			],
+			[
+				"start",
+				"startV"
+			],
+			[
+				"bitSet",
+				"bitSetIndex"
+			],
+			[
+				"size",
+				"sizeof"
+			],
+			[
+				"ava",
+				"availableSlotIdIndexObjsQ"
+			],
+			[
+				"Ava",
+				"availableDataNodesQ"
+			],
+			[
+				"data",
+				"dataIdToSlotMap"
+			],
+			[
+				"avaial",
+				"availableSlotIdIndexObjsQ"
+			],
+			[
+				"getA",
+				"getAvailableSlotIdSlotIndexObj"
+			],
+			[
+				"dataFil",
+				"dataFileName"
+			],
+			[
+				"Slot",
+				"SlotIdSlotIndex"
+			],
+			[
+				"MAX",
+				"MAX_ITEMS_IN_CACHE"
+			],
+			[
+				"el",
+				"elapsed_time"
+			],
+			[
+				"clo",
+				"clock_t"
+			],
+			[
+				"bit",
+				"bitset"
+			],
+			[
+				"unmar",
+				"unmarkNode"
+			],
+			[
+				"q",
+				"qBitSetForNodes"
+			],
+			[
+				"numof",
+				"numOfBytesFornodeMarkerBitSet"
+			],
+			[
+				"star",
+				"startV"
+			],
+			[
+				"bfs",
+				"bfsOutFile"
+			],
+			[
+				"graph",
+				"graphDumpFile"
+			],
+			[
+				"writeto",
+				"writeToStreamInBinary"
+			],
+			[
+				"stat",
+				"staticId"
+			],
+			[
+				"marked",
+				"markedNodeCount"
+			],
+			[
+				"diskGraphF",
+				"diskGraphFileName"
+			],
+			[
+				"dataId",
+				"dataIdBlockRangeList"
+			],
+			[
+				"disk",
+				"diskGraphFileName"
+			],
+			[
+				"bc",
+				"bcFileName"
+			],
+			[
+				"dis",
+				"diskGraphIndexFileName"
+			],
+			[
+				"gra",
+				"graphCreatedFlag"
+			],
+			[
+				"diskGraphIndexF",
+				"diskGraphIndexFileName"
+			],
+			[
+				"diskGra",
+				"diskGraphIndex"
+			],
+			[
+				"file",
+				"fileWriteBS"
+			],
+			[
+				"clean",
+				"cleanUpTemporaries"
+			],
+			[
+				"alloc",
+				"allocId"
+			],
+			[
+				"CD",
+				"CDAGNode"
+			],
+			[
+				"CDAG",
+				"CDAGNode"
+			],
+			[
+				"reset",
+				"resetGraphState"
+			],
+			[
+				"gram",
+				"graphDumpFile"
+			],
+			[
 				"Region",
 				"RegionNode"
 			],
@@ -62,10 +246,6 @@
 			[
 				"handleRe",
 				"handleRegionStart"
-			],
-			[
-				"start",
-				"startRegionFn"
 			],
 			[
 				"ddg_s",
@@ -170,10 +350,6 @@
 			[
 				"SEx",
 				"SExp"
-			],
-			[
-				"print",
-				"print"
 			],
 			[
 				"parseT",
@@ -338,182 +514,6 @@
 			[
 				"t",
 				"t	test"
-			],
-			[
-				"TOken",
-				"TokenTypes"
-			],
-			[
-				"pri",
-				"println"
-			],
-			[
-				"read",
-				"readNextSetOfToken"
-			],
-			[
-				"tokens",
-				"tokensQ"
-			],
-			[
-				"out",
-				"outputFileName"
-			],
-			[
-				"erro",
-				"errorMsg"
-			],
-			[
-				"wor",
-				"workList1"
-			],
-			[
-				"work",
-				"workList2"
-			],
-			[
-				"wokr",
-				"workList1"
-			],
-			[
-				"add",
-				"add"
-			],
-			[
-				"getS",
-				"getSuccsOf"
-			],
-			[
-				"wo",
-				"workList1"
-			],
-			[
-				"ad",
-				"addAll"
-			],
-			[
-				"pos",
-				"postOrder"
-			],
-			[
-				"rev",
-				"revPostOrder"
-			],
-			[
-				"post",
-				"postOrder"
-			],
-			[
-				"rac",
-				"reachingDefinitionsV2"
-			],
-			[
-				"lhs",
-				"lhsVar"
-			],
-			[
-				"con",
-				"containsKey"
-			],
-			[
-				"hs",
-				"hsKill"
-			],
-			[
-				"kill",
-				"killMap"
-			],
-			[
-				"Hash",
-				"HashSet"
-			],
-			[
-				"h",
-				"h"
-			],
-			[
-				"IN",
-				"Integer"
-			],
-			[
-				"In",
-				"Integer"
-			],
-			[
-				"Jimpl",
-				"JimpleBody"
-			],
-			[
-				"o",
-				"out"
-			],
-			[
-				"new",
-				"new_idom"
-			],
-			[
-				"Unit",
-				"Unit"
-			],
-			[
-				"fin",
-				"finger1"
-			],
-			[
-				"po",
-				"pOrderToUnitMap"
-			],
-			[
-				"J",
-				"JimpleBody"
-			],
-			[
-				"entry",
-				"entryNode"
-			],
-			[
-				"unit",
-				"unitColorMap"
-			],
-			[
-				"Not",
-				"NormalUnitPrinter"
-			],
-			[
-				"ent",
-				"entryNode"
-			],
-			[
-				"gra",
-				"graphDFSTraversal"
-			],
-			[
-				"to",
-				"toString"
-			],
-			[
-				"pr",
-				"println"
-			],
-			[
-				"Node",
-				"NodeColor"
-			],
-			[
-				"mehtod",
-				"methodName"
-			],
-			[
-				"noof",
-				"noofNodes"
-			],
-			[
-				"nood",
-				"noOfEdges"
-			],
-			[
-				"no",
-				"noofNodes"
 			]
 		]
 	},
@@ -523,7 +523,15 @@
 			"file": "include/ddg/analysis/DiskCache.hxx",
 			"settings":
 			{
-				"buffer_size": 16760,
+				"buffer_size": 25621,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "include/ddg/analysis/DiskCDAG.hxx",
+			"settings":
+			{
+				"buffer_size": 46900,
 				"line_ending": "Unix"
 			}
 		},
@@ -531,34 +539,23 @@
 			"file": "tools/reuse-analysis/include/ReadCDAG.hxx",
 			"settings":
 			{
-				"buffer_size": 2422,
+				"buffer_size": 2960,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "#ifndef DiskCDAG_HXX\n#define DiskCDAG_HXX\n\n//#define FULL_DAG //If defined, whole ddg is built, else just the CDAG is built\n\n#include \"ddg/analysis/LazyGraph.hxx\"\n#include \"CDAGCounter.hxx\"\n\n#include <map>\n#include <set>\n#include <climits>\n#include <cassert>\n#include <fstream>\n#include <string>\n#include <iostream>\n#include <typeinfo>\n#include <sstream>\n#include <istream>\n\n#include \"ddg/analysis/DiskCache.hxx\"\n\nnamespace ddg\n{\nusing namespace llvm;\nusing namespace std;\n\n#define NUM_SLOTS 4\n\n#ifdef FULL_DAG\ntypedef size_t payload_type;\n#else\ntypedef std::set<size_t> payload_type;\n#endif\n\ntypedef unsigned char BYTE;\n\nclass DiskCDAGBuilder;\nclass DiskCDAG;\n\n// Method for calculating storage space needed to represent\n// each node by a bit.\ninline int convertNumNodesToBytes(const int &numNodes)\n{\n	// You can represent 8 nodes with a byte\n	if(numNodes % 8 == 0)\n		return int(numNodes >> 3);\n	else\n		return int(numNodes >> 3) + 1;\n}\n\nvoid dumpBitSet(BYTE *bitSet, int numSets)\n{\n	cout << \"\\n\";\n	for(int i=0;i<numSets; ++i)\n	{\n		cout << (int)bitSet[i] << \" \";\n	}\n	cout << \"\\n\";\n	cout << flush;\n}\n\nvoid setBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)\n{\n	int groupIndex = bitNum >> 3;  // divide by 8\n	assert(groupIndex < numBitSets);\n	int bitIndex = bitNum % 8;\n	BYTE byteMask = 1 << (7 - bitIndex);\n	bitSet[groupIndex] = bitSet[groupIndex] | byteMask;\n}\n\nbool isBitSet(BYTE *bitSet, int bitNum, int numBitSets)\n{\n	int groupIndex = bitNum >> 3;  // divide by 8\n	assert(groupIndex < numBitSets); \n	int bitIndex = bitNum % 8;\n	BYTE byteMask = 1 << (7 - bitIndex);\n	return bitSet[groupIndex] & byteMask;\n}\n\nvoid unsetBitInBitset(BYTE *bitSet, int bitNum, int numBitSets)\n{\n	int groupIndex = bitNum >> 3;  // divide by 8\n	assert(groupIndex < numBitSets);\n	int bitIndex = bitNum % 8;\n	BYTE byteMask = ~(byteMask & 0) ^ (1 << (7 - bitIndex));\n	bitSet[groupIndex] = bitSet[groupIndex] & byteMask;\n}\n\nvoid getOnesPositionsInBitSet(BYTE *bitSet, int numBitSets, std::vector<Id> &setPos)\n{\n	BYTE zeroMask = 0;\n\n	for(unsigned int i=0; i<numBitSets; ++i)\n	{\n		if(bitSet[i] | zeroMask != 0)\n		{\n			// we have some 1's in this byte\n			for(unsigned int j=(1<<7), pos=0; j>0; j=j>>1, ++pos)\n			{\n				if(bitSet[i] & j)\n				{\n					setPos.push_back(i*8 + pos);\n				}\n			}\n		}\n	}\n}\n\nclass DiskCDAGBuilder: public LazyGraphVisitor<payload_type>\n{\n	protected:\n		DiskCDAG *cdag;\n		map<Address, size_t> loadMap; //Maps the memory address to ddg input node id\n		bool getCountsFlag;\n		Id numNodes;\n		string bcFileName;\n		fstream successorCountFile;\n\n	public:\n		DiskCDAGBuilder(DiskCDAG *cdag) :	cdag(cdag), loadMap(), \n											getCountsFlag(false), numNodes(0),\n											successorCountFile(\"\")\n		{\n\n		}\n\n		DiskCDAGBuilder() : cdag(0), loadMap(), getCountsFlag(true), \n							numNodes(0), successorCountFile(\"\")\n		{\n\n		}\n\n		DiskCDAGBuilder(string fileName) : cdag(0), loadMap(), getCountsFlag(true), \n											numNodes(0), bcFileName(fileName)\n		{\n			successorCountFile.open(string(bcFileName+\"succscounttemp\").c_str(), std::fstream::out | std::fstream::trunc);\n			successorCountFile.close();\n			successorCountFile.open(string(bcFileName+\"succscounttemp\").c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);\n		}\n\n		Id getNumNodes(){return numNodes;}\n\n		virtual void visitNode(LazyNode<payload_type> *node, Predecessors	&predecessors, Operands &operands);\n		void incSuccessorCountInFile(Id nodeId);\n		size_t incNumNodesCounter();\n		void printSuccessorCountFile();\n};\n\nstruct DataList\n{\n	Id id;\n	std::vector<Id> list;\n	Id listCapacity;\n	DataList(): id(0), listCapacity(0)\n	{\n\n	}\n\n	Id getId(){return id;}\n\n	void writeToStream(fstream &file)\n	{\n		Id temp =0;\n		file.write((const char*)&id, sizeof(Id));\n		file.write((const char*)&listCapacity, sizeof(Id));\n		file.write((const char*)&list[0], sizeof(Id)*list.size());\n		for(int i=0; i<(listCapacity-list.size()); ++i)\n		{\n			file.write((const char*)&temp, sizeof(Id));\n		}\n	}\n\n	bool readNodeFromASCIIFile(istream &file)\n	{\n		listCapacity = 0;\n		file.read((char*)&id, sizeof(Id));\n		file.read((char*)&listCapacity, sizeof(Id));		\n		for(int i=0; i<listCapacity;++i)\n		{\n			Id temp =0;\n			file.read((char*)&temp, sizeof(Id));\n			if(temp > 0)\n			{\n				list.push_back(temp);\n			}\n		}\n	}\n\n	void print(ostream &out) const\n	{\n		out << \"\\n Id : \" << id;\n		out << \" ListCapacity : \" << listCapacity;\n		out << \" List (size = \" << list.size() <<\") : \";\n		for(vector<Id>::const_iterator it = list.begin();\n			it != list.end(); ++it)\n		{\n			out << *it << \" \";\n		}\n		out << flush;\n	}\n\n	void addToList(Id item)\n	{\n		if(list.size() == listCapacity)\n		{\n			cout << \"\\nError : in addToList() trying to add item : \"<< item <<\" in already full list\";\n			return;\n		}\n		list.push_back(item);\n	}\n\n	void reset()\n	{\n		id =0, listCapacity = 0, list.clear();\n	}\n\n};\nclass DiskCDAG\n{\n	private:\n		struct CDAGNode{\n			Id dynId;	// Dynamic Id \n			Address addr;	// Addresses represented by this node if any\n			unsigned int type;	// LLVM Type of the node\n			Id staticId;\n			std::vector<Id> predsList;	// Vector containing list of predecessors\n			std::vector<Id> succsList;	// Vector containing list of successors\n\n			// TODO : initialize it with proper values\n			CDAGNode(): dynId(0),\n						addr(0),\n						type(0),\n						staticId(0)\n			{\n			}\n\n			Id getId(){return dynId;}\n\n			void print(ostream &out) const\n			{\n				out << \"\\n\" << dynId << \". \";\n				out << \"Instruction :\" << llvm::Instruction::getOpcodeName(type) << \" \";\n				out << \"StaticID : \" << staticId << \" \";\n				out << \" \\n Num Predecessors: \" << predsList.size() <<\"\\n\";\n				for(std::vector<Id>::const_iterator it = predsList.begin();\n					it != predsList.end();\n					++it)\n				{\n					out << *it << \",\";\n				}\n				out << \" \\n Num Successor: \" << succsList.size() <<\"\\n\";\n				for(std::vector<Id>::const_iterator it = succsList.begin();\n					it != succsList.end();\n					++it)\n				{\n					out << *it << \",\";\n				}\n				out << \"\\n------------------------------------------------------\\n\";\n			}\n\n			// TODO : try taking in a output stream directly\n			// 		  instead of returning a string\n			void writeToStream(stringstream &ss)\n			{\n				ss.str(std::string());				\n				ss << dynId << \" \";\n				ss << staticId << \" \";\n				ss << type << \" \";\n				ss << addr << \" \";\n				ss << \"\\n\";\n				\n				ss << predsList.size() << \" \";\n				for(std::vector<Id>::iterator it = predsList.begin();\n					it != predsList.end();\n					++it)\n				{\n					ss << *it << \" \";\n				}\n				ss << \"\\n\";\n\n				ss << succsList.size() << \" \";\n				for(std::vector<Id>::iterator it = succsList.begin();\n					it != succsList.end();\n					++it)\n				{\n					ss << *it << \" \";\n				}\n				ss << \"\\n\";\n			}\n\n			void writeToStream(fstream &ss)\n			{\n\n			}\n\n			bool readNodeFromASCIIFile(istream &file)\n			{\n				\n				\n\n				// Read dynId, static Id, type and addr\n				{\n					std::string temp, line;\n					std::stringstream tempss;\n					getline(file, line);\n					tempss << line;\n					getline(tempss, temp, ' ');\n					dynId = atoi(temp.c_str());\n					getline(tempss, temp, ' ');\n					staticId = atoi(temp.c_str());\n					getline(tempss, temp, ' ');\n					type = atoi(temp.c_str());\n					getline(tempss, temp, ' ');\n					addr = atol(temp.c_str());\n				}\n\n				// Read the predecessors\n				{\n					std::string temp, line;\n					std::stringstream tempss;\n					getline(file, line);\n					tempss.str(string());\n					tempss.str(line);\n					getline(tempss, temp, ' '); // read the count\n					while(getline(tempss, temp, ' ')) // start reading the preds\n					{\n						predsList.push_back(atoi(temp.c_str()));\n					}\n				}\n\n				// Read the successors\n				{\n					std::string temp, line;\n					std::stringstream tempss;\n					getline(file, line);\n					tempss.str(string());\n					tempss.str(line);\n					getline(tempss, temp, ' '); // read the count\n					while(getline(tempss, temp, ' ')) // start reading the succs\n					{\n						succsList.push_back(atoi(temp.c_str()));\n					}		\n				}\n\n				return false; // TODO compelete this. Return true if errors\n			}\n\n			void reset()\n			{\n				dynId = 0;\n				staticId = 0;\n				addr = 0;\n				type = 0;\n				predsList.clear();\n				succsList.clear();\n			}\n		};\n\n		static const size_t CDAGNODE_SIZE = sizeof(CDAGNode);\n\n		BYTE *succsBitSet;\n		BYTE *nodeMarkerBitSet;\n		size_t numOfBytesForSuccBS;\n		size_t numOfBytesFornodeMarkerBitSet;\n\n\n		size_t blockSize;\n		size_t blockCount;\n		size_t curBlockSize;\n\n		std::map<Id, CDAGNode*> idToCDAGNodeMap;\n\n		fstream graphDumpFile;\n		fstream succsListTempFile;\n		fstream succsListNewTempFile;\n\n		// TODO : Temp ofstreams - remove these!\n		ofstream printBeforeWriteFile;\n		ofstream printAfterReadFile;\n\n		size_t numNodes; //No. of nodes created so far\n		size_t count; //Total expected no. of nodes\n\n		// FileNames\n		const string bcFileName;\n		string diskGraphFileName;\n		string diskGraphIndexFileName;\n\n		DiskCache<DataList, Id> *succsCache;\n\n		void init(size_t count)\n		{\n			diskGraphFileName = string(bcFileName+\"diskgraph\");\n			diskGraphIndexFileName = string(bcFileName+\"diskgraph_index\");\n\n			numOfBytesForSuccBS = convertNumNodesToBytes(count);\n			cout << \"\\ncount :\" <<count;\n			cout << \"\\n numOfBytesForSuccBS: \" <<numOfBytesForSuccBS;\n			succsBitSet = new BYTE[numOfBytesForSuccBS];\n			nodeMarkerBitSet = 0; // to be initialized if we get actual node count\n			memset(succsBitSet, 0, numOfBytesForSuccBS);\n\n			cout << \"\\nSize of succsBitSet \" << sizeof(BYTE);\n\n			// TODO : compare with CDAGNODE_WITHSUCC_SIZE\n			if(blockSize != 0 && blockSize < CDAGNODE_SIZE)\n				cout << \"\\n Block size is less than CDAG node size..Aborting!\";\n			else if(blockSize == 0){\n				cout << \"\\n Block size is passed as zero - memory based graph will be generated.\";\n			}\n\n\n			//  TODO : revisit this part for checking corner cases and add some comments\n			graphDumpFile.open(string(bcFileName+\"graphdump\").c_str(), std::fstream::out | std::fstream::trunc);\n			graphDumpFile.close();\n			graphDumpFile.open(string(bcFileName+\"graphdump\").c_str(), std::fstream::in | std::fstream::out);\n			\n			succsListTempFile.open(string(bcFileName+\"succslisttemp\").c_str(), std::fstream::out | std::fstream::trunc);\n			succsListTempFile.close();\n			succsListTempFile.open(string(bcFileName+\"succslisttemp\").c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);\n\n			succsListNewTempFile.open(string(bcFileName+\"succslistnewtemp\").c_str(), std::fstream::out | std::fstream::trunc);\n			succsListNewTempFile.close();\n			succsListNewTempFile.open(string(bcFileName+\"succslistnewtemp\").c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);\n			\n			printBeforeWriteFile.open(string(bcFileName+\"printbeforewrite\").c_str());\n			printAfterReadFile.open(string(bcFileName+\"printafterread\").c_str());\n\n			// // dumping blocks of memory to the file\n			// cout <<\"\\n Dumping blockss for succesor file\" <<flush;\n			// for(int i=0; i < count; ++i)\n			// {\n			// 	succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));\n			// }\n			// cout << \"\\n Done creating the successor file\" <<flush;\n\n			// initialize the new successor list file\n			initSuccessorListFile();\n\n			succsCache = new DiskCache<DataList, Id>(512, 2, true);\n			if(!succsCache->init(bcFileName+\"succslistnewtemp\"))\n			{\n				cout << \"\\n Cache initialization for successor's list failed...\";\n				return;\n			}\n			// cout << \"\\n Printing succs list from cache\";\n			// cin.get();\n			// for(int i=0; i<count; ++i)\n			// {\n			// 	DataList* l = succsCache->getData(i);\n			// 	l->print(cout);\n			// }\n		}\n\n		void initSuccessorListFile()\n		{\n			fstream succsCountTempFile;\n			string succsCountTempFileName = bcFileName+\"succscounttemp\";\n			succsCountTempFile.open(succsCountTempFileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);\n			succsCountTempFile.seekg(0, ios::beg);\n			Id succCount =0;\n			Id id = 0;\n			Id temp = 0;\n			while(!succsCountTempFile.read((char*)&succCount, sizeof(Id)).eof())\n			{\n				succsListNewTempFile.write((const char*)&id, sizeof(Id));\n				succsListNewTempFile.write((const char*)&succCount, sizeof(Id));\n				for(int i=0; i<succCount; ++i)\n				{\n					succsListNewTempFile.write((const char*)&temp, sizeof(Id));\n				}\n				++id;\n			}\n			succsListNewTempFile.close();\n\n			// Delete the temp count file\n			remove(succsCountTempFileName.c_str());\n\n			// // TODO : Test code\n			// {\n			// 	DiskCache<DataList, Id> succsCache(blockSize, 2, true);\n			// 	if(!succsCache.init(bcFileName+\"succslistnewtemp\"))\n			// 	{\n			// 		cout << \"\\n Cache initialization for successor's list failed...\";\n			// 		return;\n			// 	}\n			// 	cout << \"\\n Printing succs list from cache\";\n			// 	cin.get();\n			// 	for(int i=0; i<count; ++i)\n			// 	{\n			// 		DataList* l = succsCache.getData(i);\n			// 		l->print(cout);\n			// 	}\n			// 	DataList* l = succsCache.getData(1610);\n			// 	l->print(cout);\n			// 	l->addToList(5);\n			// 	l = succsCache.getData(1610);\n			// 	l->print(cout);\n			// }\n			// cin.get();\n\n			// {\n			// 	DiskCache<DataList, Id> succsCache(blockSize, 2);\n			// 	cin.get();\n			// 	if(!succsCache.init(bcFileName+\"succslistnewtemp\"))\n			// 	{\n			// 		cout << \"\\n Cache initialization for successor's list failed...\";\n			// 		return;\n			// 	}\n			// 	for(int i=0; i<count; ++i)\n			// 	{\n			// 		DataList* l = succsCache.getData(i);\n			// 		l->print(cout);\n			// 	}\n			// 	cout << \" \\n\\n Testing Write back to file\";\n			// 	DataList* l = succsCache.getData(1610);\n			// 	l->print(cout);\n			// }\n\n			// cin.get();\n		}\n\n	public:\n		DiskCDAG(size_t count) : numNodes(0),\n								 count(count),\n								 blockSize(0),\n								 blockCount(0),\n								 curBlockSize(0)\n		{\n			init(count);\n		}\n\n		DiskCDAG(Ids &ids, const string &bcFile, \n			size_t bs, Id nodeCount) : numNodes(0),\n									 	blockSize(bs*1024), // block size is passed in MB\n									 	//blockSize(bs),\n									 	blockCount(0),\n									 	curBlockSize(0),\n									 	bcFileName(bcFile),\n									 	count(nodeCount)\n		{\n			cout << \"\\n Size of CDAGNode \" << sizeof(CDAGNode);\n			//CDAGCounter counter(ids); //Get the count of expected no. of nodes\n			//count = counter.getCount();\n			init(count);\n		}\n\n		~DiskCDAG()\n		{\n			delete []succsBitSet;\n\n			if(nodeMarkerBitSet)\n			{\n				delete []nodeMarkerBitSet;\n			}\n\n			// delete the graph nodes and clean up the maps\n			std::map<Id, CDAGNode*>::iterator it1 = idToCDAGNodeMap.begin();\n			for(; it1 != idToCDAGNodeMap.end(); ++it1)\n			{\n				delete it1->second;\n			}\n			idToCDAGNodeMap.clear();\n\n			if(succsCache)\n			{\n				delete succsCache;\n			}\n		}\n\n		//Returns the no. of nodes in the cdag\n		size_t getNumNodes()\n		{\n			return numNodes;\n		}\n\n		//Adds a node to the cdag with instruction type 'currType' and static id 'id'\n		size_t addNode(unsigned int currType, size_t id, Address addr)\n		{\n			assert(numNodes < count);\n\n			CDAGNode *node = new CDAGNode();\n			node->dynId = numNodes;\n			node->type = currType;\n			node->staticId = id;\n			if(currType == Instruction::Load){\n				// addr is only consumed in case of load instruction\n				node->addr = addr;\n			}\n\n			addUpdateNodeToBlock(node);\n\n			//node->blockId = blockCount; // this will be updated by addUpdateNodeToBlock\n			//idToCDAGNodeMap[node->dynId] = node;\n\n			return numNodes++;\n		}\n\n		void setPredecessor(size_t nodeId, const set<size_t> &predSet)\n		{\n			assert(nodeId < numNodes);\n			size_t size = predSet.size();\n			set<size_t>::const_iterator it = predSet.begin();\n			for(size_t i=0; i<size; ++i)\n			{\n				idToCDAGNodeMap[nodeId]->predsList.push_back(*it);\n				//writeSuccessorInFile((*it), nodeId);\n				//updateSuccessorCountInFile((*it), 1); // bump up the count by 1\n				DataList *l = succsCache->getData((*it));\n				l->addToList(nodeId);\n				++it;\n			}\n\n			addUpdateNodeToBlock(idToCDAGNodeMap[nodeId]);\n		}\n		\n		// Mark a node\n		void markNode(Id nodeId)\n		{\n			if(!nodeMarkerBitSet)\n			{\n				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);\n				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];\n				memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default\n			}\n			setBitInBitset(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);\n		}\n\n		// Unmark a node\n		void unmarkNode(Id nodeId)\n		{\n			if(!nodeMarkerBitSet)\n			{\n				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);\n				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];\n				memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet); // unmark all the node by default\n				return;\n			}\n			unsetBitInBitset(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);\n		}\n\n		// Unmark all the nodes\n		void unmarkAllNodes()\n		{\n			if(!nodeMarkerBitSet)\n			{\n				numOfBytesFornodeMarkerBitSet = convertNumNodesToBytes(numNodes);\n				nodeMarkerBitSet = new BYTE[numOfBytesFornodeMarkerBitSet];\n			}\n			memset(nodeMarkerBitSet, 0, numOfBytesFornodeMarkerBitSet);\n		}\n\n		// Is node marked/unmarked\n		bool isNodeMarked(const Id &nodeId)\n		{\n			return isBitSet(nodeMarkerBitSet, nodeId, numOfBytesFornodeMarkerBitSet);\n		}\n\n		// Finds the first unmarked node (i.e. the first 0 in bitset)\n		// If there is a node it returns true\n		// Otherwise false. \n		bool getFirstReadyNode(Id &nodeId)\n		{\n			bool retVal = false;\n			BYTE oneMask = ~0;\n			for(unsigned int i=0; i<numOfBytesFornodeMarkerBitSet; ++i)\n			{\n				if(nodeMarkerBitSet[i] ^ oneMask != 0)\n				{\n					// we have zero in here somewhere\n					for(unsigned int j=(1<<7), pos=0; j>0; j=j>>1, ++pos)\n					{\n						if((nodeMarkerBitSet[i] & j) == 0)\n						{\n							nodeId = i*8 + pos;\n							retVal = true;\n							break;\n						}\n					}\n				}\n				if(retVal)\n					break; // node found so break;\n			}\n			if(nodeId >= numNodes) // is there a better way to handle this?\n				retVal = false;\n			return retVal;\n		}\n\n		// void updateSuccessorCountInFile(Id nodeId, Id incCount)\n		// {\n		// 	streampos pos(sizeof(Id)*nodeId);\n		// 	succsCountTempFile.seekg(pos, ios::beg);\n		// 	Id curVal = 0;\n		// 	succsCountTempFile.read((char*)&curVal, sizeof(Id));\n\n		// 	curVal += incCount;\n\n		// 	succsCountTempFile.seekg(pos, ios::beg);\n		// 	succsCountTempFile.write((const char*)&curVal, sizeof(Id));\n		// }\n\n		void writeSuccessorInFile(int parentNodeId, int childNodeId)\n		{\n			// Start by getting the successor bitset for parent node\n			streampos pos((numOfBytesForSuccBS*sizeof(BYTE)) * parentNodeId);\n			succsListTempFile.seekg(pos, ios::beg);\n			succsListTempFile.read((char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));\n\n			// Update the bitset vector with the childNodeId\n			setBitInBitset(succsBitSet, childNodeId, numOfBytesForSuccBS);\n\n			// Write back the updated successor list to the file\n			succsListTempFile.seekp(pos, ios::beg);\n			succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));\n		}\n\n		void readSuccessorsFromFile(int nodeId, std::vector<Id> &succsList)\n		{\n			succsList.clear();\n			// Get to the node in the file\n			streampos pos((numOfBytesForSuccBS*sizeof(BYTE)) * nodeId);\n			succsListTempFile.seekg(pos, ios::beg);\n\n			// Read the successor bitset from the file\n			succsListTempFile.read((char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));\n\n			// fill in the result vector\n			getOnesPositionsInBitSet(succsBitSet, numOfBytesForSuccBS, succsList);\n		}\n\n		void updateGraphWithSuccessorInfo()\n		{\n			cout << \"\\n In updateGraphWithSuccessorInfo\";\n			ofstream diskGraph(diskGraphFileName.c_str());\n			ofstream diskGraphIndex(diskGraphIndexFileName.c_str(), ios::binary);\n\n			streampos pos(0);\n			size_t curBlockSize = 0;\n			size_t bs = blockSize*NUM_SLOTS;\n\n			graphDumpFile.clear();\n	 		graphDumpFile.seekg(0, ios::beg);\n	 		blockCount = 0;\n\n	 		cout << \"\\n Starting to write the final graph\";\n	 		//cin.get();\n\n			while(!readBlockFromFile(graphDumpFile))\n			{\n				writeGraphWithSuccessorInfoToFile(diskGraph, diskGraphIndex, \n					blockSize, pos, curBlockSize);\n				++blockCount;\n			}\n\n			writeGraphWithSuccessorInfoToFile(diskGraph, diskGraphIndex,\n			 blockSize, pos, curBlockSize);\n			diskGraph.close();\n			diskGraphIndex.close();\n\n			cout << \"\\n Done writing the disk graph\";\n\n			delete succsCache;\n		}\n\n		void writeGraphWithSuccessorInfoToFile(ofstream &diskGraph,\n											   ofstream &diskGraphIndex,\n											   size_t bs,\n											   streampos &pos,\n											   size_t &curBlockSize)\n		{\n			\n			vector<CDAGNode*> nodesToWriteList;\n			vector<Id> succList;\n			stringstream ss;\n\n			map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();\n			for(; it != idToCDAGNodeMap.end(); ++it)\n			{\n				//readSuccessorsFromFile(it->first, succList);\n				succList.clear(); // optimization : use a pointer to the vector\n				DataList * l = succsCache->getData(it->first);\n				CDAGNode *curNode = it->second;\n				if(l->list.size() > 0)\n				{\n					curNode->succsList = l->list;\n				}\n\n				// Check if we reached the write block size\n				size_t curNodeSize = sizeof(*curNode);\n				if(curBlockSize + curNodeSize > bs)\n				{\n					// dump out nodesToWriteList\n					vector<CDAGNode*>::iterator it1 = nodesToWriteList.begin();\n					for(; it1 != nodesToWriteList.end(); ++it1)\n					{\n						(*it1)->writeToStream(ss);\n						diskGraph << ss.str();\n						//diskGraphIndex.write((const char*)&pos, sizeof(streampos));\n					}\n					pos = diskGraph.tellp();\n					\n					// reset the variables\n					nodesToWriteList.clear();\n					curBlockSize = 0;\n				}	\n				curBlockSize += curNodeSize;\n				nodesToWriteList.push_back(curNode);					\n			}\n\n			// dump out any remaining nodes\n			if(nodesToWriteList.size() > 0)\n			{\n				vector<CDAGNode*>::iterator it1 = nodesToWriteList.begin();\n				for(; it1 != nodesToWriteList.end(); ++it1)\n				{\n					(*it1)->writeToStream(ss);\n					diskGraph << ss.str();\n					//diskGraphIndex.write((const char*)&pos, sizeof(streampos));\n				}\n			}\n		}\n\n		//Generates the DiskCDAG using DiskCDAGBuilder\n		static DiskCDAG* generateGraph(Ids& ids, const string &bcFileName, int block_size)\n		{\n			cout <<\"\\n First pass through trace to get counts\" << flush;\n			DiskCDAGBuilder countBuilder(bcFileName);\n			countBuilder.visit(ids);\n			cout <<\"\\n Pass complete. Number of nodes : \"<<countBuilder.getNumNodes() << flush;\n			//countBuilder.printSuccessorCountFile();\n			//cin.get();\n\n			DiskCDAG *cdag = new DiskCDAG(ids, bcFileName, \n				block_size, countBuilder.getNumNodes());\n\n			cout << \"\\n Writing graphdump now!\"<<flush;\n			DiskCDAGBuilder builder(cdag);\n			builder.visit(ids);\n			cout << \"\\n Done writing graphdump now!\" <<flush;\n\n			return cdag;\n		}\n\n		//Generates the DiskCDAG using user-specified 'Builder'\n		template <typename Builder>\n			static DiskCDAG* generateGraph(Ids& ids, string &bcFileName, int block_size)\n			{\n				cout <<\"\\n First pass through trace to get counts\" << flush;\n				DiskCDAGBuilder countBuilder(bcFileName);\n				countBuilder.visit(ids);\n				cout <<\"\\n Pass complete. Number of nodes : \"<<countBuilder.getNumNodes() << flush;\n				//countBuilder.printSuccessorCountFile();\n\n				DiskCDAG *cdag = new DiskCDAG(ids, bcFileName, \n				block_size, countBuilder.getNumNodes());\n\n				cout << \"\\n Writing graphdump now!\"<<flush;\n				Builder builder(cdag);\n\n				builder.visit(ids);\n				cout << \"\\n Done writing graphdump now!\" <<flush;\n\n				return cdag;\n			}\n\n		void performBFS()\n		{\n			cout << \"\\n Starting BFS on graph with \" << numNodes << \" nodes.\";\n\n			cout << \"\\n Initialize LRU cache\";\n\n			DiskCache<CDAGNode, Id> *lruCache = new DiskCache<CDAGNode, Id>(blockSize, NUM_SLOTS);\n			//if(!lruCache->init(diskGraphFileName, diskGraphIndexFileName ))\n			if(!lruCache->init(diskGraphFileName))\n			{\n				cout <<\"\\n Cache initialization failed..stopping BFS\";\n				return;\n			}\n			cout << \"\\n LRU Disk Cache initialized.\";\n\n			unmarkAllNodes(); // mark all nodes as ready\n			queue<Id> q;\n			Id startV;\n			vector<Id> bfsOutput;\n			bool error = false;\n			while(getFirstReadyNode(startV))\n			{\n				cout << \"\\n Starting vertex :\" <<startV;\n				q.push(startV);\n				markNode(startV);			\n				while(!q.empty())\n				{\n					const CDAGNode *curNode = lruCache->getData(q.front());\n					if(!curNode)\n					{\n						cout <<\"\\n Failed to get \" << q.front() << \" node..stopping BFS\";\n						error = true;\n						break;\n					}\n					q.pop();\n					//cout << curNode->dynId << \" \";\n					bfsOutput.push_back(curNode->dynId);\n					for(vector<Id>::const_iterator it = curNode->succsList.begin();\n						it != curNode->succsList.end(); ++it)\n					{\n						if(!isNodeMarked(*it))\n						{\n							q.push(*it);\n							markNode(*it);	\n						}\n						else\n						{\n							// its already visited\n						}\n					}\n				}\n				cout << \"\\n Listing reachable nodes in BFS order : \\n\";\n				for(vector<Id>::iterator it = bfsOutput.begin(); \n					it != bfsOutput.end(); ++it)\n				{\n					cout << *it << \" \";\n				}\n				cout <<\"\\n\";\n				bfsOutput.clear();\n				if(error)\n					break;\n			}\n\n			delete lruCache;\n		}\n\n	 	void printDiskGraph(ostream &out)\n	 	{\n	 		std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();\n	 		//cout <<\"\\n\\n \" ;\n	 		for(; it!=idToCDAGNodeMap.end(); ++it)\n	 		{\n	 			it->second->print(out);\n	 		}\n	 	}\n\n		//Prints the graph in dot format\n		void printDOTGraph(const char *filename)\n		{\n			// ofstream file;\n			// file.open(filename);\n			// file << \"digraph \\\"ddg\\\" {\\n\";\n\n			// for(size_t i=0; i<numNodes; i++)\n			// {\n			// 	file << \"\\tNode\" << i << \" [label=\\\"\" << i << \". \" << llvm::Instruction::getOpcodeName(type[i]) << \"\\\"];\\n\";\n			// 	size_t numPreds = predCnt[i];\n			// 	for(size_t j=0; j<numPreds; j++)\n			// 	{\n			// 		file << \"\\tNode\" << predList[i][j] << \" -> Node\" << i << \";\\n\";\n			// 	}\n			// }\n\n			// file << \"}\";\n			// file.close();\n		}\n\n		//Prints the graph in YAML format\n		void printYAMLGraph(const char *filename)\n		{\n			// ofstream file;\n			// file.open(filename);\n\n			// file << \"Nodes: \\n\";\n			// for(size_t i=0; i<numNodes; ++i)\n			// {\n			// 	file << \"  \" << i << \": {null: 0}\\n\";\n			// }\n			// file << \"Edges: \\n\";\n			// for(size_t i=0; i<numNodes; ++i)\n			// {\n			// 	size_t numScsrs = scsrCnt[i];\n			// 	if(numScsrs == 0)\n			// 		continue;\n			// 	file << \"  \" << i << \": {\";\n			// 	for(size_t j=0; j<numScsrs-1; ++j)\n			// 	{\n			// 		file << scsrList[i][j] << \": 1, \";\n			// 	}\n			// 	file << scsrList[i][numScsrs-1] << \": 1}\\n\";\n			// }\n			// file.close();\n		}\n\n		// Disk CDAG block management\n\n		void flushCurrentBlockToDisk(bool flag)\n		{\n			//printDiskGraph(printBeforeWriteFile);\n\n			cout <<\"\\n Flushing current block to disk\\n\";\n\n			std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();\n	 		stringstream ss;\n	 		for(; it!=idToCDAGNodeMap.end(); ++it)\n	 		{\n	 			it->second->writeToStream(ss);\n	 			graphDumpFile << ss.str();\n	 		}\n	 		graphDumpFile.flush();\n\n	 		// reset all the required variables after flushing to\n			// disk\n			resetGraphState();\n\n\n	 		// TODO : test code for checking read of blocks - to remove\n	 		// if(flag)\n	 		// {\n	 		// 	// last flush to disk \n	 		// 	graphDumpFile.clear();\n	 		// 	graphDumpFile.seekg(0, ios::beg);\n	 		// 	blockCount = 0;\n	 		// 	while(!readBlockFromFile(graphDumpFile))\n	 		// 	{\n	 		// 		printDiskGraph(printAfterReadFile);\n	 		// 		++blockCount;\n	 		// 	}\n	 		// 	printDiskGraph(printAfterReadFile);\n	 		// }\n		}\n\n		// Reads a block from a given stream to the \n		// in memory map\n		bool readBlockFromFile(istream &file)\n		{\n			cout << \"\\n\\n In readBlockFromFile \\n\";\n			bool err = true;\n			resetGraphState();\n\n			streampos pos;\n			while(!file.eof())\n			{\n				pos = file.tellg();\n				CDAGNode *node = new CDAGNode();\n				err = node->readNodeFromASCIIFile(file);\n				curBlockSize += sizeof(*node);\n				if(curBlockSize < blockSize*NUM_SLOTS && !file.eof())\n				{\n					idToCDAGNodeMap[node->dynId] = node;\n				}\n				else\n				{\n					// we have read an extra node move back \n					// if we have not reached the end of file\n					// yet\n					if(!file.eof())\n					{\n						file.seekg(pos, ios::beg);\n					}\n					break; //we have read the block\n				}\n			}\n			cout << \"\\n Exiting readBlockFromFile method with return value \" << (err || file.eof())<< \"\\n\\n\";\n\n			return (err || file.eof()); // return true if error or eof is reached\n		}\n\n\n	private:\n		unsigned int addUpdateNodeToBlock(CDAGNode *node){\n			// Check if user specified a block size.\n			// If not then its a in memory CDAG.\n			// just return.\n			if(blockSize == 0)\n			{\n				idToCDAGNodeMap[node->dynId] = node; // just update the map\n				return blockCount;\n			}\n\n			size_t nodeSize = sizeof(*node);\n			assert(nodeSize > 0);\n\n			Id nodeId = node->dynId;\n\n			if(idToCDAGNodeMap.find(nodeId) != idToCDAGNodeMap.end())\n			{\n				// this is an existing node which is being updated\n				if(nodeSize > CDAGNODE_SIZE)\n				{\n					// if the size of this node has grown bigger than the \n					// initial node size then just count the extra size by\n					// which the node has grown\n					nodeSize = nodeSize - CDAGNODE_SIZE;\n					//continue\n				}\n				else\n				{\n					// Allocated space is enough. No block updates required.\n					return blockCount;\n				}\n\n			}\n			else\n			{\n				// this is a new node being added\n				// continue.\n			}\n\n			// If we have reached here then either : \n			// A new node is being added\n			// Or an existing node has grown in size.\n\n			int newBlockSize = curBlockSize + nodeSize;\n\n			if(newBlockSize < blockSize)\n			{\n				// if updated block size < current block size\n				// then no change is needed\n				curBlockSize = newBlockSize;\n			}\n			else\n			{\n				// we have exceeded the specified block size\n\n				// check if we had partially created this node\n				// in the current block. This is a \"spill node\"\n				// which is partially extending to next block as well.\n\n				// If yes then we need to remove this node before\n				// flushing the map out to disk.\n				if(idToCDAGNodeMap.find(nodeId) != idToCDAGNodeMap.end())\n				{\n					idToCDAGNodeMap.erase(nodeId);\n				}\n				else\n				{\n					// this is a brand new node\n				}\n\n				// flush the current block to the disk\n				flushCurrentBlockToDisk(false);\n\n				// start using a new block now\n				++blockCount;\n\n				// update curBlockSize\n				curBlockSize = sizeof(*node);\n			}\n			idToCDAGNodeMap[nodeId] =  node;\n\n			return blockCount;\n		}\n\n\n		void resetGraphState()\n		{\n			// TODO : try and create a CDAGNode pool instead of deleting the\n			//		  nodes everytime.\n			std::map<Id, CDAGNode*>::iterator it = idToCDAGNodeMap.begin();\n			for(; it!=idToCDAGNodeMap.end(); ++it)\n			{\n				delete it->second;\n			}\n\n			idToCDAGNodeMap.clear();\n			curBlockSize = 0;\n		}\n\n	public:\n		// Other API  : NOT YET IMPLEMENTED\n		//Returns the successor list of 'nodeId'\n		void getSuccessors(size_t nodeId, const size_t *&list, size_t &size)\n		{\n			assert(nodeId < numNodes);\n		}\n\n		//Returns the predecessor list of 'nodeId'\n		void getPredecessors(size_t nodeId, const size_t *&list, size_t &size)\n		{\n			assert(nodeId < numNodes);\n		}\n\n		//Returns no. of successors of 'nodeId'\n		size_t getNumSuccessors(size_t nodeId)\n		{\n			assert(nodeId < numNodes);\n		}\n\n		//Returns no. of predecessors of 'nodeId'\n		size_t getNumPredecessors(size_t nodeId)\n		{\n			assert(nodeId < numNodes);\n		}\n\n\n		//Returns True if 'nodeId' is input node, false otherwise\n		bool isInputNode(size_t nodeId)\n		{\n		\n		}\n\n		//Returns True if 'nodeId' is output node, false otherwise\n		bool isOutputNode(size_t nodeId)\n		{\n			\n		}\n};\n\n#ifdef FULL_DAG\nvoid DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)\n{\n	set<size_t> predSet;\n	Instruction *instr = node->getInstruction();\n\n	//In case of LoadInst, check if we need to create an edge from input node\n	if(isa<LoadInst>(instr))\n	{\n		bool flag = true;\n		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)\n		{\n			if(isa<StoreInst>((*pred)->getInstruction()))\n			{\n				flag = false;\n				break;\n			}\n		}\n		if(flag == true)\n		{\n			//Check if a cdag node with the same address has been already created. If so, do nothing; else create a new input node.\n			Address addr = node->getAddress();\n			std::map<Address, size_t>::const_iterator it = loadMap.find(addr);\n			size_t tempId;\n			if(it == loadMap.end())\n			{\n				size_t inputNodeId = cdag ? cdag->addNode(Instruction::Load, \n					cast<ConstantInt>(instr->getMetadata(\"id\")->getOperand(0))->getZExtValue(),\n					addr) : incNumNodesCounter();\n				loadMap.insert(make_pair(addr, inputNodeId));\n				tempId = inputNodeId;\n			}\n			else\n			{\n				tempId = it->second;\n			}\n			predSet.insert(tempId);\n			if(successorCountFile)\n			{\n				// we are writing successor count to file\n				incSuccessorCountInFile(tempId);\n			}\n		}\n	}\n\n	//Create a cdag node\n	size_t nodeId = cdag ? cdag->addNode(instr->getOpcode(),\n		cast<ConstantInt>(instr->getMetadata(\"id\")->getOperand(0))->getZExtValue(),\n		0) : incNumNodesCounter();\n	for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)\n	{\n		payload_type pred_data = (*pred)->get();\n		predSet.insert(pred_data);\n		if(successorCountFile)\n		{\n			// we are writing successor count to file\n			incSuccessorCountInFile(pred_data);\n		}\n	}\n	if(cdag) cdag->setPredecessor(nodeId, predSet);\n	node->set(nodeId);\n}\n#else\nvoid DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)\n{\n	set<size_t> predSet;\n	Instruction *instr = node->getInstruction();\n\n	//In case of LoadInst, check if we need to create an input node.\n	if(isa<LoadInst>(instr))\n	{\n		bool flag = true; //false if the load is preceded by a store.\n		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)\n		{\n			if(isa<StoreInst>((*pred)->getInstruction()))\n			{\n				flag = false;\n				break;\n			}\n		}\n		if(flag == true)\n		{\n			//Check if a cdag node with the same address has been already created. If so, do nothing; else create a new input node.\n			Address addr = node->getAddress();\n			std::map<Address, size_t>::const_iterator it = loadMap.find(addr);\n			size_t tempId;\n			if(it == loadMap.end())\n			{\n				size_t inputNodeId = cdag ? cdag->addNode(Instruction::Load, \n					cast<ConstantInt>(instr->getMetadata(\"id\")->getOperand(0))->getZExtValue(),\n					addr) : incNumNodesCounter();\n				loadMap.insert(make_pair(addr, inputNodeId));\n				tempId = inputNodeId;\n			}\n			else\n			{\n				tempId = it->second;\n			}\n			node->get().clear();\n			node->get().insert(tempId);\n			return;\n		}\n	}\n\n	if(instr->isBinaryOp() && instr->getType()->isFloatingPointTy())\n	{\n		//Create a cdag node\n		size_t nodeId = cdag ? cdag->addNode(instr->getOpcode(), \n			cast<ConstantInt>(instr->getMetadata(\"id\")->getOperand(0))->getZExtValue(),\n			0) : incNumNodesCounter();\n		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)\n		{\n			payload_type pred_data = (*pred)->get();\n			predSet.insert(pred_data.begin(), pred_data.end());\n			if(successorCountFile)\n			{\n				// we are writing successor count to file\n				std::set<size_t>::iterator setIt = pred_data.begin();\n				for(; setIt != pred_data.end(); ++setIt)\n				{\n					incSuccessorCountInFile(*setIt);\n				}\n			}\n		}\n		if(cdag) cdag->setPredecessor(nodeId, predSet);\n		node->get().clear();\n		node->get().insert(nodeId);\n	}\n	else\n	{\n		set<size_t> node_data;\n		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)\n		{\n			set<size_t> &pred_data = (*pred)->get();\n			node_data.insert(pred_data.begin(), pred_data.end());\n		}\n		node->get().clear();\n		node->get().insert(node_data.begin(), node_data.end());\n	}\n}\n#endif\n\nvoid DiskCDAGBuilder::incSuccessorCountInFile(Id nodeId)\n{\n	streampos pos(sizeof(Id)*nodeId);\n	successorCountFile.seekg(pos, ios::beg);\n	Id curVal = 0;\n	successorCountFile.read((char*)&curVal, sizeof(Id));\n\n	curVal += 1;\n\n	successorCountFile.seekp(pos, ios::beg);\n	successorCountFile.write((const char*)&curVal, sizeof(Id));\n	successorCountFile.flush();\n}\n\nsize_t DiskCDAGBuilder::incNumNodesCounter()\n{\n	if(successorCountFile)\n	{\n		Id temp = 0;\n		successorCountFile.seekp(0, fstream::end); // write to the end of the file\n		successorCountFile.write((const char*)&temp, sizeof(Id));\n		//successorCountFile.flush();\n	}\n	return numNodes++;\n}\n\nvoid DiskCDAGBuilder::printSuccessorCountFile()\n{\n	Id temp = 0, i=0;\n	cout <<\"\\n\";\n	successorCountFile.seekg(0, fstream::beg);\n	while(!successorCountFile.read((char*)&temp, sizeof(Id)).eof())\n	{\n		cout <<\"\\n\" << i++ << \" : \" << temp;\n	}\n	cout <<\"\\n\";\n}\n\n}\n\n#endif",
-			"file": "include/ddg/analysis/DiskCDAG.hxx",
-			"file_size": 36257,
-			"file_write_time": 130717348682172418,
+			"file": "tools/reuse-analysis/src/Main.cxx",
 			"settings":
 			{
-				"buffer_size": 36252,
+				"buffer_size": 4932,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/home/shashank/project/test_reuse_v2/mat_mul/matmul.c",
+			"contents": "#include <fstream>\n#include <iostream>\n\n#include <string>\n#include <vector>\n#include <map>\n#include <set>\n#include <queue>\n#include <climits>\n#include <algorithm>\n#include <deque>\n\n#define DEBUG(msg) do { if (!DEBUG_ENABLED) {} \\\n                   else std::cout << __FILE__ << \":\" << __LINE__ << \" \" << msg; \\\n               		} while(0)\n#ifdef DEBUG_FLAG\n#define DEBUG_ENABLED 1\n#else\n#define DEBUG_ENABLED 0\n#endif\n\n//#define DEBUG_ENABLED 1\n\nnamespace ddg{\n\n	using namespace std;\n	using namespace llvm;\n\n	template <typename Data, typename DataId>\n	class DiskCache\n	{\n	public:\n		DiskCache(int bs, int numSlots, bool flag = false): BLOCK_SIZE(bs),\n									  NUM_SLOTS(numSlots),\n									  writeBackFlag(flag),\n									  initFlag(false),\n									  dataCount(),\n									  MAX_ITEMS_PER_SLOT(BLOCK_SIZE/sizeof(Data)),\n									  MAX_ITEMS_IN_CACHE(MAX_ITEMS_PER_SLOT*NUM_SLOTS)\n		{}\n\n		~DiskCache()\n		{\n			// Invalidate all the slots\n			for(int i=0; i<NUM_SLOTS; ++i)\n			{\n				invalidateSlot(i);\n			}\n\n			// clear up all the pre-allocated objects\n			// while(!availableDataNodesQ.empty())\n			// {\n			// 	delete availableDataNodesQ.front();\n			// 	availableDataNodesQ.pop_front();\n			// }\n			// while(!availableSlotIdIndexObjsQ.empty())\n			// {\n			// 	delete availableSlotIdIndexObjsQ.front();\n			// 	availableSlotIdIndexObjsQ.pop_front();\n			// }\n\n			while(!availableDataNodesQ->empty())\n			{\n				delete availableDataNodesQ->getItemFromPool();\n			}\n			while(!availableSlotIdIndexObjsQ->empty())\n			{\n				delete availableSlotIdIndexObjsQ->getItemFromPool();\n			}\n			delete availableDataNodesQ;\n			delete availableSlotIdIndexObjsQ;\n\n			// Delete slots\n			delete []slots;\n\n			// Delete use list\n			ListNode *curNode = useListHead;\n			while(curNode)\n			{\n				ListNode *temp = curNode;\n				curNode = curNode->next;\n				delete temp;\n			}\n		}\n\n		bool init(const string &file,					\n					const string &indexFile =\"\",\n					const unsigned int p=0)\n		{\n			initFlag = true;\n\n			if(BLOCK_SIZE == 0 || BLOCK_SIZE < sizeof(Data) || NUM_SLOTS == 0)\n			{\n				initFlag = false;\n				return initFlag;\n			}\n\n			policy = p;\n			dataFileName = file;\n			slots = new SLOT[NUM_SLOTS];\n\n			// Initialize use list\n			useListHead = new ListNode(0);\n			ListNode *curNode = useListHead;\n			slotIdToListNodeMap[0] = useListHead;\n			for(int i=1; i<NUM_SLOTS; ++i)\n			{\n				ListNode *temp = new ListNode(i);\n				temp->prev = curNode;\n				curNode->next = temp;\n				curNode = temp;\n				slotIdToListNodeMap[i] = temp;\n			}\n			useListTail = curNode;\n\n			// open handles to required files\n			if(!initFileHandle(dataFileName, dataFileHandle, writeBackFlag)){\n				cout << \"\\n Error in opening data file\";\n				initFlag = false;\n			}\n			if(!indexFile.empty() && !initFileHandle(indexFile, dataIndexFileHandle)){\n				cout << \"\\n Error in opening index file\";\n				initFlag = false;\n			}\n\n			// If all is well till now, read in the index file\n			if(initFlag){\n				cout << \"\\n Indexing the data file...\" << flush;\n				if(!indexFile.empty())\n				{\n					readDataIndexFile();\n				}\n				else\n				{\n					// no data index file specified\n					bool temp = writeBackFlag;\n					writeBackFlag = false;\n					createDataIndex(false);\n					writeBackFlag = temp;\n				}\n				dataCount = dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;\n				cout << \"done!\";\n			}\n\n			// We have a valid data count now\n			DEBUG(\"\\nData count for \" << dataFileName << \": \" << dataCount);\n			unsigned int maxDataObjectsRequired = MAX_ITEMS_IN_CACHE+1;\n			if(dataCount > MAX_ITEMS_IN_CACHE)\n			{\n				// Reserve memory for slots\n				for(int i=0; i<NUM_SLOTS; ++i)\n				{\n					slots[i].reserve(MAX_ITEMS_PER_SLOT+1);\n				}\n			}\n			else\n			{\n				// We have enough space in cache to avoid data eviction.\n				// Just pre-allocate Data and SlotIdSlotIndex objects\n				maxDataObjectsRequired = dataCount + 10;\n\n			}\n			// Pre-allocate Data and SlotIdSlotIndex objects\n			// for(int i=0; i<maxDataObjectsRequired; ++i)\n			// {\n			// 	Data *node = new Data();\n			// 	availableDataNodesQ.push_back(node);\n\n			// 	SlotIdSlotIndex *obj = new SlotIdSlotIndex();\n			// 	availableSlotIdIndexObjsQ.push_back(obj);\n			// }\n			// DEBUG(\"\\n availableDataNodes : \" << availableDataNodesQ.size());\n			// DEBUG(\"\\n availableSlotIdIndexObjs : \" << availableSlotIdIndexObjsQ.size());\n\n			availableDataNodesQ = new CircularQ<Data*>(maxDataObjectsRequired);\n			availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>(maxDataObjectsRequired);\n			for(int i=0; i<maxDataObjectsRequired; ++i)\n			{\n				Data *node = new Data();\n				availableDataNodesQ->addItemToPool(node);\n\n				SlotIdSlotIndex *obj = new SlotIdSlotIndex();\n				availableSlotIdIndexObjsQ->addItemToPool(obj);\n			}\n\n			return initFlag;\n		}\n\n		DataId getDataCount()\n		{\n			return dataCount;\n		}\n\n		virtual void createDataIndex(bool dumpToFile)\n		{\n			DEBUG(\"\\n Create index for the data file in cache.\\n\");\n			// clear any flags set and reset the file pointer to beginning\n			dataFileHandle.clear();\n			dataFileHandle.seekg(0, ios::beg);\n\n			// start creating the index\n			streampos startPos = 0;\n			DataId begin = 0, end = 0;\n			while(dataFileHandle.peek() != EOF)\n			{\n				startPos = dataFileHandle.tellg();\n				// int slotId = getAvailableSlot();\n				// // Invalidate the current slot before reading\n				// invalidateSlot(slotId);\n				// readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in\n				// int count = slots[slotId].size();\n				// if(count > 0)\n				// {\n				// 	DataIdRange range;\n				// 	range.setRange(slots[slotId][0]->getId(),\n				// 					slots[slotId][count-1]->getId(),\n				// 					startPos);\n				// 	dataIdBlockRangeList.push_back(range);\n				// }\n				begin = 0, end =0;\n				readBlockForDataIndexing(begin, end);\n				DataIdRange range;\n				range.setRange(begin,\n								end,\n								startPos);\n				dataIdBlockRangeList.push_back(range);\n			}\n\n			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());\n\n			// Test code: Iterate over set to print block range\n			if(DEBUG_ENABLED)\n			{\n				DEBUG(\"\\n Printing block offset range\");\n				typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();\n				for(; it != dataIdBlockRangeList.end(); ++it)\n				{\n					(*it).printRange();\n				}\n				DEBUG(\"\\n Index created for thed data file\\n\");\n			}\n		}\n\n		// Gets a read-only pointer to the data\n		virtual Data* getData(const DataId id)\n		{\n			Data *retVal = 0;\n			SlotIdSlotIndex* dataInfo = isInCache(id);\n			int slotId = dataInfo ? dataInfo->slotId : -1;\n			int slotIndex = dataInfo ? dataInfo->slotIndex : -1;\n			dataInfo = 0;\n			if(slotId < 0)\n			{\n				DEBUG(\"\\n\" << id <<\" is not in cache\");\n				// Get a slot id to read a block into.\n				slotId = getAvailableSlot();\n				// Invalidate the current slot before reading\n				invalidateSlot(slotId);\n\n				// Find the block having the data and its \n				// seek position in the file.\n				// Seek to the required block in the file.\n				streampos off = getStreamOffsetForDataId(id);\n				DEBUG(\"\\n getData : \" << id << \", seeking to \" << off);\n				seekForRead(dataFileHandle, off);\n				DEBUG(\"\\n and seeked to \" << dataFileHandle.tellg());\n				\n\n				// Read the block in slot.\n				slotIndex = readBlockInSlot(slotId, id);\n\n			}\n			else\n			{\n				DEBUG(\"\\n\" << id <<\" is in cache at slot : \" << slotId);\n			}\n\n			// The requested data should exists in cache.\n			if(slotIndex == -1)\n			{\n				cout <<\"\\n FATAL CACHE ERROR : Sync error between cache data structures!\";\n				cout <<\"\\n Was trying to fetch data with id :\" << id;\n				cout <<flush;\n				retVal = 0;\n			}\n			else\n			{\n				retVal = slots[slotId][slotIndex];\n			}\n			\n			// Update the use list to mark this slot\n			markSlotAsMRU(slotId);\n			return retVal;\n		}\n\n\n		virtual int getAvailableSlot()\n		{\n			int retVal = -1;\n			switch (policy)\n			{\n				case 0:\n				default:\n					retVal = applyLRUPolicy();\n					break;\n			}\n\n			return retVal; // the default policy \n		}\n\n	private:\n\n		struct SlotIdSlotIndex\n		{\n			int slotId;\n			int slotIndex;\n			SlotIdSlotIndex(int s, int ind):slotId(s), slotIndex(ind)\n			{}\n\n			SlotIdSlotIndex():slotId(-1), slotIndex(-1)\n			{}\n\n			SlotIdSlotIndex& operator = (const SlotIdSlotIndex& rhs)\n			{\n				slotId = rhs.slotId;\n				slotIndex = rhs.slotIndex;\n				return *this;\n			}\n			void reset()\n			{\n				slotId = -1, slotIndex = -1;\n			}	\n\n			void setValues(unsigned int &s, unsigned int &ind)\n			{\n				slotId = s;\n				slotIndex = ind;\n			}\n		};\n\n		// This method assumes that dataFileHandle is pointing to \n		// appropriate block in the file. Will read from the current\n		// seek position. Caller should seek into the appropriate location\n		// in the file\n		int readBlockInSlot(const unsigned int slotId, DataId id)\n		{\n			assert(slotId < NUM_SLOTS);\n			DEBUG(\"\\n readBlockInSlot \"<<slotId);\n\n			// Start reading from the file\n			// Implementation Note :-\n			// From the API perspective its good idea to stop reading \n			// when you reach the Block size and not when you reached \n			// the next block offset as specified by the data index \n			// data structure\n			size_t curSize = 0;\n			DataId begin = INT_MAX, end = 0;\n			int slotIndex = -1;\n			while(true)\n			{\n				Data* node = getAvailableDataNode();\n				streampos beforeReadOff = dataFileHandle.tellg();\n				//node->readNodeFromASCIIFile(dataFileHandle);\n				node->readNodeFromBinaryFile(dataFileHandle);\n				// TODO : a check to see if the read node is valid\n				curSize += sizeof(*node);\n				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)\n				{\n					slots[slotId].push_back(node);\n					//SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);\n					SlotIdSlotIndex *dataInfo = getAvailableSlotIdSlotIndexObj();\n					unsigned int ind = (slots[slotId].size()-1);\n					dataInfo->setValues(slotId, ind);\n					dataIdToSlotMap[node->getId()] = dataInfo;\n					if(id == node->getId())\n						slotIndex = slots[slotId].size()-1;\n				}\n				else\n				{\n					//availableDataNodesQ.push_back(node);\n					availableDataNodesQ->addItemToPool(node);\n					// we have read an extra data node.\n					// Seek back by the size of the node read\n					//dataFileHandle.seekg(beforeReadOff, ios::beg);\n					if(dataFileHandle.eof())\n					{\n						// If we reached the eof then beforeReadOff is\n						// set to -1 and the subsequent read would set\n						// the fail bit. (TODO fix the subsquent read)\n						// Go to the beginning of the file.\n						//seekForRead(dataFileHandle, 0);\n\n						// THERE IS SOMETHING FISHY HERE. COMMENTING IT FOR\n						// NOW. \n					}\n					else\n					{\n						seekForRead(dataFileHandle, beforeReadOff);\n					}\n					break;\n				}\n			}\n\n			if(DEBUG_ENABLED)\n			{\n				DEBUG(\"\\nreadBlockInSlot : done reading the slot. Dumping slot\\n\");\n				dumpSlot(slotId);\n			}\n			return slotIndex;\n		}\n\n		void readBlockForDataIndexing(DataId &begin, DataId &end)\n		{\n			DEBUG(\"\\n readBlockForDataIndexing \");\n\n			// Start reading from the file\n			// Implementation Note :-\n			// From the API perspective its good idea to stop reading \n			// when you reach the Block size and not when you reached \n			// the next block offset as specified by the data index \n			// data structure\n			size_t curSize = 0;\n			bool firstNode = true;\n			Data* node = new Data();\n			while(true)\n			{\n				node->reset();\n				streampos beforeReadOff = dataFileHandle.tellg();\n				//node->readNodeFromASCIIFile(dataFileHandle);\n				node->readNodeFromBinaryFile(dataFileHandle);\n				// TODO : a check to see if the read node is valid\n				curSize += sizeof(*node);\n				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)\n				{\n					if(firstNode)\n					{\n						firstNode = false;\n						begin = node->getId();\n					}\n					end = node->getId();\n				}\n				else\n				{\n					// we have read an extra data node.\n					// Seek back by the size of the node read\n					//dataFileHandle.seekg(beforeReadOff, ios::beg);\n					if(dataFileHandle.eof())\n					{\n						// If we reached the eof then beforeReadOff is\n						// set to -1 and the subsequent read would set\n						// the fail bit. (TODO fix the subsquent read)\n						// Go to the beginning of the file.\n						//seekForRead(dataFileHandle, 0);\n\n						// THERE IS SOMETHING FISHY HERE. COMMENTING IT FOR\n						// NOW. \n					}\n					else\n					{\n						seekForRead(dataFileHandle, beforeReadOff);\n					}\n					break;\n				}\n			}\n			delete node;\n		}\n\n		void dumpSlot(int slotId)\n		{\n			if(slots[slotId].size() < 1)\n			{\n				cout << \"Empty Slot\";\n				return;\n			}\n			SLOT_ITERATOR it = slots[slotId].begin();\n			for(; it != slots[slotId].end(); ++it)\n			{\n				cout << (*it)->getId() <<\" \";\n			}\n		}\n\n		void invalidateSlot(const unsigned int slotId)\n		{\n			assert(slotId < NUM_SLOTS);\n\n			if(writeBackFlag && slots[slotId].size() > 0)\n			{\n				DEBUG(\"\\n Doing a write back for slot : \"<<slotId);\n				SLOT_ITERATOR it = slots[slotId].begin();\n				Id firstEleId = (*it)->getId();\n				seekForWrite(dataFileHandle, getStreamOffsetForDataId(firstEleId));\n				DEBUG(\" with tellp() value at : \" << dataFileHandle.tellp());\n				for(; it != slots[slotId].end(); ++it)\n				{\n					(*it)->writeToStream(dataFileHandle);\n					//(*it)->print(cout);\n				}\n				dataFileHandle.flush();\n			}\n\n			// move all the used data nodes to available queue\n			// and then empty the dictionary container\n			SLOT_ITERATOR it = slots[slotId].begin();\n			for(; it != slots[slotId].end(); ++it)\n			{\n				// availableSlotIdIndexObjsQ.push_back(dataIdToSlotMap[(*it)->getId()]);\n				availableSlotIdIndexObjsQ->addItemToPool(dataIdToSlotMap[(*it)->getId()]);\n				dataIdToSlotMap.erase((*it)->getId());\n				//availableDataNodesQ.push_back(*it);\n				availableDataNodesQ->addItemToPool(*it);\n			}\n\n			slots[slotId].clear();\n		}\n\n		Data* getAvailableDataNode()\n		{\n			Data *retVal = 0;\n			if(!availableDataNodesQ->empty())\n			{\n				retVal = availableDataNodesQ->getItemFromPool();\n				//availableDataNodesQ.pop_front();\n				retVal->reset();\n			}\n			else\n			{\n				cout << \"\\n Warning : Allocating a new Data node!\";\n				cout << \" Shouldn't happen if the nodes were pre-allocated\";\n				retVal = new Data();\n			}\n			return retVal;\n		}\n		SlotIdSlotIndex* getAvailableSlotIdSlotIndexObj()\n		{\n			SlotIdSlotIndex *retVal = 0;\n			if(!availableSlotIdIndexObjsQ->empty())\n			{\n				retVal = availableSlotIdIndexObjsQ->getItemFromPool();\n				// availableSlotIdIndexObjsQ.pop_front();\n				retVal->reset();\n			}\n			else\n			{\n				cout << \"\\n Warning : Allocating a new SlotIdSlotIndex object!\";\n				cout << \" Shouldn't happen if the nodes were pre-allocated\";\n				retVal = new SlotIdSlotIndex();\n			}\n			return retVal;\n		}\n\n		SlotIdSlotIndex* isInCache(const DataId id)\n		{\n			SlotIdSlotIndex *dataInfo = 0;\n			DATA_TO_SLOT_MAP_ITERATOR it = dataIdToSlotMap.find(id);\n			if(it != dataIdToSlotMap.end())\n			{\n				dataInfo = (it->second);\n			}\n			return dataInfo;\n		}\n\n		int applyLRUPolicy()\n		{\n			// the head of the use list marks the least recently used\n			// slot. Return the id and subsequent call to markSlotAsMRU\n			// will move this list node to the tail.\n			return useListHead->slotId;\n		}\n\n		void markSlotAsMRU(const int slotId)\n		{\n			ListNode *curNode = slotIdToListNodeMap[slotId];\n			\n			// If its already at the tail then we can simply return\n			if(curNode == useListTail)\n				return;\n\n			// Else move this list node to the tail\n			if(curNode == useListHead)\n			{\n				curNode->next->prev = 0;\n				useListHead = curNode->next;\n			}\n			else\n			{\n				// its a middle node\n				curNode->prev->next = curNode->next;\n				curNode->next->prev = curNode->prev;\n			}\n			curNode->prev = useListTail;\n			useListTail->next = curNode;\n			curNode->next = 0;\n\n			useListTail = curNode;\n		}\n\n		bool initFileHandle(const string &name, fstream &handle, bool rwMode=false)\n		{\n			bool retVal = true;\n			if(name.empty())\n			{\n				retVal = false;\n			}\n			if(rwMode)\n			{\n				handle.open(name.c_str(), fstream::in|fstream::out);\n			}\n			else\n			{\n				handle.open(name.c_str(), fstream::in);\n			}\n\n			if(!handle)\n				retVal = false;\n			return retVal;\n		}\n\n		void readDataIndexFile()\n		{\n			//cout << \"\\n In disk cache readDataIndexFile \\n\";\n			int i=0;\n			streampos pos(0);\n			streampos prev(0);\n			DataId begin = i;\n			while(dataIndexFileHandle.read((char*)&pos, sizeof(streampos)).good())\n			{				\n				//cout << (long)pos <<\" \";\n				if(pos != prev)\n				{\n					DataIdRange range;\n					range.setRange(begin, i-1, prev);\n					dataIdBlockRangeList.push_back(range);\n					begin = i;\n					prev = pos;\n				}\n				pos = 0;\n				++i;\n			}\n\n			DataIdRange range;\n			range.setRange(begin, i-1, prev);\n			dataIdBlockRangeList.push_back(range);\n			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());\n\n			// Test code: Iterate over set to print block range\n			if(DEBUG_ENABLED)\n			{\n				DEBUG(\"\\n Priting block offset range\");\n				typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();\n				for(; it != dataIdBlockRangeList.end(); ++it)\n				{\n					(*it).printRange();\n				}\n			}\n		}\n\n		streampos getStreamOffsetForDataId(DataId &id)\n		{\n			int start = 0, end = dataIdBlockRangeList.size()-1, mid;\n			streampos retVal = -1;\n			while(start <= end)\n			{\n				mid  = (start + end) >> 1;\n				if(dataIdBlockRangeList[mid].isInRange(id))\n				{\n					retVal = dataIdBlockRangeList[mid].pos;\n					break;\n				}\n				else if(id < dataIdBlockRangeList[mid].begin)\n				{\n					end = mid-1;\n				}\n				else\n				{\n					start = mid+1;\n				}\n			}\n			return retVal;\n		}\n\n		void seekForRead(fstream &handle, streampos offset)\n		{\n			// if(handle.is_open())\n			// {\n			// 	cout <<\"\\n In seekForRead - Handle is open.\"	;\n			// }\n			// if(handle.fail())\n			// {\n			// 	cout <<\"\\n In seekForRead - Fail bit set\";\n			// }\n			// if(handle.bad())\n			// {\n			// 	cout <<\"\\n In seekForRead - bad bit set\";\n			// }\n			// if(handle.good())\n			// {\n			// 	cout <<\"\\n In seekForRead - Good bit set\";\n			// }\n			// if(handle.eof())\n			// {\n			// 	cout << \"\\n In seekForRead - Eof bit set\";\n			// }\n			handle.seekg(offset, ios::beg);\n			if(handle.tellg() == -1)\n			{\n				if(handle.eof() || handle.fail())\n				{\n					handle.clear();\n					handle.seekg(offset, ios::beg); //reset to beginning\n					DEBUG(\"\\nReached end of file - reset to beginning\");\n				}\n				else\n				{\n					// handle.seekg(0, ios::beg); //reset to beginning\n					cout << \"\\n Cache error in stream associated with file :\" << dataFileName;\n				}\n			}\n		}\n\n		void seekForWrite(fstream &handle, streampos offset)\n		{\n			// if(handle.is_open())\n			// {\n			// 	cout <<\"\\n In seekForWrite - Handle is open.\"	;\n			// }\n			// if(handle.fail())\n			// {\n			// 	cout <<\"\\n In seekForWrite - Fail bit set\";\n			// }\n			// if(handle.bad())\n			// {\n			// 	cout <<\"\\n In seekForWrite - bad bit set\";\n			// }\n			// if(handle.good())\n			// {\n			// 	cout <<\"\\n In seekForWrite - Good bit set\";\n			// }\n			// if(handle.eof())\n			// {\n			// 	cout << \"\\n In seekForWrite - Eof bit set\";\n			// }\n			handle.seekp(offset, ios::beg);\n			if(handle.tellp() == -1)\n			{\n				if(handle.eof() || handle.fail())\n				{\n					handle.clear();\n					handle.seekp(offset, ios::beg); //reset to beginning\n					DEBUG(\"\\n Reached end of file - reset to beginning\");\n				}\n				else\n				{\n					// handle.seekg(0, ios::beg); //reset to beginning\n					cout << \"\\n Cache error in stream associated with file :\" << dataFileName;\n				}\n			}\n		}\n\n		// Member variables and data structures\n		struct ListNode\n		{\n			ListNode *prev;\n			ListNode *next;\n			int slotId;\n			ListNode(int id):slotId(id),\n							 prev(0),\n							 next(0)\n			{}\n		};\n\n		struct DataIdRange{\n		 	DataId begin;\n		 	DataId end;\n		 	int slotId;\n		 	streampos pos;\n\n		 	DataIdRange():begin(-1), end(-1), pos(-1), slotId(-1){}\n\n		 	bool operator< (const DataIdRange& other) const\n		 	{\n		 		return this->end < other.end;\n		 	}\n\n		 	bool isInRange(DataId id)\n		 	{\n		 		return (begin <= id && id <= end);\n		 	}\n\n		 	void setRange(DataId b, DataId e, int slot)\n		 	{\n		 		begin = b; end = e; slotId = slot;\n		 	}\n\n		 	void setRange(DataId b, DataId e, streampos p)\n		 	{\n		 		begin = b; end = e; pos = p;\n		 	}\n\n		 	void printRange() const\n		 	{\n		 		cout << \"\\n\" << begin << \" - \" <<end << \" : \" <<pos;\n		 	}\n		};\n\n		// Use Vectors for slots because we want to exploit spatial \n		// locality and its optimized because indexing a file tells\n		// us the number of items we are expecting in cache.\n		typedef typename std::vector<Data*> SLOT;\n		typedef typename std::vector<Data*>::iterator SLOT_ITERATOR;\n		typedef typename std::map<DataId, SlotIdSlotIndex*> DATA_TO_SLOT_MAP;\n		typedef typename std::map<DataId, SlotIdSlotIndex*>::iterator DATA_TO_SLOT_MAP_ITERATOR;\n\n		const size_t BLOCK_SIZE;\n		const int NUM_SLOTS;\n		string dataFileName;\n		bool initFlag;\n		unsigned int policy;\n		bool writeBackFlag;\n		const unsigned int MAX_ITEMS_PER_SLOT;\n		const unsigned int MAX_ITEMS_IN_CACHE;\n		DataId dataCount;\n\n		SLOT *slots;\n		DATA_TO_SLOT_MAP dataIdToSlotMap;	\n\n		ListNode *useListHead; // represents the LRU slot\n		ListNode *useListTail; // represents the MRU slot\n		map<int, ListNode*>  slotIdToListNodeMap; // map for a quick markSlotAsMRU() implementation\n\n		fstream dataFileHandle;\n		fstream dataIndexFileHandle;\n\n		vector<DataIdRange> dataIdBlockRangeList;\n\n		// Object pool for BIG performance improvements\n		// especially when we are dealing with millions of\n		// data items.\n		// deque<Data*> availableDataNodesQ;\n		// deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;\n		// Using circular queue to check performance improvement\n\n\n	public:\n		// Implementing a fixed sized queue for pool handler\n		// to verify if it gives some performance improvements\n		template <typename T>\n		class CircularQ\n		{\n		public:\n			CircularQ(unsigned int capacity):popPos(-1), \n												pushPos(-1),\n												poolCapacity(0),\n												curSize(0)\n			{\n				poolCapacity = capacity;\n				poolVec.reserve(poolCapacity);\n				T tempVal = 0;\n				for(int i=0; i<poolCapacity; ++i)\n				{\n					poolVec.push_back(tempVal);\n				}\n			}\n\n			~CircularQ()\n			{\n				for(int i=0; i < curSize; ++i)\n				{\n					//(poolVec[i])~T();\n				}\n			}\n\n			void addItemToPool(T item)\n			{\n				if(curSize >= poolCapacity)\n				{\n					// TODO : maintain name of the pool allocator \n					// for better error messages\n					cout << \"\\n Error : Tried to insert an item when the\";\n					cout << \" pool is full.\";\n					return;\n				}\n				pushPos = (++pushPos) % poolCapacity;\n				poolVec[pushPos] = item;\n				++curSize;\n				if(popPos == -1)\n				{\n					popPos = 0;\n				}\n			}\n\n			T getItemFromPool()\n			{\n				T retVal = 0;\n				if(curSize <= 0)\n				{\n					cout << \"\\n Error : Tried getting an item from empty pool allocator\";\n					return retVal;\n				}\n\n				retVal = poolVec[popPos];\n				popPos = (++popPos) % poolCapacity;\n				--curSize;\n				return retVal;\n			}\n\n			bool empty()\n			{\n				return curSize <= 0;\n			}\n\n			void printPoolHandlerQ()\n			{\n				cout << \"\\n Printing Pool Q :\";\n				for(int i=0, j=popPos; i < curSize; ++i, j=(++j % poolCapacity))\n				{\n					cout << poolVec[j] << \" \";\n				}\n				cout << \"\\n\";\n			}\n		private:\n			unsigned int poolCapacity;\n			std::vector<T> poolVec;\n			int pushPos; // points to the last item inserted\n			int popPos; // points to the element at the head of the queue\n			unsigned int curSize;\n\n		};\n	\n	private:\n		CircularQ<Data*> *availableDataNodesQ;\n		CircularQ<SlotIdSlotIndex*> *availableSlotIdIndexObjsQ;\n	public:\n		// test methods\n		void testCircularQ()\n		{\n			cout << \"\\n Testing pool circular Q\";\n\n			{\n				cout << \"\\n\\nTest1\";\n				CircularQ<int> test(1);\n				test.addItemToPool(1);\n				cout << \"\\nAdd item to pool \"; \n				cout << \"\\nFailed! Add item to pool \";\n				test.addItemToPool(2);\n				cout << \"\\nGet item from poool \" << test.getItemFromPool();\n				cout << \"\\nFailed! Get item from poool \" << test.getItemFromPool();\n			}\n\n			{\n				cout << \"\\n\\n Test2\";\n				CircularQ<int> test(5);\n				test.addItemToPool(1);\n				test.addItemToPool(2);\n				test.addItemToPool(3);\n				test.addItemToPool(4);\n				test.addItemToPool(5);\n				test.printPoolHandlerQ();\n				test.getItemFromPool();\n				test.printPoolHandlerQ();\n				test.addItemToPool(6);\n				test.printPoolHandlerQ();\n				test.getItemFromPool();\n				test.printPoolHandlerQ();\n				test.addItemToPool(7);\n				test.printPoolHandlerQ();\n				test.getItemFromPool();\n				test.printPoolHandlerQ();\n				test.addItemToPool(8);\n				test.printPoolHandlerQ();\n\n				while(!test.empty())\n				{\n					cout << test.getItemFromPool() << \" \";\n				}\n			}\n		}\n\n		void testCacheLRUPolicy()\n		{\n			cout << \"\\n Testing LRU policy\";\n			cout << \"\\n Serial testing for available slots\";\n			for(int i =0 ; i<2*NUM_SLOTS; ++i)\n			{\n				int slot = getAvailableSlot();\n				cout << \"\\n Slot \" << slot << \" used.\";\n				markSlotAsMRU(slot);\n				cout << \"\\n Slot \" << slot << \" marked as used.\";\n			}\n			cout << \"\\n Random testing for available slots\";\n			cout << \"\\n Marking random slots as used\";\n			for(int i =0 ; i<2*NUM_SLOTS; ++i)\n			{\n				int slot = rand() % NUM_SLOTS;\n				markSlotAsMRU(slot);\n				cout << \"\\n Slot \" << slot << \" marked as used.\";\n			}\n			cout << \"\\n Next available slot is \" << getAvailableSlot();\n		}\n\n		void testGetData(int numNodes)\n		{\n			Id n = 0;\n			const Data* node = 0;\n			cout << \"\\n Get Node \" << n;\n			node = getData(n);\n			if(node)\n			{\n				node->print(cout);\n			}\n			else\n			{\n				cout << \"\\n Null node for \" << n;\n			}\n\n			n = 1;\n			node = getData(n);\n			if(node)\n			{\n				node->print(cout);\n			}\n			else\n			{\n				cout << \"\\n Null node for \" << n;\n			}\n\n		}\n\n		void testReadOfDiskGraph(int numNodes)\n		{\n			ofstream out(\"printofdiskgraph\");\n			for(int i=0; i<numNodes; ++i)\n			{\n				const Data *node = getData(i);\n				if(node)\n				{\n					node->print(out);\n				}\n				else\n				{\n					cout << \"\\n Null node for \" << i;\n				}\n			}\n			out.close();\n		}\n		\n	};\n}\n",
 			"settings":
 			{
-				"buffer_size": 647,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/shashank/project/test_reuse_v2/mat_mul/out",
-			"settings":
-			{
-				"buffer_size": 17165227,
+				"buffer_size": 25621,
 				"line_ending": "Unix"
 			}
 		}
@@ -570,17 +567,25 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 392.0,
-		"last_filter": "",
+		"height": 117.0,
+		"last_filter": "Package Control: ins",
 		"selected_items":
 		[
 			[
-				"Package Control: ",
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
 				"Package Control: Install Package"
 			],
 			[
 				"Package Control: add",
 				"Package Control: Add Repository"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
 			],
 			[
 				"Package Control: inst",
@@ -595,7 +600,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 449.0
+		"width": 458.0
 	},
 	"console":
 	{
@@ -622,22 +627,41 @@
 		"/home/shashank/project/source_ddg/include/ddg/analysis",
 		"/home/shashank/project/source_ddg/tools",
 		"/home/shashank/project/source_ddg/tools/reuse-analysis",
-		"/home/shashank/project/source_ddg/tools/reuse-analysis/include"
+		"/home/shashank/project/source_ddg/tools/reuse-analysis/include",
+		"/home/shashank/project/source_ddg/tools/reuse-analysis/src"
 	],
 	"file_history":
 	[
-		"/home/shashank/project/source_ddg/sftp-config.json",
+		"/home/shashank/project/test_reuse_v2/mat_mul/asciiGraphPrint",
+		"/home/shashank/project/test_reuse_v2/polaris_matmul/asciiGraphPrint",
+		"/home/shashank/Desktop/scratch",
+		"/home/shashank/project/test_reuse_v2/mat_mul/bfsWithQ",
+		"/home/shashank/project/test_reuse_v2/mat_mul/bfsWithoutQ",
+		"/home/shashank/project/source_ddg/build_dbg/tools/reuse-analysis/reuse-analysis-v2",
+		"/home/shashank/project/source_ddg/include/ddg/analysis/DiskCache.hxx",
+		"/home/shashank/project/source_ddg/build_dbg/test.cpp",
+		"/home/shashank/project/source_ddg/build_dbg/oprofile_data/samples/operf.log",
+		"/home/shashank/project/test_reuse_v2/mat_mul/bfsOut",
+		"/home/shashank/project/test_reuse_v2/vec_add/bfsOut",
+		"/home/shashank/project/test_reuse_v2/vec_add/cur_out",
+		"/home/shashank/project/test_reuse_v2/vec_add/reuse_testgraphdump",
+		"/home/shashank/project/source_ddg/include/ddg/analysis/DiskCDAG.hxx",
+		"/home/shashank/project/source_ddg/include/ddg/analysis/Trace.hxx",
+		"/home/shashank/project/test_reuse_v2/vec_add/reuse_testdiskgraph",
 		"/home/shashank/project/source_ddg/include/ddg/analysis/LazyGraph.hxx",
+		"/home/shashank/project/source_ddg/build_dbg/test.c",
+		"/home/shashank/project/test_reuse_v2/mat_mul/out",
+		"/home/shashank/project/test_reuse_v2/mat_mul/matmul.c",
+		"/home/shashank/project/test_reuse_v2/vec_add/reuse_test.c",
+		"/home/shashank/project/source_ddg/sftp-config.json",
 		"/home/shashank/project/source_ddg/include/ddg/analysis/Ids.hxx",
 		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/region-dynamic-graph.hxx",
 		"/home/shashank/project/source_ddg/lib/runtime/Runtime.cxx",
 		"/home/shashank/project/source_ddg/lib/instrument/InstrumentDDG.cxx",
-		"/home/shashank/project/source_ddg/include/ddg/analysis/Trace.hxx",
 		"/home/shashank/project/source_ddg/lib/analysis/Ids.cxx",
 		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/region-dynamic-graph.cxx",
 		"/home/shashank/Downloads/CMakeLists(1).txt",
 		"/home/shashank/project/source_ddg/.git/COMMIT_EDITMSG",
-		"/home/shashank/Desktop/scratch",
 		"/home/shashank/project/source_ddg/tools/dynamic-graph/dynamic-graph.cxx",
 		"/home/shashank/project/source_ddg/include/ddg/analysis/DynamicGraph.hxx",
 		"/home/shashank/project/source_ddg/lib/runtime/TraceCount.cxx",
@@ -735,25 +759,7 @@
 		"/home/shashank/lisp_interpreter_in_java-master/Makefile",
 		"/home/shashank/lisp_interpreter_in_java-master/manifest.txt",
 		"/home/shashank/lisp_project/proj_java/Makefile",
-		"/home/shashank/lisp_project/proj_java/test1",
-		"/home/shashank/Downloads/sha.txt",
-		"/home/shashank/hpcviewer/bin/hpcviewer",
-		"/home/shashank/remote/sftp-config.json",
-		"/home/shashank/remote/proj3/jlex-1.2.6/test.txt",
-		"/home/shashank/remote/cta/MyTransform.java",
-		"/home/shashank/Desktop/sha.txt",
-		"/home/shashank/remote/proj2/jlex-1.2.6/sootOutput/JLex.CLexGen.jimple",
-		"/home/shashank/remote/proj2/jlex-1.2.6/test.txt",
-		"/home/shashank/remote/proj2/singhsha.txt",
-		"/home/shashank/remote/5239.sublime-project",
-		"/home/shashank/remote/proj2/MyTransform.java",
-		"/home/shashank/remote/jlex-1.2.6/test.txt",
-		"/home/shashank/remote/jlex-1.2.6/sootOutput/JLex.CLexGen.jimple",
-		"/home/shashank/remote/proj1/MyTransform.java",
-		"/home/shashank/project/others/softwares/make-3.81/INSTALL",
-		"/home/shashank/project/others/softwares/automake-1.9.6/INSTALL",
-		"/home/shashank/project/others/softwares/libtool-1.5.22/INSTALL",
-		"/home/shashank/project/others/softwares/autoconf-2.60/INSTALL"
+		"/home/shashank/lisp_project/proj_java/test1"
 	],
 	"find":
 	{
@@ -782,141 +788,142 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"graphinasci",
+			"asciigra",
+			"readNodefrombin",
+			"readBlockFromFile",
+			"succscache",
+			"updateGraphWithSuccessorInfo",
+			"succsca",
+			"succsc",
+			"cleanup",
+			"succsCa",
+			"281201",
+			"printDiskGraph",
+			"test",
+			"availableDataNodesQ.",
+			"availableSlotIdIndexObjsQ.",
+			"availableDataNodesQ",
+			"availableSlotIdIndexObjsQ",
+			"PoolHandlerCircularQ",
+			"lrucache = new",
+			"lruCac",
+			"lruCace",
+			"diskcache",
+			"diskcace",
+			"unmarkNode",
+			"perf",
+			"numOfBytesFornodeMarkerBitSet",
+			"getFir",
+			"readBlockInSlot",
+			"availableDataNodesQ",
+			"invalidateslot",
+			"applyLRUPolicy",
+			"getAvailableSlot",
+			"vector<Id>",
+			"readBlockin",
+			"done",
+			"slotIndex",
+			"readBlockinslo",
+			"getAvailableDataNode",
+			"availableDataNodesQ",
+			"readBlockInSlot",
+			"readBl",
+			"isInCache",
+			"availableDataNodesQ",
+			"availableDataNodesQ.pop_front()",
+			"availableDataNodesQ",
+			"readBlockInSlot",
+			"setVa",
+			"dataIdToSlotMap",
+			"availableSlotIdIndexObjsQ",
+			"dataIdToSlotMap",
+			"SlotIdSlotIndex",
+			"readBlockForDataIndexing",
+			"createDataIndex",
+			"succsCa",
+			"createDataIndex",
+			"availableDataNodesQ",
+			"availableSlotIdIndexObjs",
+			"availableDataNodesQ",
+			"readBlockInSlot",
+			"starting vertex",
+			"new .*\\[",
+			"new .*/[",
+			"new .*[",
+			"new ",
+			"new",
+			"delete",
+			"prev",
+			"perf",
+			"Number of nodes processed",
+			"NUM_S",
+			"availableDataNodesQ",
+			"erase",
+			"SLOT_ITERATOR",
+			"erase",
 			"1024",
-			"succsCache",
-			"addUpdateNodeToBlock",
-			"flushCurrentBlockToDisk",
-			"updatesu",
-			"addUpdateNodeToBlock",
-			"blocksi",
-			"2029999",
-			"2029999'",
-			"parallelism",
-			"performBFS",
-			"getid",
-			"list",
-			"cout",
-			"generategraph",
-			"generate",
-			"basicblockrange",
-			"builder",
-			"visitnode",
-			"basic",
-			"withinRegion",
-			"printRegionGraph",
-			"traceno",
-			"performBFS",
-			"numEdges",
-			"performBFS",
-			"regionIdToNodeMap",
-			"printRegionGraph",
-			"regionIdToNodeMap",
-			"numOfRegionNodes",
-			"visitLoopIterEnd",
-			"RegionDynamicGraphBuilder",
-			"loopIndVar",
-			"LoopIndVar",
-			"loopIndVar",
-			"class TraceVisitor",
-			"handleRegionBegin",
-			"loopIndVar",
-			"LoopIndVar",
-			"loopIndVar",
-			"LoopIndVar",
-			"loopIndVar",
-			"LoopIndVar",
-			"loopIndVar",
-			"LoopIndVar",
-			"loopIndVar",
-			"regionBegin",
-			"LazyGraphBuilder",
-			"DynamicGraph",
-			"generateGraph",
-			"visitNode",
-			"visit(",
-			"visit",
-			"addSuccessor",
-			"addNode",
-			"LazyGraphBuilder",
-			"LazyNode",
-			"LastAddrWriterMap",
-			"lastAddrWriters",
-			"lastInstrWriters",
-			"basicBlocks",
-			"ids",
-			"Ids",
-			"TraceEventsHandler",
-			"ids",
-			"Ids",
-			"ids",
-			"TraceVisitor",
-			"ParseIRFile",
-			"SUBCLASS",
-			"handleLd",
-			"handleBB",
-			"handleRegionBegin",
-			"IdsVisitor",
-			"bbId",
-			"ddg_basic_block_enter",
-			"ddg_load",
-			"LoopBegin",
-			"FnCallType",
-			"RegionBegin",
-			"ddg_load",
-			"LoopEndType",
-			"LoopBeginType",
-			"RegionEndType",
-			"RegionBeginType",
-			"RegionEnd",
-			"RegionBegin",
-			"LoopBegin",
-			"TraceEnd",
-			"LoopBegin",
-			"handleRegionEnd",
-			"region",
-			"ddg_end_region",
-			"ddg_begin_region",
-			"endRegionFn",
-			"beginRegionFn",
-			"region",
-			"start",
-			"ddg_stop_region",
-			"stopRegionFn",
-			"startRegionFn",
-			"region",
-			"LoopEnter",
-			"Load",
-			"LoopExitType",
-			"handleEndTrace",
-			"handleRegionStart",
-			"handleEndTrace",
-			"loopId",
-			"LoopId",
-			"loopId",
-			"LoopId",
-			"loopId",
-			"LoopId",
-			"loopId",
-			"LoopId",
-			"loopId",
-			"LoopEnterType",
-			"ddg_start_trace",
-			"NumberingVisitor",
-			"ddg_start_trace",
-			"CHECK_TRACING",
-			"ddg_load",
-			"isspace ",
-			"zlib",
-			"getVal",
-			"out.dump",
-			"addPairs"
+			"nUM_S",
+			"isBitSet",
+			"unsetBitInBitset",
+			"unmarkNode",
+			"unsetBitInBitset",
+			"unmarkNode",
+			"perf",
+			"getFirstReadyNode",
+			"unmarkAllNodes",
+			"unmark",
+			"unmarkAllNodes",
+			"100",
+			"bfsOutput",
+			"NUM_SLOTS",
+			"remove",
+			"writeToStreamInBinary",
+			"update",
+			"print(c",
+			"readBlockFromFile",
+			"readNodeFromBinaryFile",
+			"remove",
+			"readNodeFromB",
+			"writeToStreamInBinary",
+			"writetostream",
+			"readNodeFromASCIIFile",
+			"readNodeFromAsc",
+			"writetos",
+			"readNodefromasci",
+			"readNodefrom",
+			"writetostre",
+			"initFileHandle",
+			"writeToStream",
+			".write",
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"initLRUCacheForDiskGraph",
+			"initLr",
+			"datac",
+			"dataIdBlockRangeList",
+			"readDataIndexFile",
+			"numNodes",
+			"generateGra",
+			"CHILDCOUNT",
+			"NCOUNT"
 		],
 		"highlight": true,
 		"in_selection": false,
 		"preserve_case": false,
-		"regex": true,
+		"regex": false,
 		"replace_history":
 		[
+			"CircularQ",
 			"RegionDynamicGraph",
 			"ddg_region_end",
 			"ddg_region_begin",
@@ -937,7 +944,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -946,27 +953,29 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 16760,
+						"buffer_size": 25621,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1829,
-								1829
+								1327,
+								1327
 							]
 						],
 						"settings":
 						{
+							"history_list_is_closing": true,
 							"incomplete_sync": null,
 							"remote_loading": false,
+							"sftp_duplicate_views": 0,
 							"synced": false,
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1188.0,
+						"translation.y": 684.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
@@ -974,19 +983,53 @@
 				},
 				{
 					"buffer": 1,
-					"file": "tools/reuse-analysis/include/ReadCDAG.hxx",
+					"file": "include/ddg/analysis/DiskCDAG.hxx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2422,
+						"buffer_size": 46900,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1816,
-								1816
+								9497,
+								9497
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"sftp_duplicate_views": 0,
+							"synced": false,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 6938.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "tools/reuse-analysis/include/ReadCDAG.hxx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2960,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								849,
+								860
 							]
 						],
 						"settings":
@@ -999,7 +1042,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 702.0,
+						"translation.y": 741.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -1008,56 +1051,92 @@
 			]
 		},
 		{
-			"selected": 0,
+			"selected": 3,
 			"sheets":
 			[
 				{
-					"buffer": 2,
+					"buffer": 0,
+					"file": "include/ddg/analysis/DiskCache.hxx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 25621,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								25621,
+								25621
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"sftp_duplicate_views": 0,
+							"synced": false,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 19893.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
 					"file": "include/ddg/analysis/DiskCDAG.hxx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 36252,
+						"buffer_size": 46900,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								13678,
-								13678
+								26474,
+								26474
 							]
 						],
 						"settings":
 						{
+							"history_list_is_closing": true,
 							"incomplete_sync": null,
 							"remote_loading": false,
+							"sftp_duplicate_views": 0,
 							"synced": false,
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 9158.0,
+						"translation.y": 19326.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "/home/shashank/project/test_reuse_v2/mat_mul/matmul.c",
+					"file": "tools/reuse-analysis/src/Main.cxx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 647,
+						"buffer_size": 4932,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								156,
-								156
+								666,
+								666
 							]
 						],
 						"settings":
@@ -1072,38 +1151,36 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
 					"buffer": 4,
-					"file": "/home/shashank/project/test_reuse_v2/mat_mul/out",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 17165227,
+						"buffer_size": 25621,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								25621,
+								25621
 							]
 						],
 						"settings":
 						{
 							"incomplete_sync": null,
-							"remote_loading": false,
-							"synced": false,
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 18952.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -1111,7 +1188,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 26.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -1163,7 +1240,7 @@
 	"project": "source_ddg.sublime-project",
 	"replace":
 	{
-		"height": 48.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":
