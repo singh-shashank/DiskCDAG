@@ -815,7 +815,136 @@ namespace ddg{
 
 
 	public:
+		// Implementing a fixed sized queue for pool handler
+		// to verify if it gives some performance improvements
+		template <typename T>
+		class CircularQ
+		{
+		public:
+			CircularQ(unsigned int capacity):popPos(-1), 
+												pushPos(-1),
+												poolCapacity(0),
+												curSize(0)
+			{
+				poolCapacity = capacity;
+				poolVec.reserve(poolCapacity);
+				T tempVal = 0;
+				for(int i=0; i<poolCapacity; ++i)
+				{
+					poolVec.push_back(tempVal);
+				}
+			}
+
+			~CircularQ()
+			{
+				for(int i=0; i < curSize; ++i)
+				{
+					~(poolVec[i]);
+				}
+			}
+
+			void addItemToPool(T item)
+			{
+				if(curSize >= poolCapacity)
+				{
+					// TODO : maintain name of the pool allocator 
+					// for better error messages
+					cout << "\n Error : Tried to insert an item when the";
+					cout << " pool is full.";
+					return;
+				}
+				pushPos = (++pushPos) % poolCapacity;
+				poolVec[pushPos] = item;
+				++curSize;
+				if(popPos == -1)
+				{
+					popPos = 0;
+				}
+			}
+
+			T getItemFromPool()
+			{
+				T retVal = 0;
+				if(curSize <= 0)
+				{
+					cout << "\n Error : Tried getting an item from empty pool allocator";
+					return retVal;
+				}
+
+				retVal = poolVec[popPos];
+				popPos = (++popPos) % poolCapacity;
+				--curSize;
+				return retVal;
+			}
+
+			bool empty()
+			{
+				return curSize <= 0;
+			}
+
+			void printPoolHandlerQ()
+			{
+				cout << "\n Printing Pool Q :";
+				for(int i=0, j=popPos; i < curSize; ++i, j=(++j % poolCapacity))
+				{
+					cout << poolVec[j] << " ";
+				}
+				cout << "\n";
+			}
+		private:
+			unsigned int poolCapacity;
+			std::vector<T> poolVec;
+			int pushPos; // points to the last item inserted
+			int popPos; // points to the element at the head of the queue
+			unsigned int curSize;
+
+		};
+	public:
 		// test methods
+		void testCircularQ()
+		{
+			cout << "\n Testing pool circular Q";
+
+			{
+				cout << "\n\nTest1";
+				CircularQ<int> test(1);
+				test.addItemToPool(1);
+				cout << "\nAdd item to pool "; 
+				cout << "\nFailed! Add item to pool ";
+				test.addItemToPool(2);
+				cout << "\nGet item from poool " << test.getItemFromPool();
+				cout << "\nFailed! Get item from poool " << test.getItemFromPool();
+			}
+
+			{
+				cout << "\n\n Test2";
+				CircularQ<int> test(5);
+				test.addItemToPool(1);
+				test.addItemToPool(2);
+				test.addItemToPool(3);
+				test.addItemToPool(4);
+				test.addItemToPool(5);
+				test.printPoolHandlerQ();
+				test.getItemFromPool();
+				test.printPoolHandlerQ();
+				test.addItemToPool(6);
+				test.printPoolHandlerQ();
+				test.getItemFromPool();
+				test.printPoolHandlerQ();
+				test.addItemToPool(7);
+				test.printPoolHandlerQ();
+				test.getItemFromPool();
+				test.printPoolHandlerQ();
+				test.addItemToPool(8);
+				test.printPoolHandlerQ();
+
+				while(!test.empty())
+				{
+					cout << test.getItemFromPool() << " ";
+				}
+			}
+		}
+
 		void testCacheLRUPolicy()
 		{
 			cout << "\n Testing LRU policy";

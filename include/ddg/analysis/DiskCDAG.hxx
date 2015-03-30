@@ -659,6 +659,9 @@ class DiskCDAG
 					return;
 				}
 				cout << "\n LRU Disk Cache initialized.";
+
+				// TODO : Remove this test code
+				lruCache->testCircularQ();
 			}
 		}
 
@@ -1164,7 +1167,7 @@ class DiskCDAG
 					++processedNodeCount;
 					int perc = (processedNodeCount*100)/numNodes;
 					int prev = 0;
-					if(perc % 5 == 0 && perc != prev)
+					if(perc % 1 == 0 && perc != prev)
 					{
 						cout << "\r\033[K ";
 						cout << "Number of nodes processed : " << processedNodeCount;
@@ -1247,7 +1250,7 @@ class DiskCDAG
 					}
 					++processedNodeCount;
 					int perc = (processedNodeCount*100)/numNodes;
-					if((perc % 5) == 0 && perc != prev)
+					if((perc % 1) == 0 && perc != prev)
 					{
 						cout << "\r\033[K ";
 						cout << "Number of nodes processed : " << processedNodeCount;
