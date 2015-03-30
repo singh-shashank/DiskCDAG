@@ -48,16 +48,27 @@ namespace ddg{
 			}
 
 			// clear up all the pre-allocated objects
-			while(!availableDataNodesQ.empty())
+			// while(!availableDataNodesQ.empty())
+			// {
+			// 	delete availableDataNodesQ.front();
+			// 	availableDataNodesQ.pop_front();
+			// }
+			// while(!availableSlotIdIndexObjsQ.empty())
+			// {
+			// 	delete availableSlotIdIndexObjsQ.front();
+			// 	availableSlotIdIndexObjsQ.pop_front();
+			// }
+
+			while(!availableDataNodesQ->empty())
 			{
-				delete availableDataNodesQ.front();
-				availableDataNodesQ.pop_front();
+				delete availableDataNodesQ->getItemFromPool();
 			}
-			while(!availableSlotIdIndexObjsQ.empty())
+			while(!availableSlotIdIndexObjsQ->empty())
 			{
-				delete availableSlotIdIndexObjsQ.front();
-				availableSlotIdIndexObjsQ.pop_front();
+				delete availableSlotIdIndexObjsQ->getItemFromPool();
 			}
+			delete availableDataNodesQ;
+			delete availableSlotIdIndexObjsQ;
 
 			// Delete slots
 			delete []slots;
@@ -150,16 +161,27 @@ namespace ddg{
 
 			}
 			// Pre-allocate Data and SlotIdSlotIndex objects
+			// for(int i=0; i<maxDataObjectsRequired; ++i)
+			// {
+			// 	Data *node = new Data();
+			// 	availableDataNodesQ.push_back(node);
+
+			// 	SlotIdSlotIndex *obj = new SlotIdSlotIndex();
+			// 	availableSlotIdIndexObjsQ.push_back(obj);
+			// }
+			// DEBUG("\n availableDataNodes : " << availableDataNodesQ.size());
+			// DEBUG("\n availableSlotIdIndexObjs : " << availableSlotIdIndexObjsQ.size());
+
+			availableDataNodesQ = new CircularQ<Data*>(maxDataObjectsRequired);
+			availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>(maxDataObjectsRequired);
 			for(int i=0; i<maxDataObjectsRequired; ++i)
 			{
 				Data *node = new Data();
-				availableDataNodesQ.push_back(node);
+				availableDataNodesQ->addItemToPool(node);
 
 				SlotIdSlotIndex *obj = new SlotIdSlotIndex();
-				availableSlotIdIndexObjsQ.push_back(obj);
+				availableSlotIdIndexObjsQ->addItemToPool(obj);
 			}
-			DEBUG("\n availableDataNodes : " << availableDataNodesQ.size());
-			DEBUG("\n availableSlotIdIndexObjs : " << availableSlotIdIndexObjsQ.size());
 
 			return initFlag;
 		}
@@ -355,7 +377,8 @@ namespace ddg{
 				}
 				else
 				{
-					availableDataNodesQ.push_back(node);
+					//availableDataNodesQ.push_back(node);
+					availableDataNodesQ->addItemToPool(node);
 					// we have read an extra data node.
 					// Seek back by the size of the node read
 					//dataFileHandle.seekg(beforeReadOff, ios::beg);
@@ -480,9 +503,11 @@ namespace ddg{
 			SLOT_ITERATOR it = slots[slotId].begin();
 			for(; it != slots[slotId].end(); ++it)
 			{
-				availableSlotIdIndexObjsQ.push_back(dataIdToSlotMap[(*it)->getId()]);
+				// availableSlotIdIndexObjsQ.push_back(dataIdToSlotMap[(*it)->getId()]);
+				availableSlotIdIndexObjsQ->addItemToPool(dataIdToSlotMap[(*it)->getId()]);
 				dataIdToSlotMap.erase((*it)->getId());
-				availableDataNodesQ.push_back(*it);
+				//availableDataNodesQ.push_back(*it);
+				availableDataNodesQ->addItemToPool(*it);
 			}
 
 			slots[slotId].clear();
@@ -491,10 +516,10 @@ namespace ddg{
 		Data* getAvailableDataNode()
 		{
 			Data *retVal = 0;
-			if(!availableDataNodesQ.empty())
+			if(!availableDataNodesQ->empty())
 			{
-				retVal = availableDataNodesQ.front();
-				availableDataNodesQ.pop_front();
+				retVal = availableDataNodesQ->getItemFromPool();
+				//availableDataNodesQ.pop_front();
 				retVal->reset();
 			}
 			else
@@ -508,10 +533,10 @@ namespace ddg{
 		SlotIdSlotIndex* getAvailableSlotIdSlotIndexObj()
 		{
 			SlotIdSlotIndex *retVal = 0;
-			if(!availableSlotIdIndexObjsQ.empty())
+			if(!availableSlotIdIndexObjsQ->empty())
 			{
-				retVal = availableSlotIdIndexObjsQ.front();
-				availableSlotIdIndexObjsQ.pop_front();
+				retVal = availableSlotIdIndexObjsQ->getItemFromPool();
+				// availableSlotIdIndexObjsQ.pop_front();
 				retVal->reset();
 			}
 			else
@@ -810,8 +835,9 @@ namespace ddg{
 		// Object pool for BIG performance improvements
 		// especially when we are dealing with millions of
 		// data items.
-		deque<Data*> availableDataNodesQ;
-		deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;
+		//deque<Data*> availableDataNodesQ;
+		//deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;
+		// Using circular queue to check performance improvement
 
 
 	public:
@@ -839,7 +865,7 @@ namespace ddg{
 			{
 				for(int i=0; i < curSize; ++i)
 				{
-					~(poolVec[i]);
+					//(poolVec[i])~T();
 				}
 			}
 
@@ -899,6 +925,10 @@ namespace ddg{
 			unsigned int curSize;
 
 		};
+	
+	private:
+		CircularQ<Data*> *availableDataNodesQ;
+		CircularQ<SlotIdSlotIndex*> *availableSlotIdIndexObjsQ;
 	public:
 		// test methods
 		void testCircularQ()

@@ -661,7 +661,7 @@ class DiskCDAG
 				cout << "\n LRU Disk Cache initialized.";
 
 				// TODO : Remove this test code
-				lruCache->testCircularQ();
+				//lruCache->testCircularQ();
 			}
 		}
 
@@ -1256,7 +1256,6 @@ class DiskCDAG
 						cout << "Number of nodes processed : " << processedNodeCount;
 						cout << " (of " << numNodes << ") - ";
 						cout << perc << " % done.";
-						cout << " | Number of (currently) discovered but unprocessed nodes : ";
 						cout << flush;
 						prev = perc;
 					}
