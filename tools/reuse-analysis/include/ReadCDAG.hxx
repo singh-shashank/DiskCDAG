@@ -96,7 +96,8 @@ public:
 
       //cdag->testMethodForDiskCache();
       begin = clock();
-      cdag->performBFSWithoutQ();
+      //cdag->performBFSWithoutQ();
+      cdag->performBFS();
       end = clock();
       elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
       cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;

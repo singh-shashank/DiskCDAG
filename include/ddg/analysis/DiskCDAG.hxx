@@ -862,6 +862,41 @@ class DiskCDAG
 			return retVal;
 		}
 
+		// Finds the first unmarked node (i.e. the first 0 in bitset)
+		// If there is a node it returns true
+		// Otherwise false. 
+		// Overloaded method for optimization. Take in the
+		// last accessed index to start from there
+		bool getFirstReadyNode(BYTE *bitSet, Id &nodeId, unsigned int &lastIndex)
+		{
+			bool retVal = false;
+			BYTE oneMask = ~0;
+			unsigned int i=lastIndex;
+			for(; i<numOfBytesFornodeMarkerBitSet; ++i)
+			{
+				if(bitSet[i] ^ oneMask != 0)
+				{
+					// we have zero in here somewhere
+					for(unsigned int j=(1<<7), pos=0; j>0; j=j>>1, ++pos)
+					{
+						if((bitSet[i] & j) == 0)
+						{
+							nodeId = i*8 + pos;
+							retVal = true;
+							break;
+						}
+					}
+				}
+				if(retVal)
+					break; // node found so break;
+			}
+			if(nodeId >= numNodes) // is there a better way to handle this?
+				retVal = false;
+			else
+				lastIndex = i;
+			return retVal;
+		}
+
 		
 
 		void cleanUpTemporaries()
@@ -1089,15 +1124,16 @@ class DiskCDAG
 			
 			Id processedNodeCount = 0;
 			unmarkAllNodes(); // mark all nodes as ready
-			queue<Id> q;
+			deque<Id> q;
 			Id startV;
 			//vector<Id> bfsOutput;
 			ofstream bfsOutFile("bfsOut");
 			bool error = false;
-			while(getFirstReadyNode(nodeMarkerBitSet, startV))
+			unsigned int bitSetIndex = 0;
+			while(getFirstReadyNode(nodeMarkerBitSet, startV, bitSetIndex))
 			{
 				bfsOutFile << "\nStarting vertex : " << startV << "\n";
-				q.push(startV);
+				q.push_back(startV);
 				markNode(nodeMarkerBitSet, startV);
 				
 				while(!q.empty())
@@ -1109,7 +1145,7 @@ class DiskCDAG
 						error = true;
 						break;
 					}
-					q.pop();
+					q.pop_front();
 					//bfsOutput.push_back(curNode->dynId);
 					bfsOutFile << curNode->dynId << " ";
 					for(std::deque<Id>::const_iterator it = curNode->succsList.begin();
@@ -1117,7 +1153,7 @@ class DiskCDAG
 					{
 						if(!isNodeMarked(nodeMarkerBitSet, *it))
 						{
-							q.push(*it);
+							q.push_back(*it);
 							markNode(nodeMarkerBitSet, *it);							
 						}
 						else
@@ -1171,7 +1207,8 @@ class DiskCDAG
 			ofstream bfsOutFile("bfsOut");
 			bool error = false;
 			int prev = -1;
-			while(getFirstReadyNode(nodeMarkerBitSet, startV))
+			unsigned int bitSetIndex = 0;
+			while(getFirstReadyNode(nodeMarkerBitSet, startV, bitSetIndex))
 			{
 				//cout << "\nStarting vertex : " << startV << "\n";
 				bfsOutFile << "\nStarting vertex : " << startV << "\n";
@@ -1179,9 +1216,10 @@ class DiskCDAG
 				memset(qBitSetForNodes, ~0, numOfBytesFornodeMarkerBitSet);
 				unmarkNode(qBitSetForNodes, startV);
 				markNode(nodeMarkerBitSet, startV);
+				unsigned int qBitSetIndex = startV >> 3;
 				
 				Id onQNode;
-				while(getFirstReadyNode(qBitSetForNodes, onQNode))
+				while(getFirstReadyNode(qBitSetForNodes, onQNode, qBitSetIndex))
 				{
 					const CDAGNode *curNode = lruCache->getData(onQNode);
 					if(!curNode)
