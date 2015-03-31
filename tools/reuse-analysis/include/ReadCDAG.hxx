@@ -77,8 +77,8 @@ public:
     Ids ids;
     ids.runOnModule(*module.get());
 
-    size_t bs = 524288;// 512MB is the block size
-    //size_t bs = 131072;// 128MB is the block size
+    //size_t bs = 524288;// 512MB is the block size
+    size_t bs = 131072;// 128MB is the block size
     //size_t bs = 25600; //25MB
     //size_t bs = 5120; //5MB
     //size_t bs = 1; //1MB

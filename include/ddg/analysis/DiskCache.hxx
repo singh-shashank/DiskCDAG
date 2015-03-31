@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <deque>
 
+#include <boost/unordered_map.hpp>
+
 #define DEBUG(msg) do { if (!DEBUG_ENABLED) {} \
                    else std::cout << __FILE__ << ":" << __LINE__ << " " << msg; \
                		} while(0)
@@ -100,16 +102,19 @@ namespace ddg{
 			slots = new SLOT[NUM_SLOTS];
 
 			// Initialize use list
+			slotIdToListNodeMap.reserve(NUM_SLOTS);
 			useListHead = new ListNode(0);
 			ListNode *curNode = useListHead;
-			slotIdToListNodeMap[0] = useListHead;
+			//slotIdToListNodeMap[0] = useListHead;
+			slotIdToListNodeMap.push_back(useListHead);
 			for(int i=1; i<NUM_SLOTS; ++i)
 			{
 				ListNode *temp = new ListNode(i);
 				temp->prev = curNode;
 				curNode->next = temp;
 				curNode = temp;
-				slotIdToListNodeMap[i] = temp;
+				//slotIdToListNodeMap[i] = temp;
+				slotIdToListNodeMap.push_back(temp);
 			}
 			useListTail = curNode;
 
@@ -807,8 +812,8 @@ namespace ddg{
 		// us the number of items we are expecting in cache.
 		typedef typename std::vector<Data*> SLOT;
 		typedef typename std::vector<Data*>::iterator SLOT_ITERATOR;
-		typedef typename std::map<DataId, SlotIdSlotIndex*> DATA_TO_SLOT_MAP;
-		typedef typename std::map<DataId, SlotIdSlotIndex*>::iterator DATA_TO_SLOT_MAP_ITERATOR;
+		typedef typename boost::unordered_map<DataId, SlotIdSlotIndex*> DATA_TO_SLOT_MAP;
+		typedef typename boost::unordered_map<DataId, SlotIdSlotIndex*>::iterator DATA_TO_SLOT_MAP_ITERATOR;
 
 		const size_t BLOCK_SIZE;
 		const int NUM_SLOTS;
@@ -825,7 +830,8 @@ namespace ddg{
 
 		ListNode *useListHead; // represents the LRU slot
 		ListNode *useListTail; // represents the MRU slot
-		map<int, ListNode*>  slotIdToListNodeMap; // map for a quick markSlotAsMRU() implementation
+		//map<int, ListNode*>  slotIdToListNodeMap; // map for a quick markSlotAsMRU() implementation
+		vector<ListNode*> slotIdToListNodeMap;
 
 		fstream dataFileHandle;
 		fstream dataIndexFileHandle;
