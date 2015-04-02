@@ -3,9 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <map>
-#include <set>
-#include <queue>
 #include <climits>
 #include <algorithm>
 #include <deque>
@@ -48,18 +45,6 @@ namespace ddg{
 			{
 				invalidateSlot(i);
 			}
-
-			// clear up all the pre-allocated objects
-			// while(!availableDataNodesQ.empty())
-			// {
-			// 	delete availableDataNodesQ.front();
-			// 	availableDataNodesQ.pop_front();
-			// }
-			// while(!availableSlotIdIndexObjsQ.empty())
-			// {
-			// 	delete availableSlotIdIndexObjsQ.front();
-			// 	availableSlotIdIndexObjsQ.pop_front();
-			// }
 
 			while(!availableDataNodesQ->empty())
 			{
@@ -165,17 +150,6 @@ namespace ddg{
 				maxDataObjectsRequired = dataCount + 10;
 
 			}
-			// Pre-allocate Data and SlotIdSlotIndex objects
-			// for(int i=0; i<maxDataObjectsRequired; ++i)
-			// {
-			// 	Data *node = new Data();
-			// 	availableDataNodesQ.push_back(node);
-
-			// 	SlotIdSlotIndex *obj = new SlotIdSlotIndex();
-			// 	availableSlotIdIndexObjsQ.push_back(obj);
-			// }
-			// DEBUG("\n availableDataNodes : " << availableDataNodesQ.size());
-			// DEBUG("\n availableSlotIdIndexObjs : " << availableSlotIdIndexObjsQ.size());
 
 			availableDataNodesQ = new CircularQ<Data*>(maxDataObjectsRequired);
 			availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>(maxDataObjectsRequired);
@@ -209,19 +183,6 @@ namespace ddg{
 			while(dataFileHandle.peek() != EOF)
 			{
 				startPos = dataFileHandle.tellg();
-				// int slotId = getAvailableSlot();
-				// // Invalidate the current slot before reading
-				// invalidateSlot(slotId);
-				// readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in
-				// int count = slots[slotId].size();
-				// if(count > 0)
-				// {
-				// 	DataIdRange range;
-				// 	range.setRange(slots[slotId][0]->getId(),
-				// 					slots[slotId][count-1]->getId(),
-				// 					startPos);
-				// 	dataIdBlockRangeList.push_back(range);
-				// }
 				begin = 0, end =0;
 				readBlockForDataIndexing(begin, end);
 				DataIdRange range;
@@ -508,10 +469,8 @@ namespace ddg{
 			SLOT_ITERATOR it = slots[slotId].begin();
 			for(; it != slots[slotId].end(); ++it)
 			{
-				// availableSlotIdIndexObjsQ.push_back(dataIdToSlotMap[(*it)->getId()]);
 				availableSlotIdIndexObjsQ->addItemToPool(dataIdToSlotMap[(*it)->getId()]);
 				dataIdToSlotMap.erase((*it)->getId());
-				//availableDataNodesQ.push_back(*it);
 				availableDataNodesQ->addItemToPool(*it);
 			}
 
@@ -524,7 +483,6 @@ namespace ddg{
 			if(!availableDataNodesQ->empty())
 			{
 				retVal = availableDataNodesQ->getItemFromPool();
-				//availableDataNodesQ.pop_front();
 				retVal->reset();
 			}
 			else
@@ -685,26 +643,6 @@ namespace ddg{
 
 		void seekForRead(fstream &handle, streampos offset)
 		{
-			// if(handle.is_open())
-			// {
-			// 	cout <<"\n In seekForRead - Handle is open."	;
-			// }
-			// if(handle.fail())
-			// {
-			// 	cout <<"\n In seekForRead - Fail bit set";
-			// }
-			// if(handle.bad())
-			// {
-			// 	cout <<"\n In seekForRead - bad bit set";
-			// }
-			// if(handle.good())
-			// {
-			// 	cout <<"\n In seekForRead - Good bit set";
-			// }
-			// if(handle.eof())
-			// {
-			// 	cout << "\n In seekForRead - Eof bit set";
-			// }
 			handle.seekg(offset, ios::beg);
 			if(handle.tellg() == -1)
 			{
@@ -724,26 +662,6 @@ namespace ddg{
 
 		void seekForWrite(fstream &handle, streampos offset)
 		{
-			// if(handle.is_open())
-			// {
-			// 	cout <<"\n In seekForWrite - Handle is open."	;
-			// }
-			// if(handle.fail())
-			// {
-			// 	cout <<"\n In seekForWrite - Fail bit set";
-			// }
-			// if(handle.bad())
-			// {
-			// 	cout <<"\n In seekForWrite - bad bit set";
-			// }
-			// if(handle.good())
-			// {
-			// 	cout <<"\n In seekForWrite - Good bit set";
-			// }
-			// if(handle.eof())
-			// {
-			// 	cout << "\n In seekForWrite - Eof bit set";
-			// }
 			handle.seekp(offset, ios::beg);
 			if(handle.tellp() == -1)
 			{
@@ -830,7 +748,7 @@ namespace ddg{
 
 		ListNode *useListHead; // represents the LRU slot
 		ListNode *useListTail; // represents the MRU slot
-		//map<int, ListNode*>  slotIdToListNodeMap; // map for a quick markSlotAsMRU() implementation
+		
 		vector<ListNode*> slotIdToListNodeMap;
 
 		fstream dataFileHandle;
@@ -841,9 +759,14 @@ namespace ddg{
 		// Object pool for BIG performance improvements
 		// especially when we are dealing with millions of
 		// data items.
+		// Using circular queue to check performance improvement.
+		// Custom circular queue is specially good for sparse graphs
+		// which is the case with CDAGs because we can reserve a 
+		// contiguous memory space which gives better spatial locality
+		// than deques below.
 		// deque<Data*> availableDataNodesQ;
 		// deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;
-		// Using circular queue to check performance improvement
+		
 
 
 	public:

@@ -20,6 +20,7 @@
 #include <tr1/unordered_map>
 
 #include "ReadCDAG.hxx"
+#include "ConvexPartitioning.hxx"
 
 #define LEVEL1 0
 #define MAX( X, Y) ( X > Y ? X : Y)
@@ -177,6 +178,10 @@ int main(int argc, char* argv[])
 		{
 			ReadCDAG rcg;
 			rcg.init(files[0], diskGraphFileName, diskGraphIndexFileName);
+
+			// ConvexPartitioning cp;
+			// cp.init(files[0], diskGraphFileName, diskGraphIndexFileName);
+			// cp.generateConvexComponents(100);
 		}
 
 	}

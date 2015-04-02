@@ -1,6 +1,6 @@
 #ifndef DiskCDAG_HXX
 #define DiskCDAG_HXX
-#endif
+
 
 //#define FULL_DAG //If defined, whole ddg is built, else just the CDAG is built
 
@@ -106,7 +106,7 @@ namespace ddg
 using namespace llvm;
 using namespace std;
 
-#define NUM_SLOTS 8
+#define NUM_SLOTS 1024
 
 #ifdef FULL_DAG
 typedef size_t payload_type;
@@ -266,7 +266,7 @@ struct DataList
 };
 class DiskCDAG
 {
-	private:
+	public:
 		struct CDAGNode{
 			Id dynId;	// Dynamic Id 
 			Address addr;	// Addresses represented by this node if any
@@ -463,6 +463,8 @@ class DiskCDAG
 				succsList.clear();
 			}
 		};
+
+	private:
 
 		static const size_t CDAGNODE_SIZE = sizeof(CDAGNode);
 
@@ -762,6 +764,11 @@ class DiskCDAG
 		size_t getNumNodes()
 		{
 			return numNodes;
+		}
+
+		size_t getNumOfBytesForNodeMarkerBS()
+		{
+			return numOfBytesFornodeMarkerBitSet;
 		}
 
 		//Adds a node to the cdag with instruction type 'currType' and static id 'id'
@@ -1514,6 +1521,20 @@ class DiskCDAG
 	public:
 		// Other API  : NOT YET IMPLEMENTED
 		//Returns the successor list of 'nodeId'
+		CDAGNode* getNode(const Id &nodeId)
+		{
+			CDAGNode *retVal = 0;
+			if(lruCache)
+			{
+				retVal = lruCache->getData(nodeId);
+			}
+			else
+			{
+				cout << "\nError : cannot get node with Id :" << nodeId ;
+				cout << " because LRU cache for the disk graph is not initialized";
+			}
+			return retVal;
+		}
 		void getSuccessors(size_t nodeId, const size_t *&list, size_t &size)
 		{
 			assert(nodeId < numNodes);
@@ -1774,3 +1795,5 @@ void DiskCDAGBuilder::printSuccessorCountFile()
 // }
 
 }
+
+#endif
