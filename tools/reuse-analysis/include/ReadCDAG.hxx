@@ -59,9 +59,7 @@ public:
     }
   }
 
-  void init(const std::string& llvmBCFilename, 
-    const std::string diskGraphFileName,
-    const std::string diskGraphIndexFileName){
+  void init(const std::string& llvmBCFilename){
     llvm_shutdown_obj shutdownObj;  // Call llvm_shutdown() on exit.
     LLVMContext &context = getGlobalContext();
 
@@ -85,8 +83,7 @@ public:
     const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
 
     clock_t begin = clock();
-    DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName, 
-      diskGraphFileName, diskGraphIndexFileName, bs); 
+    DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName); 
     clock_t end = clock();
     double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
     cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;

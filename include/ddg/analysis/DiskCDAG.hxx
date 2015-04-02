@@ -18,6 +18,9 @@
 #include <sstream>
 #include <istream>
 #include <deque>
+#include <boost/config.hpp>
+#include <boost/program_options/detail/config_file.hpp>
+#include <boost/program_options/parsers.hpp>
 
 #include "ddg/analysis/DiskCache.hxx"
 
@@ -106,8 +109,6 @@ namespace ddg
 using namespace llvm;
 using namespace std;
 
-#define NUM_SLOTS 1024
-
 #ifdef FULL_DAG
 typedef size_t payload_type;
 #else
@@ -121,11 +122,16 @@ class DiskCDAG;
 const string tempSuccsCountFNSuffix = "succscounttemp";
 const string tempGraphDumpFNSuffix = "graphdump";
 const string tempSuccsListFNSuffix = "succslisttemp";
+const string configFileName = "diskgraphconfiguration.txt";
 
 // Final dump of graph
-const string diskGraphFNSuffix = "diskgraph";
-const string diskGraphIndexFNSuffix = "diskgraph_index";
-
+string diskGraphFNSuffix = "diskgraph";
+string diskGraphIndexFNSuffix = "diskgraph_index";
+unsigned int NUM_SLOTS = 1024;
+unsigned int BLOCK_SIZE = 4;
+bool printGraphInAsciiFormat = false;
+bool cleanUpTemporaryFiles = true;
+bool graphCreatedFlag = false;
 
 
 
@@ -473,8 +479,6 @@ class DiskCDAG
 		size_t numOfBytesForSuccBS;
 		size_t numOfBytesFornodeMarkerBitSet;
 
-
-		size_t blockSize;
 		size_t blockCount;
 		size_t curBlockSize;
 
@@ -501,9 +505,9 @@ class DiskCDAG
 
 		queue<CDAGNode*> availableCDAGNodesQ;
 
-		bool graphCreatedFlag;
-
 		ofstream graphInAscii;
+
+
 
 		void init(size_t count)
 		{
@@ -514,9 +518,9 @@ class DiskCDAG
 			memset(succsBitSet, 0, numOfBytesForSuccBS);
 
 			// TODO : compare with CDAGNODE_WITHSUCC_SIZE
-			if(blockSize != 0 && blockSize < CDAGNODE_SIZE)
+			if(BLOCK_SIZE != 0 && BLOCK_SIZE < CDAGNODE_SIZE)
 				cout << "\n Block size is less than CDAG node size..Aborting!";
-			else if(blockSize == 0){
+			else if(BLOCK_SIZE == 0){
 				cout << "\n Block size is passed as zero - memory based graph will be generated.";
 			}
 
@@ -528,13 +532,13 @@ class DiskCDAG
 			}
 			else
 			{
-				if(diskGraphFileName.empty())
+				if(diskGraphFNSuffix.empty())
 				{
 					cout << "\n Error empty disk graph filename passed.";
 					exit(1); // TODO : set error flag instead of exiting
 				}
 				// graph is already created and the filename is passed along
-
+				diskGraphFileName = (diskGraphFNSuffix);
 				initLRUCacheForDiskGraph();
 				count = numNodes = lruCache->getDataCount()+1;
 				cout << "\n Read graph from the file '" << diskGraphFileName;
@@ -555,36 +559,20 @@ class DiskCDAG
 			succsListTempFile.close();
 			succsListTempFile.open((bcFileName+tempSuccsListFNSuffix).c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 
-			graphInAscii.open("asciiGraphPrint");
-			
-			//printBeforeWriteFile.open(string(bcFileName+"printbeforewrite").c_str());
-			//printAfterReadFile.open(string(bcFileName+"printafterread").c_str());
-
-			// // dumping blocks of memory to the file
-			// cout <<"\n Dumping blockss for succesor file" <<flush;
-			// for(int i=0; i < count; ++i)
-			// {
-			// 	succsListTempFile.write((const char*)&succsBitSet[0], numOfBytesForSuccBS*sizeof(BYTE));
-			// }
-			// cout << "\n Done creating the successor file" <<flush;
+			if(printGraphInAsciiFormat)
+			{
+				graphInAscii.open("graphInAscii");
+			}
 
 			// initialize the new successor list file
 			initSuccessorListFile();
 
-			succsCache = new DiskCache<DataList, Id>(blockSize, NUM_SLOTS, true);
+			succsCache = new DiskCache<DataList, Id>(BLOCK_SIZE, NUM_SLOTS, true);
 			if(!succsCache->init(bcFileName+tempSuccsListFNSuffix))
 			{
 				cout << "\n Cache initialization for successor's list failed...";
 				return;
 			}
-			// cout << "\n Printing succs list from cache";
-			// cin.get();
-			// for(int i=0; i<count; ++i)
-			// {
-			// 	DataList* l = succsCache->getData(i);
-			// 	l->print(cout);
-			// }
-			// cin.get();
 		}
 
 		void initSuccessorListFile()
@@ -609,50 +597,10 @@ class DiskCDAG
 			succsListTempFile.close();
 
 			// Delete the temp count file
-			remove(succsCountTempFileName.c_str());
-
-			// // TODO : Test code
-			// {
-			// 	DiskCache<DataList, Id> succsCache(blockSize, 2, true);
-			// 	if(!succsCache.init(bcFileName+"succslistnewtemp"))
-			// 	{
-			// 		cout << "\n Cache initialization for successor's list failed...";
-			// 		return;
-			// 	}
-			// 	cout << "\n Printing succs list from cache";
-			// 	cin.get();
-			// 	for(int i=0; i<count; ++i)
-			// 	{
-			// 		DataList* l = succsCache.getData(i);
-			// 		l->print(cout);
-			// 	}
-			// 	DataList* l = succsCache.getData(1610);
-			// 	l->print(cout);
-			// 	l->addToList(5);
-			// 	l = succsCache.getData(1610);
-			// 	l->print(cout);
-			// }
-			// cin.get();
-
-			// {
-			// 	DiskCache<DataList, Id> succsCache(blockSize, 2);
-			// 	cin.get();
-			// 	if(!succsCache.init(bcFileName+"succslistnewtemp"))
-			// 	{
-			// 		cout << "\n Cache initialization for successor's list failed...";
-			// 		return;
-			// 	}
-			// 	for(int i=0; i<count; ++i)
-			// 	{
-			// 		DataList* l = succsCache.getData(i);
-			// 		l->print(cout);
-			// 	}
-			// 	cout << " \n\n Testing Write back to file";
-			// 	DataList* l = succsCache.getData(1610);
-			// 	l->print(cout);
-			// }
-
-			// cin.get();
+			if(cleanUpTemporaryFiles)
+			{
+				remove(succsCountTempFileName.c_str());
+			}
 		}
 
 		void initLRUCacheForDiskGraph()
@@ -660,7 +608,7 @@ class DiskCDAG
 			if(!lruCache)
 			{
 				cout << "\n Initialize LRU cache";
-	      		lruCache = new DiskCache<CDAGNode, Id>(blockSize, NUM_SLOTS);
+	      		lruCache = new DiskCache<CDAGNode, Id>(BLOCK_SIZE, NUM_SLOTS);
 				//if(!lruCache->init(diskGraphFileName, diskGraphIndexFileName ))
 				if(!lruCache->init(diskGraphFileName))
 				{
@@ -677,43 +625,30 @@ class DiskCDAG
 	public:
 		DiskCDAG(size_t count) : numNodes(0),
 								 count(count),
-								 blockSize(0),
 								 blockCount(0),
 								 curBlockSize(0)
 		{
-			graphCreatedFlag = false;
 			init(count);
 		}
 
-		DiskCDAG(Ids &ids, const string &bcFile, 
-			size_t bs, Id nodeCount) : numNodes(0),
-									 	blockSize(bs*1024), // block size is passed in MB
-									 	//blockSize(bs),
+		DiskCDAG(Ids &ids, const string &bcFile, Id nodeCount):
+										numNodes(0),
 									 	blockCount(0),
 									 	curBlockSize(0),
 									 	bcFileName(bcFile),
 									 	count(nodeCount)
 		{
-			graphCreatedFlag = false;
 			//CDAGCounter counter(ids); //Get the count of expected no. of nodes
 			//count = counter.getCount();
 			init(count);
 		}
 
-		DiskCDAG(Ids &ids, const string &bcFile,
-			const string &graphFileName, 
-			const string &graphIndexFileName,
-			size_t bs) : numNodes(0),
-									 	blockSize(bs*1024), // block size is passed in MB
-									 	//blockSize(bs),
+		DiskCDAG(Ids &ids, const string &bcFile) : numNodes(0),
 									 	blockCount(0),
 									 	curBlockSize(0),
 									 	bcFileName(bcFile),
 									 	count(0)
 		{
-			graphCreatedFlag = true;
-			diskGraphFileName = graphFileName;
-			diskGraphIndexFileName = graphIndexFileName;
 			//CDAGCounter counter(ids); //Get the count of expected no. of nodes
 			//count = counter.getCount();
 			init(count);
@@ -797,8 +732,6 @@ class DiskCDAG
 			for(size_t i=0; i<size; ++i)
 			{
 				idToCDAGNodeMap[nodeId]->predsList.push_back(*it);
-				//writeSuccessorInFile((*it), nodeId);
-				//updateSuccessorCountInFile((*it), 1); // bump up the count by 1
 				DataList *l = succsCache->getData((*it));
 				l->addToList(nodeId);
 				++it;
@@ -924,7 +857,7 @@ class DiskCDAG
 			{
 				graphDumpFile.close();
 			}
-			remove((bcFileName+tempGraphDumpFNSuffix).c_str());
+			
 			resetGraphState(true);
 
 
@@ -933,7 +866,11 @@ class DiskCDAG
 				delete succsCache;
 				succsCache = 0;
 			}
-			remove((bcFileName+tempSuccsListFNSuffix).c_str());
+			if(cleanUpTemporaryFiles)
+			{
+				remove((bcFileName+tempGraphDumpFNSuffix).c_str());
+				remove((bcFileName+tempSuccsListFNSuffix).c_str());
+			}
 
 			// we can also clear up the memory pool here
 			// clear up all the Data nodes
@@ -954,7 +891,7 @@ class DiskCDAG
 
 			streampos pos(0);
 			size_t curBlockSize = 0;
-			size_t bs = blockSize*NUM_SLOTS;
+			size_t bs = BLOCK_SIZE*NUM_SLOTS;
 
 			graphDumpFile.clear();
 	 		graphDumpFile.seekg(0, ios::beg);
@@ -965,12 +902,12 @@ class DiskCDAG
 			while(!readBlockFromFile(graphDumpFile))
 			{
 				writeGraphWithSuccessorInfoToFile(diskGraph, diskGraphIndex, 
-					blockSize, pos, curBlockSize);
+					BLOCK_SIZE, pos, curBlockSize);
 				++blockCount;
 			}
 
 			writeGraphWithSuccessorInfoToFile(diskGraph, diskGraphIndex,
-			 blockSize, pos, curBlockSize);
+			 BLOCK_SIZE, pos, curBlockSize);
 			diskGraph.close();
 			diskGraphIndex.close();
 
@@ -1046,7 +983,10 @@ class DiskCDAG
 				// diskGraph << ss.str();
 				(*it1)->writeToStreamInBinary(diskGraph);
 				// Enable this to get a human-readble graph output
-				//(*it1)->print(graphInAscii);
+				if(printGraphInAsciiFormat)
+				{
+					(*it1)->print(graphInAscii);
+				}
 
 				Id curId = (*it1)->getId() + 1;
 	 			int perc = (curId*100)/count;
@@ -1063,14 +1003,82 @@ class DiskCDAG
 			pos = diskGraph.tellp();
 		}
 
+		static void readConfigurationFromFile()
+		{
+			/*
+				Expected format of the configuration file:
+				
+				1024 # number of slots in cache #0
+				4 # block size in kilobytes #1
+				0 # '1' implies a graph with filename supplied in next line is already created. Graph will not be created again #2
+				diskgraph # suffix for disk graph file (bc file name will be appended) or actual disk graph file#3
+				0 # set to 1 if you want to write graph info in ascii file #4
+				1 # set to 0 if you don't want temp files to be cleaned up after use #5
+				diskgraph_index # suffix for disk graph index file (bc file name will be appended) #6
+			*/
+			namespace po = boost::program_options;
+			fstream configFile(configFileName.c_str(), ios::in);
+
+			po::options_description options("Options");
+				options.add_options()
+					("DiskGraph.NUM_SLOTS", 
+					po::value(&NUM_SLOTS)->default_value(1024), 
+					"Number of slots");
+				options.add_options()
+					("DiskGraph.BLOCK_SIZE",
+					po::value(&BLOCK_SIZE)->default_value(4),
+					"Block size in KB");
+				options.add_options()
+					("DiskGraph.CREATE_GRAPH",
+					po::value(&graphCreatedFlag)->default_value(false),
+					"Use an alrady created graph file (will use the filename passed in for disk graph)");
+				options.add_options()
+					("DiskGraph.DISK_GRAPH_FN",
+					po::value(&diskGraphFNSuffix)->default_value("diskgraph"),
+					"Suffix for the disk graph file or the actual file if the CREATE_GRAPH option is set to true");
+				options.add_options()
+					("DiskGraph.PRINT_GRAPH_ASCII",
+					po::value(&printGraphInAsciiFormat)->default_value(false),
+					"Prints the graph in ascii format to a file named 'asciiGraphPrint'");
+				options.add_options()
+					("DiskGraph.CLEAN_UP_TEMP_FILES",
+					po::value(&cleanUpTemporaryFiles)->default_value(true),
+					"Clean up temporary files created");
+			if(configFile.is_open())
+			{
+				po::variables_map vm;
+				po::store(po::parse_config_file(configFile, options), vm);
+				po::notify(vm);
+				cout << "\nRead configuration file : ";
+				cout << "\nNUM_SLOTS = " << NUM_SLOTS;
+				cout << "\nBLOCK_SIZE = " << BLOCK_SIZE << " KB";
+				cout << "\n";
+			}
+			else
+			{
+				cout << "\nWarning: Configuaration file for Disk Graph not found.";
+				cout << "\nUsing default values and generating a default config file as well.";
+				configFile.open(configFileName.c_str(), ios::out);
+
+				configFile << "[DiskGraph]";
+				configFile << "\nNUM_SLOTS = " << NUM_SLOTS << "\t #" <<options.options()[0]->description();
+				configFile << "\nBLOCK_SIZE = " << BLOCK_SIZE << "\t #" <<options.options()[1]->description();;
+				configFile << "\nCREATE_GRAPH = " << graphCreatedFlag << "\t #" <<options.options()[2]->description();;
+				configFile << "\nDISK_GRAPH_FN = " << diskGraphFNSuffix << "\t #" <<options.options()[3]->description();;
+				configFile << "\nPRINT_GRAPH_ASCII = " << printGraphInAsciiFormat << "\t #" <<options.options()[4]->description();;
+				configFile << "\nCLEAN_UP_TEMP_FILES = " << cleanUpTemporaryFiles << "\t #" <<options.options()[5]->description();;
+			}
+			configFile.close();
+		}
+
 		//Generates the DiskCDAG using DiskCDAGBuilder
-		static DiskCDAG* generateGraph(Ids& ids, const string &bcFileName, 
-			const string graphFileName, const string graphIndexFileName,
-			int block_size)
+		static DiskCDAG* generateGraph(Ids& ids, const string &bcFileName)
 		{
 			DiskCDAG *cdag;
+			readConfigurationFromFile();
+			BLOCK_SIZE = BLOCK_SIZE * 1024; // Convert to BYTES
 
-			if(graphFileName.empty())
+			if(!graphCreatedFlag)
 			{
 				cout <<"\n-----Starting First pass over the trace to get counts." << flush;
 				DiskCDAGBuilder countBuilder(bcFileName);
@@ -1079,11 +1087,7 @@ class DiskCDAG
 				//countBuilder.printSuccessorCountFile();
 				//cin.get();
 				cdag = new DiskCDAG(ids, bcFileName, 
-					block_size, countBuilder.getNumNodes());
-
-				// int tempNodeCount = 16120000;
-				// cdag = new DiskCDAG(ids, bcFileName, 
-				// 	block_size, tempNodeCount);
+					countBuilder.getNumNodes());
 
 				cout << "\n \n ";
 				cout <<"\n-----Starting Second Pass over the trace to dump out the graph.\n";
@@ -1103,8 +1107,8 @@ class DiskCDAG
       		}
       		else
       		{
-      			cdag = new DiskCDAG(ids, bcFileName, graphFileName,
-      				graphIndexFileName, block_size);
+      			cout << "\nRead graph from file configuration specified.\n";
+      			cdag = new DiskCDAG(ids, bcFileName);
       		}
 
       		cdag->initLRUCacheForDiskGraph();
@@ -1114,7 +1118,7 @@ class DiskCDAG
 
 		//Generates the DiskCDAG using user-specified 'Builder'
 		template <typename Builder>
-			static DiskCDAG* generateGraph(Ids& ids, string &bcFileName, int block_size)
+			static DiskCDAG* generateGraph(Ids& ids, string &bcFileName)
 			{
 				cout <<"\n First pass through trace to get counts" << flush;
 				DiskCDAGBuilder countBuilder(bcFileName);
@@ -1123,7 +1127,7 @@ class DiskCDAG
 				//countBuilder.printSuccessorCountFile();
 
 				DiskCDAG *cdag = new DiskCDAG(ids, bcFileName, 
-				block_size, countBuilder.getNumNodes());
+				countBuilder.getNumNodes());
 
 				cout << "\n Writing graphdump now!"<<flush;
 				Builder builder(cdag);
@@ -1397,7 +1401,7 @@ class DiskCDAG
 				// err = node->readNodeFromASCIIFile(file);
 				err = node->readNodeFromBinaryFile(file);
 				curBlockSize += sizeof(*node);
-				if(curBlockSize < blockSize*NUM_SLOTS && !file.eof())
+				if(curBlockSize < BLOCK_SIZE*NUM_SLOTS && !file.eof())
 				{
 					idToCDAGNodeMap[node->dynId] = node;
 				}
@@ -1425,7 +1429,7 @@ class DiskCDAG
 			// Check if user specified a block size.
 			// If not then its a in memory CDAG.
 			// just return.
-			if(blockSize == 0)
+			if(BLOCK_SIZE == 0)
 			{
 				idToCDAGNodeMap[node->dynId] = node; // just update the map
 				return blockCount;
@@ -1466,7 +1470,7 @@ class DiskCDAG
 
 			int newBlockSize = curBlockSize + nodeSize;
 
-			if(newBlockSize < blockSize)
+			if(newBlockSize < BLOCK_SIZE)
 			{
 				// if updated block size < current block size
 				// then no change is needed

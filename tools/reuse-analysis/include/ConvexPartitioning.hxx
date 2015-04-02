@@ -113,8 +113,7 @@ public:
         const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
 
         clock_t begin = clock();
-        DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName, 
-          diskGraphFileName, diskGraphIndexFileName, bs); 
+        DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName); 
         clock_t end = clock();
         double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
         cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;

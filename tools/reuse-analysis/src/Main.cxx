@@ -83,15 +83,6 @@ int main(int argc, char* argv[])
 
 	ts1 = rtclock();
 
-	string diskGraphFileName("");
-	string diskGraphIndexFileName("");
-
-	if(argc >= 3)
-	{
-		diskGraphFileName = string(argv[2]);
-		diskGraphIndexFileName = argc == 4 ? string(argv[3]) : "";
-	}
-
 
 	// if(argc>2) Cs = atoi(argv[2]);
 	// //Cs *= 2;				// 2-M RCCP
@@ -177,7 +168,7 @@ int main(int argc, char* argv[])
 		//for(fileIter = files.begin(); fileIter != files.end(); ++fileIter)
 		{
 			ReadCDAG rcg;
-			rcg.init(files[0], diskGraphFileName, diskGraphIndexFileName);
+			rcg.init(files[0]);
 
 			// ConvexPartitioning cp;
 			// cp.init(files[0], diskGraphFileName, diskGraphIndexFileName);
