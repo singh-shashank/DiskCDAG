@@ -501,7 +501,7 @@ class DiskCDAG
 		string diskGraphIndexFileName;
 
 		DiskCache<DataList, Id> *succsCache;
-		DiskCache<CDAGNode, Id> *lruCache;
+
 
 		queue<CDAGNode*> availableCDAGNodesQ;
 
@@ -612,13 +612,10 @@ class DiskCDAG
 				//if(!lruCache->init(diskGraphFileName, diskGraphIndexFileName ))
 				if(!lruCache->init(diskGraphFileName))
 				{
-					cout <<"\n Cache initialization failed..stopping BFS";
+					cout <<"\n Cache initialization failed..stopping execution";
 					return;
 				}
 				cout << "\n LRU Disk Cache initialized.";
-
-				// TODO : Remove this test code
-				//lruCache->testCircularQ();
 			}
 		}
 
@@ -1310,22 +1307,23 @@ class DiskCDAG
 		//Prints the graph in dot format
 		void printDOTGraph(const char *filename)
 		{
-			// ofstream file;
-			// file.open(filename);
-			// file << "digraph \"ddg\" {\n";
+			ofstream file;
+			file.open(filename);
+			file << "digraph \"ddg\" {\n";
 
-			// for(size_t i=0; i<numNodes; i++)
-			// {
-			// 	file << "\tNode" << i << " [label=\"" << i << ". " << llvm::Instruction::getOpcodeName(type[i]) << "\"];\n";
-			// 	size_t numPreds = predCnt[i];
-			// 	for(size_t j=0; j<numPreds; j++)
-			// 	{
-			// 		file << "\tNode" << predList[i][j] << " -> Node" << i << ";\n";
-			// 	}
-			// }
+			for(size_t i=0; i<numNodes; i++)
+			{
+				CDAGNode *node = lruCache->getData(i);
+				file << "\tNode" << i << " [label=\"" << i << ". " << llvm::Instruction::getOpcodeName(node->type) << "\"];\n";
+				size_t numPreds = node->predsList.size();
+				for(size_t j=0; j<numPreds; j++)
+				{
+					file << "\tNode" << node->predsList[j] << " -> Node" << i << ";\n";
+				}
+			}
 
-			// file << "}";
-			// file.close();
+			file << "}";
+			file.close();
 		}
 
 		//Prints the graph in YAML format
@@ -1523,6 +1521,7 @@ class DiskCDAG
 		}
 
 	public:
+		DiskCache<CDAGNode, Id> *lruCache;
 		// Other API  : NOT YET IMPLEMENTED
 		//Returns the successor list of 'nodeId'
 		CDAGNode* getNode(const Id &nodeId)

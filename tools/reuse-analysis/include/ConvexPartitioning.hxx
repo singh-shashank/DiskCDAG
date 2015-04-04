@@ -52,11 +52,12 @@ public:
 
     struct ConvexComponent
     {
+        static unsigned int tileId;
         deque<Id> nodesList;
 
         // IMPLEMENTATION NOTE :
-        // ConvexComponent is expected not to have a huge memory
-        // foot print because it expected to contain just enough nodes
+        // ConvexComponent instances are expected not to have a huge memory
+        // foot print because it is expected to contain just enough nodes
         // to fit a passed in cache size.
         // Now with neighbors and successor list we needed the following
         // operations :
@@ -83,12 +84,29 @@ public:
             readyNeighborsList.clear();
             readySuccsList.clear();
             nodesList.clear();
+            idToNeighborsListMap.clear();
+            idToSuccsListMap.clear();
+            ++ConvexComponent::tileId;
+        }
+
+        void writeNodesOfComponent(ostream &out, DiskCDAG *dag)
+        {
+            // sort nodes based on their dynamic ids
+            sort(nodesList.begin(), nodesList.end());
+            out << "Tile " << ConvexComponent::tileId;
+            for(deque<Id>::iterator it = nodesList.begin();
+                it != nodesList.end(); ++it)
+            {
+                DiskCDAG::CDAGNode *temp = dag->getNode(*it);
+                out << "\nStatic ID: " << temp->staticId << ";";
+                out << "Dyn ID: " << temp->dynId << ";";
+                out << " " << llvm::Instruction::getOpcodeName(temp->type) << ";";
+            }
+            out << "\n";
         }
     };
 
-    void init(const std::string& llvmBCFilename, 
-    const std::string diskGraphFileName,
-    const std::string diskGraphIndexFileName)
+    void init(const std::string& llvmBCFilename)
     {
         llvm_shutdown_obj shutdownObj;  // Call llvm_shutdown() on exit.
         LLVMContext &context = getGlobalContext();
@@ -105,31 +123,27 @@ public:
         Ids ids;
         ids.runOnModule(*module.get());
 
-        //size_t bs = 524288;// 512MB is the block size
-        size_t bs = 131072;// 128MB is the block size
-        //size_t bs = 25600; //25MB
-        //size_t bs = 5120; //5MB
-        //size_t bs = 1; //1MB
         const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
 
         clock_t begin = clock();
-        DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName); 
+        cdag = DiskCDAG::generateGraph(ids, programName); 
         clock_t end = clock();
         double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
         cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;
 
         if(cdag)
         {
+            cdag->printDOTGraph("diskgraph.dot");
             numOfBytesForReadyNodeBitSet = cdag->getNumOfBytesForNodeMarkerBS();
             readyNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
             numNodes = cdag->getNumNodes();
 
-            begin = clock();
-            // cdag->performBFSWithoutQ("bfsOut");
-            //cdag->performBFS("bfsOut");
-            end = clock();
-            elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
-            cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;
+            // begin = clock();
+            // // cdag->performBFSWithoutQ("bfsOut");
+            // //cdag->performBFS("bfsOut");
+            // end = clock();
+            // elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
+            // cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;
 
 
             
@@ -140,10 +154,19 @@ public:
         }
     }
 
-    void generateConvexComponents(unsigned int cacheS)
+    void generateConvexComponents(unsigned int cacheS,
+                                    unsigned int nPC,
+                                    unsigned int sPC)
     {
         cacheSize = cacheS;
+        neighborPriorityCount = nPC;
+        successorPriorityCount = sPC;
+        selectNeighborFlag = neighborPriorityCount >= successorPriorityCount ? true : false;
+
         prepareInitialReadyNodes();
+        cout <<"\n Initial ready node count = " << readyNodeCount;
+
+        outFile.open("convex_out_file");
 
         
         Id nodeId = 0;
@@ -189,10 +212,19 @@ public:
                 }
 
                 // Get the next ready node to add to the convex component
-                // nodeId = selectBestNode();
-                curNode = cdag->getNode(nodeId);
+                nodeId = selectBestNode(curConvexComp, curNode);
+                if(nodeId == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    curNode = cdag->getNode(nodeId);
+                }
             }
             convexComponents.push_back(curConvexComp.nodesList);
+            curConvexComp.writeNodesOfComponent(outFile, cdag);
+            cout << "\n end of one convex component. live set size = " <<liveSet.size();
         }
 
     }
@@ -215,9 +247,9 @@ public:
             {
                 // we have Id of a neighbor of curNode
                 // check that this neighbor satisfies two condtions:
-                // - its not in neigbors list of this component
+                // - its NOT in neigbors list of this component
                 // - and its ready
-                if(cc.idToNeighborsListMap.find(succNode->predsList[j]) != cc.idToNeighborsListMap.end()
+                if(cc.idToNeighborsListMap.find(succNode->predsList[j]) == cc.idToNeighborsListMap.end()
                     && isReady(succNode->predsList[j])
                     )
                 {
@@ -229,7 +261,7 @@ public:
             }
 
             // Successor List update
-            if(cc.idToSuccsListMap.find(curNode->succsList[i]) != cc.idToSuccsListMap.end() 
+            if(cc.idToSuccsListMap.find(curNode->succsList[i]) == cc.idToSuccsListMap.end() 
                 && isReady(curNode->succsList[i]))
             {
                 // this successor can now be added to ready successor list
@@ -239,29 +271,67 @@ public:
         }
 
         // Remove curNode from ready lists
-        cc.readyNeighborsList.erase(cc.idToNeighborsListMap[curNode->getId()]);
-        cc.idToNeighborsListMap.erase(curNode->getId());
-        cc.readySuccsList.erase(cc.idToNeighborsListMap[curNode->getId()]);
-        cc.idToSuccsListMap.erase(curNode->getId());
+        if(cc.idToNeighborsListMap.find(curNode->getId()) != cc.idToNeighborsListMap.end())
+        {
+            cc.readyNeighborsList.erase(cc.idToNeighborsListMap[curNode->getId()]);
+            cc.idToNeighborsListMap.erase(curNode->getId());
+        }
+        if(cc.idToSuccsListMap.find(curNode->getId()) != cc.idToSuccsListMap.end())
+        {
+            cc.readySuccsList.erase(cc.idToSuccsListMap[curNode->getId()]);
+            cc.idToSuccsListMap.erase(curNode->getId());
+        }
 
         // Determine the next ready node to be returned
-        if(cc.takenNeighbors < cc.takenSuccs && cc.readyNeighborsList.size() > 0)
+        if(cc.readyNeighborsList.size() > 0 || cc.readySuccsList.size() > 0)
         {
-            // no need to pop and erase the next node here
-            // because in next call this will be erased
-            // or if there is no next call then this data structure
-            // will be reset before use.
-            nextNodeId = cc.readyNeighborsList.front();
-            ++cc.takenNeighbors;
-        }
-        else if(cc.readySuccsList.size() > 0)
-        {
-            nextNodeId = cc.readySuccsList.front();
-            ++cc.takenSuccs;
+            // Choose between a neighbor or a successor depending on the
+            // priority
+            if(selectNeighborFlag && cc.readyNeighborsList.size() > 0)
+            {
+                // no need to pop and erase the next node here
+                // because in next call this will be erased
+                // or if there is no next call then this data structure
+                // will be reset before use.
+                nextNodeId = cc.readyNeighborsList.front();
+                ++cc.takenNeighbors;
+                if(cc.takenNeighbors >= neighborPriorityCount)
+                {
+                    cc.takenNeighbors = 0;
+                    selectNeighborFlag = false;
+                }
+            }
+            else if(cc.readyNeighborsList.size() > 0)
+            {
+                // Its turn of a successor or readyNeighborsList ran out of
+                // neighbors
+                nextNodeId = cc.readySuccsList.front();
+                ++cc.takenSuccs;
+                if(cc.takenSuccs >= successorPriorityCount)
+                {
+                    cc.takenSuccs = 0;
+                    selectNeighborFlag = true;
+                }
+            }
+            else
+            {
+                // Oh it was a successor's turn but we have ran out of 
+                // successors.
+                // Choose a neighbor until we get a successor and yea, 
+                // neighbor list cannot be empty otherwise we woudln't have
+                // reached until here
+                nextNodeId = cc.readyNeighborsList.front();
+                // takenNeighbors should still be zero in this case
+                // because we are going over the specified neighbor 
+                // priority count.
+                // cc.takenNeighbors = 0;
+            }
         }
         else
         {
-            nextNodeId = selectReadyNode();
+            // There are no ready neighbors or successors just yet
+            // get the next ready node
+            // nextNodeId = selectReadyNode();
         }
         return nextNodeId;
     }
@@ -282,7 +352,7 @@ public:
             }
         }
 
-        // Resurrecting a predecessor node and killing it if curNode was 
+        // Resurrecting a predecessor node or killing it if curNode was 
         // the last unprocessed successor for this predecessor
         Id predCount = curNode->predsList.size();
         for(int i=0; i<predCount; ++i)
@@ -368,6 +438,17 @@ public:
         }
     }
 
+    // void writeConvexComponentsToFile(const char* filename)
+    // {
+    //     ofstream file(filename);
+    //     unsigned int numOfComps = convexComponents.size();
+    //     for(unsigned int i=0; i<numOfComps; ++i)
+    //     {
+    //         convexComponents[i].writeNodesOfComponent(file);
+    //         cout << "\n";
+    //     }
+    // }
+
     Id selectReadyNode()
     {
         Id retVal = 0;
@@ -382,11 +463,20 @@ public:
         return (!utils::isBitSet(readyNodesBitSet, nodeId, numOfBytesForReadyNodeBitSet));
     }
 
+    DiskCDAG* getCdagPtr()
+    {
+        return cdag;
+    }
+
     
 
 private:
     DiskCDAG *cdag;
     unsigned int cacheSize;
+    unsigned int neighborPriorityCount;
+    unsigned int successorPriorityCount;
+    bool selectNeighborFlag; // a flag marking if we try select neighbor or successor in 
+    ofstream outFile;
     
     deque< deque<Id> > convexComponents;
 
@@ -405,4 +495,6 @@ private:
 
     size_t numNodes;
 };
+
+unsigned int ConvexPartitioning::ConvexComponent::tileId = 0;
 }

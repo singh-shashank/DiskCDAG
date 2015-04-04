@@ -75,11 +75,6 @@ public:
     Ids ids;
     ids.runOnModule(*module.get());
 
-    //size_t bs = 524288;// 512MB is the block size
-    //size_t bs = 131072;// 128MB is the block size
-    //size_t bs = 25600; //25MB
-    //size_t bs = 5120; //5MB
-    size_t bs = 4; //4KB
     const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
 
     clock_t begin = clock();
@@ -96,8 +91,9 @@ public:
 
       //cdag->testMethodForDiskCache();
       begin = clock();
-      cdag->performBFSWithoutQ("bfsOut");
+      //cdag->performBFSWithoutQ("bfsOut");
       //cdag->performBFS("bfsOut");
+      cdag->printDOTGraph("diskgraph.dot");
       end = clock();
       elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
       cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;

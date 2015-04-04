@@ -167,12 +167,12 @@ int main(int argc, char* argv[])
 
 		//for(fileIter = files.begin(); fileIter != files.end(); ++fileIter)
 		{
-			ReadCDAG rcg;
-			rcg.init(files[0]);
+			//ReadCDAG rcg;
+			//rcg.init(files[0]);
 
-			// ConvexPartitioning cp;
-			// cp.init(files[0], diskGraphFileName, diskGraphIndexFileName);
-			// cp.generateConvexComponents(100);
+			ConvexPartitioning cp;
+			cp.init(files[0]);
+			cp.generateConvexComponents(100, 1, 1);
 		}
 
 	}
