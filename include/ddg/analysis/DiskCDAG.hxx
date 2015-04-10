@@ -17,10 +17,12 @@
 #include <typeinfo>
 #include <sstream>
 #include <istream>
+#include <queue>
 #include <deque>
 #include <boost/config.hpp>
 #include <boost/program_options/detail/config_file.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
 
 #include "ddg/analysis/DiskCache.hxx"
 
@@ -123,6 +125,7 @@ const string tempSuccsCountFNSuffix = "succscounttemp";
 const string tempGraphDumpFNSuffix = "graphdump";
 const string tempSuccsListFNSuffix = "succslisttemp";
 const string configFileName = "diskgraphconfiguration.txt";
+const string tempNodeAddressFNSuffix = "nodeaddress";
 
 // Final dump of graph
 string diskGraphFNSuffix = "diskgraph";
@@ -132,6 +135,7 @@ unsigned int BLOCK_SIZE = 4;
 bool printGraphInAsciiFormat = false;
 bool cleanUpTemporaryFiles = true;
 bool graphCreatedFlag = false;
+bool printGraphInDotFormat = false;
 
 
 
@@ -144,17 +148,20 @@ class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 		Id numNodes;
 		string bcFileName;
 		fstream successorCountFile;
+		fstream nodeAddrFile;
 
 	public:
 		DiskCDAGBuilder(DiskCDAG *cdag) :	cdag(cdag), loadMap(), 
 											getCountsFlag(false), numNodes(0),
-											successorCountFile("")
+											successorCountFile(""),
+											nodeAddrFile("")
 		{
 
 		}
 
 		DiskCDAGBuilder() : cdag(0), loadMap(), getCountsFlag(true), 
-							numNodes(0), successorCountFile("")
+							numNodes(0), successorCountFile(""),
+							nodeAddrFile("")
 		{
 
 		}
@@ -165,14 +172,20 @@ class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 			successorCountFile.open((bcFileName+tempSuccsCountFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
 			successorCountFile.close();
 			successorCountFile.open((bcFileName+tempSuccsCountFNSuffix).c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
+
+			nodeAddrFile.open((bcFileName+tempNodeAddressFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
+			nodeAddrFile.close();
+			nodeAddrFile.open((bcFileName+tempNodeAddressFNSuffix).c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
 		}
 
 		Id getNumNodes(){return numNodes;}
 
 		virtual void visitNode(LazyNode<payload_type> *node, Predecessors	&predecessors, Operands &operands);
 		void incSuccessorCountInFile(Id nodeId);
-		size_t incNumNodesCounter();
+		size_t incNumNodesCounter(Address addr);
 		void printSuccessorCountFile();
+		void updateNodeAddress(Id nodeId, Address addr);
+		void printAddressFile();
 };
 
 struct DataList
@@ -270,205 +283,208 @@ struct DataList
 	}
 
 };
+struct CDAGNode{
+	Id dynId;	// Dynamic Id 
+	Address addr;	// Addresses represented by this node if any
+	unsigned int type;	// LLVM Type of the node
+	Id staticId;
+	std::deque<Id> predsList;	// Vector containing list of predecessors
+	std::deque<Id> succsList;	// Vector containing list of successors
+
+	// TODO : initialize it with proper values
+	CDAGNode(): dynId(0),
+				addr(0),
+				type(0),
+				staticId(0)
+	{
+	}
+
+	Id getId(){return dynId;}
+
+	void print(ostream &out) const
+	{
+		out << "\n" << dynId << ". ";
+		out << "Instruction :" << llvm::Instruction::getOpcodeName(type) << " ";
+		out << "StaticID : " << staticId << " ";
+		out << "Address : " << addr << " ";
+		out << " \n Num Predecessors: " << predsList.size() <<"\n";
+		for(std::deque<Id>::const_iterator it = predsList.begin();
+			it != predsList.end();
+			++it)
+		{
+			out << *it << ",";
+		}
+		out << " \n Num Successor: " << succsList.size() <<"\n";
+		for(std::deque<Id>::const_iterator it = succsList.begin();
+			it != succsList.end();
+			++it)
+		{
+			out << *it << ",";
+		}
+		out << "\n------------------------------------------------------\n";
+	}
+
+	// TODO : try taking in a output stream directly
+	// 		  instead of returning a string
+	void writeToStream(stringstream &ss)
+	{
+		ss.str(std::string());				
+		ss << dynId << " ";
+		ss << staticId << " ";
+		ss << type << " ";
+		ss << addr << " ";
+		ss << "\n";
+		
+		ss << predsList.size() << " ";
+		for(std::deque<Id>::iterator it = predsList.begin();
+			it != predsList.end();
+			++it)
+		{
+			ss << *it << " ";
+		}
+		ss << "\n";
+
+		ss << succsList.size() << " ";
+		for(std::deque<Id>::iterator it = succsList.begin();
+			it != succsList.end();
+			++it)
+		{
+			ss << *it << " ";
+		}
+		ss << "\n";
+	}
+
+	void writeToStreamInBinary(ostream &file)
+	{
+		file.write((const char*)&dynId, sizeof(Id));
+		file.write((const char*)&staticId, sizeof(Id));
+		file.write((const char*)&type, sizeof(unsigned int));
+		file.write((const char*)&addr, sizeof(Address));
+
+		Id predCount = predsList.size();
+		file.write((const char*)&predCount, sizeof(Id));
+		for(std::deque<Id>::iterator it = predsList.begin();
+			it != predsList.end();
+			++it)
+		{
+			Id temp = *it;
+			file.write((const char*)&temp, sizeof(Id));
+		}
+		// copy(predsList.begin(), predsList.end(), ostream_iterator<Id>(file));
+
+		Id succCount = succsList.size();
+		file.write((const char*)&succCount, sizeof(Id));
+		for(std::deque<Id>::iterator it = succsList.begin();
+			it != succsList.end();
+			++it)
+		{
+			Id temp = *it;
+			file.write((const char*)&temp, sizeof(Id));
+		}
+		//copy(succsList.begin(), succsList.end(), ostream_iterator<Id>(file));
+	}
+
+	void writeToStream(fstream &ss)
+	{
+
+	}
+
+	bool readNodeFromBinaryFile(istream &file)
+	{
+		file.read((char*)&dynId, sizeof(Id));
+		file.read((char*)&staticId, sizeof(Id));
+		file.read((char*)&type, sizeof(unsigned int));
+		file.read((char*)&addr, sizeof(Address));
+
+		Id predCount = 0;
+		file.read((char*)&predCount, sizeof(Id));
+		for(int i=0; i < predCount; ++i)
+		{
+			Id temp = 0;
+			file.read((char*)&temp, sizeof(Id));
+			predsList.push_back(temp);
+			// TODO : how to make this cleaner implementation work?
+			//file.read((char*)&predsList[i], sizeof(Id)); 
+		}
+
+		Id succCount = 0;
+		file.read((char*)&succCount, sizeof(Id));
+		for(int i=0; i < succCount; ++i)
+		{
+			Id temp = 0;
+			file.read((char*)&temp, sizeof(Id));
+			succsList.push_back(temp);
+		}
+		return false; // TODO : check for errors and return
+	}
+
+	bool readNodeFromASCIIFile(istream &file)
+	{
+		
+		
+
+		// Read dynId, static Id, type and addr
+		{
+			std::string temp, line;
+			std::stringstream tempss;
+			getline(file, line);
+			tempss << line;
+			getline(tempss, temp, ' ');
+			dynId = atoi(temp.c_str());
+			getline(tempss, temp, ' ');
+			staticId = atoi(temp.c_str());
+			getline(tempss, temp, ' ');
+			type = atoi(temp.c_str());
+			getline(tempss, temp, ' ');
+			addr = atol(temp.c_str());
+		}
+
+		// Read the predecessors
+		{
+			std::string temp, line;
+			std::stringstream tempss;
+			getline(file, line);
+			tempss.str(string());
+			tempss.str(line);
+			getline(tempss, temp, ' '); // read the count
+			while(getline(tempss, temp, ' ')) // start reading the preds
+			{
+				predsList.push_back(atoi(temp.c_str()));
+			}
+		}
+
+		// Read the successors
+		{
+			std::string temp, line;
+			std::stringstream tempss;
+			getline(file, line);
+			tempss.str(string());
+			tempss.str(line);
+			getline(tempss, temp, ' '); // read the count
+			while(getline(tempss, temp, ' ')) // start reading the succs
+			{
+				succsList.push_back(atoi(temp.c_str()));
+			}		
+		}
+
+		return false; // TODO compelete this. Return true if errors
+	}
+
+	void reset()
+	{
+		dynId = 0;
+		staticId = 0;
+		addr = 0;
+		type = 0;
+		predsList.clear();
+		succsList.clear();
+	}
+};
+
 class DiskCDAG
 {
 	public:
-		struct CDAGNode{
-			Id dynId;	// Dynamic Id 
-			Address addr;	// Addresses represented by this node if any
-			unsigned int type;	// LLVM Type of the node
-			Id staticId;
-			std::deque<Id> predsList;	// Vector containing list of predecessors
-			std::deque<Id> succsList;	// Vector containing list of successors
-
-			// TODO : initialize it with proper values
-			CDAGNode(): dynId(0),
-						addr(0),
-						type(0),
-						staticId(0)
-			{
-			}
-
-			Id getId(){return dynId;}
-
-			void print(ostream &out) const
-			{
-				out << "\n" << dynId << ". ";
-				out << "Instruction :" << llvm::Instruction::getOpcodeName(type) << " ";
-				out << "StaticID : " << staticId << " ";
-				out << " \n Num Predecessors: " << predsList.size() <<"\n";
-				for(std::deque<Id>::const_iterator it = predsList.begin();
-					it != predsList.end();
-					++it)
-				{
-					out << *it << ",";
-				}
-				out << " \n Num Successor: " << succsList.size() <<"\n";
-				for(std::deque<Id>::const_iterator it = succsList.begin();
-					it != succsList.end();
-					++it)
-				{
-					out << *it << ",";
-				}
-				out << "\n------------------------------------------------------\n";
-			}
-
-			// TODO : try taking in a output stream directly
-			// 		  instead of returning a string
-			void writeToStream(stringstream &ss)
-			{
-				ss.str(std::string());				
-				ss << dynId << " ";
-				ss << staticId << " ";
-				ss << type << " ";
-				ss << addr << " ";
-				ss << "\n";
-				
-				ss << predsList.size() << " ";
-				for(std::deque<Id>::iterator it = predsList.begin();
-					it != predsList.end();
-					++it)
-				{
-					ss << *it << " ";
-				}
-				ss << "\n";
-
-				ss << succsList.size() << " ";
-				for(std::deque<Id>::iterator it = succsList.begin();
-					it != succsList.end();
-					++it)
-				{
-					ss << *it << " ";
-				}
-				ss << "\n";
-			}
-
-			void writeToStreamInBinary(ostream &file)
-			{
-				file.write((const char*)&dynId, sizeof(Id));
-				file.write((const char*)&staticId, sizeof(Id));
-				file.write((const char*)&type, sizeof(unsigned int));
-				file.write((const char*)&addr, sizeof(Address));
-
-				Id predCount = predsList.size();
-				file.write((const char*)&predCount, sizeof(Id));
-				for(std::deque<Id>::iterator it = predsList.begin();
-					it != predsList.end();
-					++it)
-				{
-					Id temp = *it;
-					file.write((const char*)&temp, sizeof(Id));
-				}
-				// copy(predsList.begin(), predsList.end(), ostream_iterator<Id>(file));
-
-				Id succCount = succsList.size();
-				file.write((const char*)&succCount, sizeof(Id));
-				for(std::deque<Id>::iterator it = succsList.begin();
-					it != succsList.end();
-					++it)
-				{
-					Id temp = *it;
-					file.write((const char*)&temp, sizeof(Id));
-				}
-				//copy(succsList.begin(), succsList.end(), ostream_iterator<Id>(file));
-			}
-
-			void writeToStream(fstream &ss)
-			{
-
-			}
-
-			bool readNodeFromBinaryFile(istream &file)
-			{
-				file.read((char*)&dynId, sizeof(Id));
-				file.read((char*)&staticId, sizeof(Id));
-				file.read((char*)&type, sizeof(unsigned int));
-				file.read((char*)&addr, sizeof(Address));
-
-				Id predCount = 0;
-				file.read((char*)&predCount, sizeof(Id));
-				for(int i=0; i < predCount; ++i)
-				{
-					Id temp = 0;
-					file.read((char*)&temp, sizeof(Id));
-					predsList.push_back(temp);
-					// TODO : how to make this cleaner implementation work?
-					//file.read((char*)&predsList[i], sizeof(Id)); 
-				}
-
-				Id succCount = 0;
-				file.read((char*)&succCount, sizeof(Id));
-				for(int i=0; i < succCount; ++i)
-				{
-					Id temp = 0;
-					file.read((char*)&temp, sizeof(Id));
-					succsList.push_back(temp);
-				}
-				return false; // TODO : check for errors and return
-			}
-
-			bool readNodeFromASCIIFile(istream &file)
-			{
-				
-				
-
-				// Read dynId, static Id, type and addr
-				{
-					std::string temp, line;
-					std::stringstream tempss;
-					getline(file, line);
-					tempss << line;
-					getline(tempss, temp, ' ');
-					dynId = atoi(temp.c_str());
-					getline(tempss, temp, ' ');
-					staticId = atoi(temp.c_str());
-					getline(tempss, temp, ' ');
-					type = atoi(temp.c_str());
-					getline(tempss, temp, ' ');
-					addr = atol(temp.c_str());
-				}
-
-				// Read the predecessors
-				{
-					std::string temp, line;
-					std::stringstream tempss;
-					getline(file, line);
-					tempss.str(string());
-					tempss.str(line);
-					getline(tempss, temp, ' '); // read the count
-					while(getline(tempss, temp, ' ')) // start reading the preds
-					{
-						predsList.push_back(atoi(temp.c_str()));
-					}
-				}
-
-				// Read the successors
-				{
-					std::string temp, line;
-					std::stringstream tempss;
-					getline(file, line);
-					tempss.str(string());
-					tempss.str(line);
-					getline(tempss, temp, ' '); // read the count
-					while(getline(tempss, temp, ' ')) // start reading the succs
-					{
-						succsList.push_back(atoi(temp.c_str()));
-					}		
-				}
-
-				return false; // TODO compelete this. Return true if errors
-			}
-
-			void reset()
-			{
-				dynId = 0;
-				staticId = 0;
-				addr = 0;
-				type = 0;
-				predsList.clear();
-				succsList.clear();
-			}
-		};
+		
 
 	private:
 
@@ -487,6 +503,7 @@ class DiskCDAG
 		fstream graphDumpFile;
 		fstream succsListTempFile;
 		fstream succsListNewTempFile;
+		ifstream nodeAddrFile;
 
 		// TODO : Temp ofstreams - remove these!
 		ofstream printBeforeWriteFile;
@@ -558,6 +575,9 @@ class DiskCDAG
 			succsListTempFile.open((bcFileName+tempSuccsListFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
 			succsListTempFile.close();
 			succsListTempFile.open((bcFileName+tempSuccsListFNSuffix).c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
+
+			string nodeAddrTempFileName = bcFileName + tempNodeAddressFNSuffix;			
+			nodeAddrFile.open(nodeAddrTempFileName.c_str());
 
 			if(printGraphInAsciiFormat)
 			{
@@ -703,6 +723,13 @@ class DiskCDAG
 			return numOfBytesFornodeMarkerBitSet;
 		}
 
+		void readAddressFromFile(Id &nodeId, Address &addr)
+		{
+			streampos pos(sizeof(Address)*nodeId);
+			nodeAddrFile.seekg(pos, fstream::beg);
+			nodeAddrFile.read((char*)&addr, sizeof(Address));
+		}
+
 		//Adds a node to the cdag with instruction type 'currType' and static id 'id'
 		size_t addNode(unsigned int currType, size_t id, Address addr)
 		{
@@ -715,6 +742,14 @@ class DiskCDAG
 			if(currType == Instruction::Load){
 				// addr is only consumed in case of load instruction
 				node->addr = addr;
+			}
+			else
+			{
+				readAddressFromFile(node->dynId, node->addr);
+				if(node->addr == 0)
+				{
+					node->addr = node->staticId;
+				}
 			}
 
 			addUpdateNodeToBlock(node);
@@ -867,6 +902,7 @@ class DiskCDAG
 			{
 				remove((bcFileName+tempGraphDumpFNSuffix).c_str());
 				remove((bcFileName+tempSuccsListFNSuffix).c_str());
+				remove((bcFileName+tempNodeAddressFNSuffix).c_str());
 			}
 
 			// we can also clear up the memory pool here
@@ -1038,22 +1074,39 @@ class DiskCDAG
 					po::value(&printGraphInAsciiFormat)->default_value(false),
 					"Prints the graph in ascii format to a file named 'asciiGraphPrint'");
 				options.add_options()
+					("DiskGraph.PRINT_GRAPH_DOT",
+					po::value(&printGraphInDotFormat)->default_value(false),
+					"Prints the graph in dot format to a file named 'diskgraph.dot'");
+				options.add_options()
 					("DiskGraph.CLEAN_UP_TEMP_FILES",
 					po::value(&cleanUpTemporaryFiles)->default_value(true),
 					"Clean up temporary files created");
+			bool err = false;
 			if(configFile.is_open())
 			{
-				po::variables_map vm;
-				po::store(po::parse_config_file(configFile, options), vm);
-				po::notify(vm);
-				cout << "\nRead configuration file : ";
-				cout << "\nNUM_SLOTS = " << NUM_SLOTS;
-				cout << "\nBLOCK_SIZE = " << BLOCK_SIZE << " KB";
-				cout << "\n";
+				try
+				{
+					po::variables_map vm;
+					po::store(po::parse_config_file(configFile, options), vm);
+					po::notify(vm);
+					cout << "\nRead configuration file : ";
+					cout << "\nNUM_SLOTS = " << NUM_SLOTS;
+					cout << "\nBLOCK_SIZE = " << BLOCK_SIZE << " KB";
+					cout << "\n";
+				}
+				catch(...)
+				{
+					remove(configFileName.c_str());
+					err = true;
+				}
 			}
 			else
 			{
-				cout << "\nWarning: Configuaration file for Disk Graph not found.";
+				err = true;
+			}
+			if(err)
+			{
+				cout << "\nWarning: Configuaration file for Disk Graph not found or file is corrupted!";
 				cout << "\nUsing default values and generating a default config file as well.";
 				configFile.open(configFileName.c_str(), ios::out);
 
@@ -1063,7 +1116,8 @@ class DiskCDAG
 				configFile << "\nCREATE_GRAPH = " << graphCreatedFlag << "\t #" <<options.options()[2]->description();;
 				configFile << "\nDISK_GRAPH_FN = " << diskGraphFNSuffix << "\t #" <<options.options()[3]->description();;
 				configFile << "\nPRINT_GRAPH_ASCII = " << printGraphInAsciiFormat << "\t #" <<options.options()[4]->description();;
-				configFile << "\nCLEAN_UP_TEMP_FILES = " << cleanUpTemporaryFiles << "\t #" <<options.options()[5]->description();;
+				configFile << "\nPRINT_GRAPH_DOT = " << printGraphInDotFormat << "\t #" <<options.options()[5]->description();;
+				configFile << "\nCLEAN_UP_TEMP_FILES = " << cleanUpTemporaryFiles << "\t #" <<options.options()[6]->description();;
 			}
 			configFile.close();
 		}
@@ -1082,6 +1136,7 @@ class DiskCDAG
 				countBuilder.visit(ids);
 				cout <<"\n-----Pass complete. Number of nodes : "<<countBuilder.getNumNodes() << flush;
 				//countBuilder.printSuccessorCountFile();
+				//countBuilder.printAddressFile();
 				//cin.get();
 				cdag = new DiskCDAG(ids, bcFileName, 
 					countBuilder.getNumNodes());
@@ -1110,6 +1165,11 @@ class DiskCDAG
 
       		cdag->initLRUCacheForDiskGraph();
 
+      		if(printGraphInDotFormat)
+      		{
+      			cdag->printDOTGraph("diskgraph.dot");
+      		}
+
 			return cdag;
 		}
 
@@ -1135,9 +1195,18 @@ class DiskCDAG
 				return cdag;
 			}
 
-		void performBFS(string outFile)
+		void performTraversal(string outFile, bool dfsFlag)
 		{
-			cout << "\n Starting BFS on graph with " << numNodes << " nodes.\n";
+			cout << "\n Starting traversal on graph with " << numNodes << " nodes.";
+			if(dfsFlag)
+			{
+				cout << "\n Traversal type: Depth First Search";
+			}
+			else
+			{
+				cout << "\n Traversal type: Depth First Search";	
+			}
+			cout << "\n";
 
 			if(!lruCache)
 			{
@@ -1162,14 +1231,23 @@ class DiskCDAG
 				
 				while(!q.empty())
 				{
-					const CDAGNode *curNode = lruCache->getData(q.front());
+					const CDAGNode *curNode = 0;
+					if(dfsFlag)
+					{
+						curNode  = lruCache->getData(q.back());
+						q.pop_back();
+					}
+					else
+					{
+						curNode  = lruCache->getData(q.front());
+						q.pop_front();
+					}
 					if(!curNode)
 					{
-						cout <<"\n Failed to get " << q.front() << " node..stopping BFS";
+						cout <<"\n Failed to get " << q.front() << " node..stopping traversal";
 						error = true;
 						break;
 					}
-					q.pop_front();
 					//bfsOutput.push_back(curNode->dynId);
 					bfsOutFile << curNode->dynId << " ";
 					for(std::deque<Id>::const_iterator it = curNode->succsList.begin();
@@ -1193,25 +1271,16 @@ class DiskCDAG
 						cout << "Number of nodes processed : " << processedNodeCount;
 						cout << " (of " << numNodes << ") - ";
 						cout << perc << " % done.";
-						cout << " | Number of (currently) discovered but unprocessed nodes : ";
-						cout << q.size() << flush;
+						cout << flush;
 						prev = perc;
 					}
 				}
-				// cout << "\n Listing reachable nodes in BFS order : \n";
-				// for(vector<Id>::iterator it = bfsOutput.begin(); 
-				// 	it != bfsOutput.end(); ++it)
-				// {
-				// 	cout << *it << " ";
-				// }
-				// cout <<"\n";
-				// bfsOutput.clear();
 				if(error)
 					break;
 			}
 		}
 
-		void performBFSWithoutQ(string outFile)
+		void performBFSWithSortedQ(string outFile)
 		{
 			cout << "\n Starting BFS on graph with " << numNodes << " nodes.\n";
 
@@ -1280,18 +1349,120 @@ class DiskCDAG
 						prev = perc;
 					}
 				}
-				// cout << "\n Listing reachable nodes in BFS order : \n";
-				// for(vector<Id>::iterator it = bfsOutput.begin(); 
-				// 	it != bfsOutput.end(); ++it)
-				// {
-				// 	cout << *it << " ";
-				// }
-				// cout <<"\n";
-				// bfsOutput.clear();
 				if(error)
 					break;
 			}
 			delete []qBitSetForNodes;
+		}
+
+		void performDFS(string outFile)
+		{
+			cout << "\n Starting BFS on graph with " << numNodes << " nodes.\n";
+
+			if(!lruCache)
+			{
+				cout << "\n Error : Cache not initialized for the graph..exiting";
+				return;
+			}
+			
+			Id processedNodeCount = 0;
+			unmarkAllNodes(); // mark all nodes as ready
+			BYTE *qBitSetForNodes = new BYTE[numOfBytesFornodeMarkerBitSet];
+			Id startV;
+			//vector<Id> bfsOutput;
+			ofstream bfsOutFile(outFile.c_str());
+			bool error = false;
+			int prev = -1;
+			unsigned int bitSetIndex = 0;
+
+		}
+
+		void performTopoSort(string outFile, bool useStack)
+		{
+			cout << "\n Starting Topological sort on graph with " << numNodes << " nodes.\n";
+
+			if(!lruCache)
+			{
+				cout << "\n Error : Cache not initialized for the graph..exiting";
+				return;
+			}
+
+			boost::unordered_map<Id, Id > nodeIdToUnprocSuccsCountMap;
+			deque<Id> readyNodeQ;
+			Id readyNodeCount = 0;
+			Id processedNodeCount = 0;
+			int prev = -1;
+			
+			// INITIAL SETUP
+
+	        // Traverse over the graph once to mark all the nodes as ready
+	        // that have 0 preds i.e. all input vertices
+	        for(int i=0; i<numNodes; ++i)
+	        {
+	            DiskCDAG::CDAGNode *node = this->getNode(i);
+	            if(node->predsList.size() == 0)
+	            {
+	                // a node with zero predecessors
+	                // it should be the load node
+	                assert(node->type == 27); 
+	                readyNodeQ.push_back(i);
+	                ++readyNodeCount;
+	            }
+	            nodeIdToUnprocSuccsCountMap[i] = node->predsList.size();
+	        }
+			
+			ofstream tsOutFile(outFile.c_str());
+
+			// PERFORM TOPOLOGICAL SORT
+			int bitSetIndex = 0;
+			while(readyNodeQ.size() > 0)
+			{
+				DiskCDAG::CDAGNode *node = 0;
+				if(useStack)
+				{
+					node = this->getNode(readyNodeQ.back());
+					readyNodeQ.pop_back();
+				}
+				else
+				{
+					node = this->getNode(readyNodeQ.front());
+					readyNodeQ.pop_front();
+				}
+				++processedNodeCount;
+				tsOutFile << node->dynId << "\n";
+				int numSucc = node->succsList.size();
+				for(int i=0; i<numSucc; ++i)
+				{
+					Id succId = node->succsList[i];
+					boost::unordered_map<Id, Id >::iterator it = nodeIdToUnprocSuccsCountMap.find(succId);
+					if(it != nodeIdToUnprocSuccsCountMap.end())
+					{
+						--nodeIdToUnprocSuccsCountMap[succId];
+						if(nodeIdToUnprocSuccsCountMap[succId] == 0)
+						{
+							readyNodeQ.push_back(succId);
+							nodeIdToUnprocSuccsCountMap.erase(it);
+						}
+					}
+				}
+
+				int perc = (processedNodeCount*100)/numNodes;
+				if((perc % 1) == 0 && perc != prev)
+				{
+					cout << "\r\033[K ";
+					cout << "Number of nodes processed : " << processedNodeCount;
+					cout << " (of " << numNodes << ") - ";
+					cout << perc << " % done.";
+					cout << flush;
+					prev = perc;
+				}
+
+			}
+
+			if(processedNodeCount != numNodes)
+			{
+				cout << "\n Error : Cycles found in the graph!";
+			}
 		}
 
 	 	void printDiskGraph(ostream &out)
@@ -1603,7 +1774,7 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 			{
 				size_t inputNodeId = cdag ? cdag->addNode(Instruction::Load, 
 					cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue(),
-					addr) : incNumNodesCounter();
+					addr) : incNumNodesCounter(addr);
 				loadMap.insert(make_pair(addr, inputNodeId));
 				tempId = inputNodeId;
 			}
@@ -1620,10 +1791,29 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 		}
 	}
 
+	// Store instruction handling for getting addresses.
+	// Only do it for the first pass
+	if(!cdag && isa<StoreInst>(instr))
+	{
+		assert(predecessors.size() <= 2);
+		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)
+		{
+			payload_type pred_data = (*pred)->get();
+			if(isa<GetElementPtrInst>((*pred)->getInstruction()))
+			{
+				continue;
+			}
+			else
+			{
+				updateNodeAddress(pred_data, node->getAddress());
+			}
+		}
+	}
+
 	//Create a cdag node
 	size_t nodeId = cdag ? cdag->addNode(instr->getOpcode(),
 		cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue(),
-		0) : incNumNodesCounter();
+		0) : incNumNodesCounter(cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue());
 	for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)
 	{
 		payload_type pred_data = (*pred)->get();
@@ -1665,7 +1855,7 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 			{
 				size_t inputNodeId = cdag ? cdag->addNode(Instruction::Load, 
 					cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue(),
-					addr) : incNumNodesCounter();
+					addr) : incNumNodesCounter(addr);
 				loadMap.insert(make_pair(addr, inputNodeId));
 				tempId = inputNodeId;
 			}
@@ -1679,12 +1869,36 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 		}
 	}
 
+	// Store instruction handling for getting addresses.
+	// Only do it for the first pass
+	if(!cdag && isa<StoreInst>(instr))
+	{
+		assert(predecessors.size() <= 2);
+		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)
+		{
+			payload_type pred_data = (*pred)->get();
+			if(isa<GetElementPtrInst>((*pred)->getInstruction()))
+			{
+				continue;
+			}
+			else
+			{
+				payload_type::iterator plIt = pred_data.begin();
+				for(; plIt != pred_data.end(); ++plIt)
+				{
+					updateNodeAddress(*plIt, node->getAddress());
+				}
+			}
+		}
+	}
+
 	if(instr->isBinaryOp() && instr->getType()->isFloatingPointTy())
 	{
 		//Create a cdag node
 		size_t nodeId = cdag ? cdag->addNode(instr->getOpcode(), 
 			cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue(),
-			0) : incNumNodesCounter();
+			0) : 
+			incNumNodesCounter(cast<ConstantInt>(instr->getMetadata("id")->getOperand(0))->getZExtValue());
 		for(Predecessors::iterator pred = predecessors.begin(), predEnd =	predecessors.end(); pred != predEnd;	++pred)
 		{
 			payload_type pred_data = (*pred)->get();
@@ -1731,14 +1945,25 @@ void DiskCDAGBuilder::incSuccessorCountInFile(Id nodeId)
 	successorCountFile.flush();// Do not remove this. Write 0 for the second last node
 }
 
-size_t DiskCDAGBuilder::incNumNodesCounter()
+void DiskCDAGBuilder::updateNodeAddress(Id nodeId, Address addr)
+{	
+	streampos pos(sizeof(Address)*nodeId);
+	nodeAddrFile.seekp(pos, ios::beg);
+	nodeAddrFile.write((const char*)&addr, sizeof(Address));
+	nodeAddrFile.flush();
+}
+
+size_t DiskCDAGBuilder::incNumNodesCounter(Address addr)
 {
-	if(successorCountFile)
+	if(successorCountFile && nodeAddrFile)
 	{
 		Id temp = 0;
 		successorCountFile.seekp(0, fstream::end); // write to the end of the file
 		successorCountFile.write((const char*)&temp, sizeof(Id));
 		//successorCountFile.flush(); 
+		Address addr = 0;
+		nodeAddrFile.seekp(0, fstream::end);
+		nodeAddrFile.write((const char*)&addr, sizeof(Address));
 	}
 	return numNodes++;
 }
@@ -1753,6 +1978,18 @@ void DiskCDAGBuilder::printSuccessorCountFile()
 		cout <<"\n" << i++ << " : " << temp;
 	}
 	cout <<"\n";
+}
+
+void DiskCDAGBuilder::printAddressFile()
+{
+	Address addr = 0;
+	Id i=0;
+	nodeAddrFile.seekg(0, fstream::beg);
+	while(!nodeAddrFile.read((char*)&addr, sizeof(Address)).eof())
+	{
+		cout << "\n" << i++ << " : " <<addr;
+	}
+	cout << "\n";
 }
 
 // void updateSuccessorCountInFile(Id nodeId, Id incCount)

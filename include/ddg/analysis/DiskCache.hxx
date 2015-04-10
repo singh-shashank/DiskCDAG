@@ -130,6 +130,8 @@ namespace ddg{
 				}
 				dataCount = dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;
 				cout << "done!";
+				cout << "\nApproximately number of slots needed for in-memory data : ";
+				cout << dataIdBlockRangeList.size();
 			}
 
 			// We have a valid data count now

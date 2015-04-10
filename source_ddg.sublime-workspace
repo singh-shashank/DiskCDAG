@@ -4,6 +4,286 @@
 		"selected_items":
 		[
 			[
+				"proce",
+				"processedNodeCount"
+			],
+			[
+				"orig",
+				"origMemTraceFile"
+			],
+			[
+				"static",
+				"staticId"
+			],
+			[
+				"printGra",
+				"printGraphInDotFormat"
+			],
+			[
+				"priont",
+				"printGraphInDotFormat"
+			],
+			[
+				"bcF",
+				"bcFileName"
+			],
+			[
+				"Disk",
+				"DiskCDAGBuilder"
+			],
+			[
+				"oftsre",
+				"ofstream"
+			],
+			[
+				"nodeAD",
+				"nodeAddrFile"
+			],
+			[
+				"prede",
+				"predecessors"
+			],
+			[
+				"update",
+				"updateNodeAddress"
+			],
+			[
+				"stream",
+				"streampos"
+			],
+			[
+				"Dis",
+				"DiskCDAGBuilder"
+			],
+			[
+				"tak",
+				"takenSuccs"
+			],
+			[
+				"taken",
+				"takenSuccs"
+			],
+			[
+				"read",
+				"readyNeighborsList"
+			],
+			[
+				"neigh",
+				"neighborPriorityCount"
+			],
+			[
+				"take",
+				"takenNeighbors"
+			],
+			[
+				"succs",
+				"successorPriorityCount"
+			],
+			[
+				"sle",
+				"selectNeighborFlag"
+			],
+			[
+				"succes",
+				"successor"
+			],
+			[
+				"selec",
+				"selectBestNode"
+			],
+			[
+				"upda",
+				"updateListOfReadyNodes"
+			],
+			[
+				"out",
+				"outFile"
+			],
+			[
+				"wr",
+				"writeNodesOfComponent"
+			],
+			[
+				"convex",
+				"convexComponents"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
+				"tile",
+				"tileId"
+			],
+			[
+				"select",
+				"selectNeighborFlag"
+			],
+			[
+				"succe",
+				"successorPriorityCount"
+			],
+			[
+				"neighb",
+				"neighborPriorityCount"
+			],
+			[
+				"nei",
+				"neighborPriorityCount"
+			],
+			[
+				"sele",
+				"selectNeighborFlag"
+			],
+			[
+				"success",
+				"successorPriorityCount"
+			],
+			[
+				"clean",
+				"cleanUpTemporaryFiles"
+			],
+			[
+				"diskGra",
+				"diskGraphFileName"
+			],
+			[
+				"diskG",
+				"diskGraphFNSuffix"
+			],
+			[
+				"clea",
+				"cleanUpTemporaryFiles"
+			],
+			[
+				"NU",
+				"NUM_SLOTS"
+			],
+			[
+				"defa",
+				"default_value"
+			],
+			[
+				"write",
+				"writeGraphInAsciiFormat"
+			],
+			[
+				"diskGraphFN",
+				"diskGraphFNSuffix"
+			],
+			[
+				"confi",
+				"configFile"
+			],
+			[
+				"diskGraphF",
+				"diskGraphFNSuffix"
+			],
+			[
+				"diskgra",
+				"diskGraphIndexFNSuffix"
+			],
+			[
+				"dis",
+				"diskGraphFNSuffix"
+			],
+			[
+				"nodeI",
+				"nodeId"
+			],
+			[
+				"ta",
+				"takenNeighbors"
+			],
+			[
+				"next",
+				"nextNodeId"
+			],
+			[
+				"idto",
+				"idToNeighborsListMap"
+			],
+			[
+				"idTo",
+				"idToSuccsListMap"
+			],
+			[
+				"id",
+				"idToNeighborsListMap"
+			],
+			[
+				"nodei",
+				"nodeId"
+			],
+			[
+				"Con",
+				"ConvexComponent"
+			],
+			[
+				"nodes",
+				"nodesList"
+			],
+			[
+				"unpro",
+				"unprocessedNodeCount"
+			],
+			[
+				"unpr",
+				"unprocessedNodeCount"
+			],
+			[
+				"cac",
+				"cacheSize"
+			],
+			[
+				"get",
+				"getId"
+			],
+			[
+				"pre",
+				"predNode"
+			],
+			[
+				"has",
+				"hasAnyUnprocSuccs"
+			],
+			[
+				"pred",
+				"predNode"
+			],
+			[
+				"succ",
+				"succCountForPredNode"
+			],
+			[
+				"live",
+				"liveSet"
+			],
+			[
+				"cur",
+				"curNode"
+			],
+			[
+				"preds",
+				"predsList"
+			],
+			[
+				"num",
+				"numOfBytesFornodeMarkerBitSet"
+			],
+			[
+				"cach",
+				"cacheS"
+			],
+			[
+				"cache",
+				"cacheSize"
+			],
+			[
+				"slotId",
+				"slotIdToListNodeMap"
+			],
+			[
 				"avai",
 				"availableDataNodesQ"
 			],
@@ -30,10 +310,6 @@
 			[
 				"add",
 				"addItemToPool"
-			],
-			[
-				"cur",
-				"curSize"
 			],
 			[
 				"start",
@@ -128,10 +404,6 @@
 				"markedNodeCount"
 			],
 			[
-				"diskGraphF",
-				"diskGraphFileName"
-			],
-			[
 				"dataId",
 				"dataIdBlockRangeList"
 			],
@@ -144,28 +416,12 @@
 				"bcFileName"
 			],
 			[
-				"dis",
-				"diskGraphIndexFileName"
-			],
-			[
 				"gra",
 				"graphCreatedFlag"
 			],
 			[
 				"diskGraphIndexF",
 				"diskGraphIndexFileName"
-			],
-			[
-				"diskGra",
-				"diskGraphIndex"
-			],
-			[
-				"file",
-				"fileWriteBS"
-			],
-			[
-				"clean",
-				"cleanUpTemporaries"
 			],
 			[
 				"alloc",
@@ -202,14 +458,6 @@
 			[
 				"all",
 				"allPredsForRegion"
-			],
-			[
-				"succs",
-				"succsList"
-			],
-			[
-				"succ",
-				"succsList"
 			],
 			[
 				"RegioN",
@@ -266,254 +514,6 @@
 			[
 				"tok",
 				"TokenType"
-			],
-			[
-				"cre",
-				"createTrueAtom"
-			],
-			[
-				"eval",
-				"evalRelFns"
-			],
-			[
-				"evala",
-				"evalArithmeticFns"
-			],
-			[
-				"create",
-				"createTrueAtom"
-			],
-			[
-				"crea",
-				"createNilAtom"
-			],
-			[
-				"evalC",
-				"evalCar"
-			],
-			[
-				"is",
-				"isBound"
-			],
-			[
-				"ret",
-				"retVal"
-			],
-			[
-				"eva",
-				"evalNULL"
-			],
-			[
-				"set",
-				"setTerminalChar2"
-			],
-			[
-				"right",
-				"rightStr"
-			],
-			[
-				"setTermi",
-				"setTerminalChars"
-			],
-			[
-				"Li",
-				"LiteralAtom"
-			],
-			[
-				"left",
-				"leftStr"
-			],
-			[
-				"termi",
-				"terminalChar1"
-			],
-			[
-				"getTok",
-				"getTokenType"
-			],
-			[
-				"dump",
-				"dumpSExpStack"
-			],
-			[
-				"getToke",
-				"getTokenType"
-			],
-			[
-				"getT",
-				"getTokenStringValue"
-			],
-			[
-				"Se",
-				"SExp"
-			],
-			[
-				"SEx",
-				"SExp"
-			],
-			[
-				"parseT",
-				"parseTerminalSExp"
-			],
-			[
-				"SE",
-				"SExp"
-			],
-			[
-				"get",
-				"getTokenType"
-			],
-			[
-				"pee",
-				"peekNextToken"
-			],
-			[
-				"getotk",
-				"getTokenStringValue"
-			],
-			[
-				"Toke",
-				"TokenType"
-			],
-			[
-				"token",
-				"tokensQ"
-			],
-			[
-				"getTer",
-				"getTerminalChar2"
-			],
-			[
-				"com",
-				"compoundExp"
-			],
-			[
-				"teri",
-				"terminalChar1"
-			],
-			[
-				"Sys",
-				"System"
-			],
-			[
-				"Output",
-				"OutputStreamWriter"
-			],
-			[
-				"toke",
-				"tokensQ"
-			],
-			[
-				"sys",
-				"symStack"
-			],
-			[
-				"sym",
-				"symStack"
-			],
-			[
-				"non",
-				"nonTerminalOnTop"
-			],
-			[
-				"symb",
-				"symbList"
-			],
-			[
-				"prod",
-				"prodNumber"
-			],
-			[
-				"Ex",
-				"Exception"
-			],
-			[
-				"T_",
-				"T_OPEN_PARAN"
-			],
-			[
-				"Tok",
-				"TokenType"
-			],
-			[
-				"S",
-				"Symbol"
-			],
-			[
-				"pu",
-				"push"
-			],
-			[
-				"T_E",
-				"T_EOF"
-			],
-			[
-				"sy",
-				"symStack"
-			],
-			[
-				"parse",
-				"parseTable"
-			],
-			[
-				"termina",
-				"terminalChar"
-			],
-			[
-				"pars",
-				"parseCompoundSExp"
-			],
-			[
-				"getTo",
-				"getTokenType"
-			],
-			[
-				"getTOke",
-				"getTokenType"
-			],
-			[
-				"le",
-				"left"
-			],
-			[
-				"term",
-				"terminalChar"
-			],
-			[
-				"Toe",
-				"TokenType"
-			],
-			[
-				"par",
-				"parseTerminalSExp"
-			],
-			[
-				"Token",
-				"Token"
-			],
-			[
-				"E",
-				"Exception"
-			],
-			[
-				"cahr",
-				"charAt"
-			],
-			[
-				"nex",
-				"nextToken"
-			],
-			[
-				"Erro",
-				"ErrorString1"
-			],
-			[
-				"char",
-				"charAt"
-			],
-			[
-				"t",
-				"t	test"
 			]
 		]
 	},
@@ -523,7 +523,7 @@
 			"file": "include/ddg/analysis/DiskCache.hxx",
 			"settings":
 			{
-				"buffer_size": 25621,
+				"buffer_size": 23586,
 				"line_ending": "Unix"
 			}
 		},
@@ -531,15 +531,23 @@
 			"file": "include/ddg/analysis/DiskCDAG.hxx",
 			"settings":
 			{
-				"buffer_size": 46900,
+				"buffer_size": 51487,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "tools/reuse-analysis/include/ReadCDAG.hxx",
+			"file": "tools/reuse-analysis/include/ConvexPartitioning.hxx",
 			"settings":
 			{
-				"buffer_size": 2960,
+				"buffer_size": 24026,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/shashank/project/cdag_disk.cxx",
+			"settings":
+			{
+				"buffer_size": 7464,
 				"line_ending": "Unix"
 			}
 		},
@@ -547,15 +555,7 @@
 			"file": "tools/reuse-analysis/src/Main.cxx",
 			"settings":
 			{
-				"buffer_size": 4932,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "#include <fstream>\n#include <iostream>\n\n#include <string>\n#include <vector>\n#include <map>\n#include <set>\n#include <queue>\n#include <climits>\n#include <algorithm>\n#include <deque>\n\n#define DEBUG(msg) do { if (!DEBUG_ENABLED) {} \\\n                   else std::cout << __FILE__ << \":\" << __LINE__ << \" \" << msg; \\\n               		} while(0)\n#ifdef DEBUG_FLAG\n#define DEBUG_ENABLED 1\n#else\n#define DEBUG_ENABLED 0\n#endif\n\n//#define DEBUG_ENABLED 1\n\nnamespace ddg{\n\n	using namespace std;\n	using namespace llvm;\n\n	template <typename Data, typename DataId>\n	class DiskCache\n	{\n	public:\n		DiskCache(int bs, int numSlots, bool flag = false): BLOCK_SIZE(bs),\n									  NUM_SLOTS(numSlots),\n									  writeBackFlag(flag),\n									  initFlag(false),\n									  dataCount(),\n									  MAX_ITEMS_PER_SLOT(BLOCK_SIZE/sizeof(Data)),\n									  MAX_ITEMS_IN_CACHE(MAX_ITEMS_PER_SLOT*NUM_SLOTS)\n		{}\n\n		~DiskCache()\n		{\n			// Invalidate all the slots\n			for(int i=0; i<NUM_SLOTS; ++i)\n			{\n				invalidateSlot(i);\n			}\n\n			// clear up all the pre-allocated objects\n			// while(!availableDataNodesQ.empty())\n			// {\n			// 	delete availableDataNodesQ.front();\n			// 	availableDataNodesQ.pop_front();\n			// }\n			// while(!availableSlotIdIndexObjsQ.empty())\n			// {\n			// 	delete availableSlotIdIndexObjsQ.front();\n			// 	availableSlotIdIndexObjsQ.pop_front();\n			// }\n\n			while(!availableDataNodesQ->empty())\n			{\n				delete availableDataNodesQ->getItemFromPool();\n			}\n			while(!availableSlotIdIndexObjsQ->empty())\n			{\n				delete availableSlotIdIndexObjsQ->getItemFromPool();\n			}\n			delete availableDataNodesQ;\n			delete availableSlotIdIndexObjsQ;\n\n			// Delete slots\n			delete []slots;\n\n			// Delete use list\n			ListNode *curNode = useListHead;\n			while(curNode)\n			{\n				ListNode *temp = curNode;\n				curNode = curNode->next;\n				delete temp;\n			}\n		}\n\n		bool init(const string &file,					\n					const string &indexFile =\"\",\n					const unsigned int p=0)\n		{\n			initFlag = true;\n\n			if(BLOCK_SIZE == 0 || BLOCK_SIZE < sizeof(Data) || NUM_SLOTS == 0)\n			{\n				initFlag = false;\n				return initFlag;\n			}\n\n			policy = p;\n			dataFileName = file;\n			slots = new SLOT[NUM_SLOTS];\n\n			// Initialize use list\n			useListHead = new ListNode(0);\n			ListNode *curNode = useListHead;\n			slotIdToListNodeMap[0] = useListHead;\n			for(int i=1; i<NUM_SLOTS; ++i)\n			{\n				ListNode *temp = new ListNode(i);\n				temp->prev = curNode;\n				curNode->next = temp;\n				curNode = temp;\n				slotIdToListNodeMap[i] = temp;\n			}\n			useListTail = curNode;\n\n			// open handles to required files\n			if(!initFileHandle(dataFileName, dataFileHandle, writeBackFlag)){\n				cout << \"\\n Error in opening data file\";\n				initFlag = false;\n			}\n			if(!indexFile.empty() && !initFileHandle(indexFile, dataIndexFileHandle)){\n				cout << \"\\n Error in opening index file\";\n				initFlag = false;\n			}\n\n			// If all is well till now, read in the index file\n			if(initFlag){\n				cout << \"\\n Indexing the data file...\" << flush;\n				if(!indexFile.empty())\n				{\n					readDataIndexFile();\n				}\n				else\n				{\n					// no data index file specified\n					bool temp = writeBackFlag;\n					writeBackFlag = false;\n					createDataIndex(false);\n					writeBackFlag = temp;\n				}\n				dataCount = dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;\n				cout << \"done!\";\n			}\n\n			// We have a valid data count now\n			DEBUG(\"\\nData count for \" << dataFileName << \": \" << dataCount);\n			unsigned int maxDataObjectsRequired = MAX_ITEMS_IN_CACHE+1;\n			if(dataCount > MAX_ITEMS_IN_CACHE)\n			{\n				// Reserve memory for slots\n				for(int i=0; i<NUM_SLOTS; ++i)\n				{\n					slots[i].reserve(MAX_ITEMS_PER_SLOT+1);\n				}\n			}\n			else\n			{\n				// We have enough space in cache to avoid data eviction.\n				// Just pre-allocate Data and SlotIdSlotIndex objects\n				maxDataObjectsRequired = dataCount + 10;\n\n			}\n			// Pre-allocate Data and SlotIdSlotIndex objects\n			// for(int i=0; i<maxDataObjectsRequired; ++i)\n			// {\n			// 	Data *node = new Data();\n			// 	availableDataNodesQ.push_back(node);\n\n			// 	SlotIdSlotIndex *obj = new SlotIdSlotIndex();\n			// 	availableSlotIdIndexObjsQ.push_back(obj);\n			// }\n			// DEBUG(\"\\n availableDataNodes : \" << availableDataNodesQ.size());\n			// DEBUG(\"\\n availableSlotIdIndexObjs : \" << availableSlotIdIndexObjsQ.size());\n\n			availableDataNodesQ = new CircularQ<Data*>(maxDataObjectsRequired);\n			availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>(maxDataObjectsRequired);\n			for(int i=0; i<maxDataObjectsRequired; ++i)\n			{\n				Data *node = new Data();\n				availableDataNodesQ->addItemToPool(node);\n\n				SlotIdSlotIndex *obj = new SlotIdSlotIndex();\n				availableSlotIdIndexObjsQ->addItemToPool(obj);\n			}\n\n			return initFlag;\n		}\n\n		DataId getDataCount()\n		{\n			return dataCount;\n		}\n\n		virtual void createDataIndex(bool dumpToFile)\n		{\n			DEBUG(\"\\n Create index for the data file in cache.\\n\");\n			// clear any flags set and reset the file pointer to beginning\n			dataFileHandle.clear();\n			dataFileHandle.seekg(0, ios::beg);\n\n			// start creating the index\n			streampos startPos = 0;\n			DataId begin = 0, end = 0;\n			while(dataFileHandle.peek() != EOF)\n			{\n				startPos = dataFileHandle.tellg();\n				// int slotId = getAvailableSlot();\n				// // Invalidate the current slot before reading\n				// invalidateSlot(slotId);\n				// readBlockInSlot(slotId, 0); // we don't care about the DataId being passed in\n				// int count = slots[slotId].size();\n				// if(count > 0)\n				// {\n				// 	DataIdRange range;\n				// 	range.setRange(slots[slotId][0]->getId(),\n				// 					slots[slotId][count-1]->getId(),\n				// 					startPos);\n				// 	dataIdBlockRangeList.push_back(range);\n				// }\n				begin = 0, end =0;\n				readBlockForDataIndexing(begin, end);\n				DataIdRange range;\n				range.setRange(begin,\n								end,\n								startPos);\n				dataIdBlockRangeList.push_back(range);\n			}\n\n			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());\n\n			// Test code: Iterate over set to print block range\n			if(DEBUG_ENABLED)\n			{\n				DEBUG(\"\\n Printing block offset range\");\n				typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();\n				for(; it != dataIdBlockRangeList.end(); ++it)\n				{\n					(*it).printRange();\n				}\n				DEBUG(\"\\n Index created for thed data file\\n\");\n			}\n		}\n\n		// Gets a read-only pointer to the data\n		virtual Data* getData(const DataId id)\n		{\n			Data *retVal = 0;\n			SlotIdSlotIndex* dataInfo = isInCache(id);\n			int slotId = dataInfo ? dataInfo->slotId : -1;\n			int slotIndex = dataInfo ? dataInfo->slotIndex : -1;\n			dataInfo = 0;\n			if(slotId < 0)\n			{\n				DEBUG(\"\\n\" << id <<\" is not in cache\");\n				// Get a slot id to read a block into.\n				slotId = getAvailableSlot();\n				// Invalidate the current slot before reading\n				invalidateSlot(slotId);\n\n				// Find the block having the data and its \n				// seek position in the file.\n				// Seek to the required block in the file.\n				streampos off = getStreamOffsetForDataId(id);\n				DEBUG(\"\\n getData : \" << id << \", seeking to \" << off);\n				seekForRead(dataFileHandle, off);\n				DEBUG(\"\\n and seeked to \" << dataFileHandle.tellg());\n				\n\n				// Read the block in slot.\n				slotIndex = readBlockInSlot(slotId, id);\n\n			}\n			else\n			{\n				DEBUG(\"\\n\" << id <<\" is in cache at slot : \" << slotId);\n			}\n\n			// The requested data should exists in cache.\n			if(slotIndex == -1)\n			{\n				cout <<\"\\n FATAL CACHE ERROR : Sync error between cache data structures!\";\n				cout <<\"\\n Was trying to fetch data with id :\" << id;\n				cout <<flush;\n				retVal = 0;\n			}\n			else\n			{\n				retVal = slots[slotId][slotIndex];\n			}\n			\n			// Update the use list to mark this slot\n			markSlotAsMRU(slotId);\n			return retVal;\n		}\n\n\n		virtual int getAvailableSlot()\n		{\n			int retVal = -1;\n			switch (policy)\n			{\n				case 0:\n				default:\n					retVal = applyLRUPolicy();\n					break;\n			}\n\n			return retVal; // the default policy \n		}\n\n	private:\n\n		struct SlotIdSlotIndex\n		{\n			int slotId;\n			int slotIndex;\n			SlotIdSlotIndex(int s, int ind):slotId(s), slotIndex(ind)\n			{}\n\n			SlotIdSlotIndex():slotId(-1), slotIndex(-1)\n			{}\n\n			SlotIdSlotIndex& operator = (const SlotIdSlotIndex& rhs)\n			{\n				slotId = rhs.slotId;\n				slotIndex = rhs.slotIndex;\n				return *this;\n			}\n			void reset()\n			{\n				slotId = -1, slotIndex = -1;\n			}	\n\n			void setValues(unsigned int &s, unsigned int &ind)\n			{\n				slotId = s;\n				slotIndex = ind;\n			}\n		};\n\n		// This method assumes that dataFileHandle is pointing to \n		// appropriate block in the file. Will read from the current\n		// seek position. Caller should seek into the appropriate location\n		// in the file\n		int readBlockInSlot(const unsigned int slotId, DataId id)\n		{\n			assert(slotId < NUM_SLOTS);\n			DEBUG(\"\\n readBlockInSlot \"<<slotId);\n\n			// Start reading from the file\n			// Implementation Note :-\n			// From the API perspective its good idea to stop reading \n			// when you reach the Block size and not when you reached \n			// the next block offset as specified by the data index \n			// data structure\n			size_t curSize = 0;\n			DataId begin = INT_MAX, end = 0;\n			int slotIndex = -1;\n			while(true)\n			{\n				Data* node = getAvailableDataNode();\n				streampos beforeReadOff = dataFileHandle.tellg();\n				//node->readNodeFromASCIIFile(dataFileHandle);\n				node->readNodeFromBinaryFile(dataFileHandle);\n				// TODO : a check to see if the read node is valid\n				curSize += sizeof(*node);\n				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)\n				{\n					slots[slotId].push_back(node);\n					//SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);\n					SlotIdSlotIndex *dataInfo = getAvailableSlotIdSlotIndexObj();\n					unsigned int ind = (slots[slotId].size()-1);\n					dataInfo->setValues(slotId, ind);\n					dataIdToSlotMap[node->getId()] = dataInfo;\n					if(id == node->getId())\n						slotIndex = slots[slotId].size()-1;\n				}\n				else\n				{\n					//availableDataNodesQ.push_back(node);\n					availableDataNodesQ->addItemToPool(node);\n					// we have read an extra data node.\n					// Seek back by the size of the node read\n					//dataFileHandle.seekg(beforeReadOff, ios::beg);\n					if(dataFileHandle.eof())\n					{\n						// If we reached the eof then beforeReadOff is\n						// set to -1 and the subsequent read would set\n						// the fail bit. (TODO fix the subsquent read)\n						// Go to the beginning of the file.\n						//seekForRead(dataFileHandle, 0);\n\n						// THERE IS SOMETHING FISHY HERE. COMMENTING IT FOR\n						// NOW. \n					}\n					else\n					{\n						seekForRead(dataFileHandle, beforeReadOff);\n					}\n					break;\n				}\n			}\n\n			if(DEBUG_ENABLED)\n			{\n				DEBUG(\"\\nreadBlockInSlot : done reading the slot. Dumping slot\\n\");\n				dumpSlot(slotId);\n			}\n			return slotIndex;\n		}\n\n		void readBlockForDataIndexing(DataId &begin, DataId &end)\n		{\n			DEBUG(\"\\n readBlockForDataIndexing \");\n\n			// Start reading from the file\n			// Implementation Note :-\n			// From the API perspective its good idea to stop reading \n			// when you reach the Block size and not when you reached \n			// the next block offset as specified by the data index \n			// data structure\n			size_t curSize = 0;\n			bool firstNode = true;\n			Data* node = new Data();\n			while(true)\n			{\n				node->reset();\n				streampos beforeReadOff = dataFileHandle.tellg();\n				//node->readNodeFromASCIIFile(dataFileHandle);\n				node->readNodeFromBinaryFile(dataFileHandle);\n				// TODO : a check to see if the read node is valid\n				curSize += sizeof(*node);\n				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)\n				{\n					if(firstNode)\n					{\n						firstNode = false;\n						begin = node->getId();\n					}\n					end = node->getId();\n				}\n				else\n				{\n					// we have read an extra data node.\n					// Seek back by the size of the node read\n					//dataFileHandle.seekg(beforeReadOff, ios::beg);\n					if(dataFileHandle.eof())\n					{\n						// If we reached the eof then beforeReadOff is\n						// set to -1 and the subsequent read would set\n						// the fail bit. (TODO fix the subsquent read)\n						// Go to the beginning of the file.\n						//seekForRead(dataFileHandle, 0);\n\n						// THERE IS SOMETHING FISHY HERE. COMMENTING IT FOR\n						// NOW. \n					}\n					else\n					{\n						seekForRead(dataFileHandle, beforeReadOff);\n					}\n					break;\n				}\n			}\n			delete node;\n		}\n\n		void dumpSlot(int slotId)\n		{\n			if(slots[slotId].size() < 1)\n			{\n				cout << \"Empty Slot\";\n				return;\n			}\n			SLOT_ITERATOR it = slots[slotId].begin();\n			for(; it != slots[slotId].end(); ++it)\n			{\n				cout << (*it)->getId() <<\" \";\n			}\n		}\n\n		void invalidateSlot(const unsigned int slotId)\n		{\n			assert(slotId < NUM_SLOTS);\n\n			if(writeBackFlag && slots[slotId].size() > 0)\n			{\n				DEBUG(\"\\n Doing a write back for slot : \"<<slotId);\n				SLOT_ITERATOR it = slots[slotId].begin();\n				Id firstEleId = (*it)->getId();\n				seekForWrite(dataFileHandle, getStreamOffsetForDataId(firstEleId));\n				DEBUG(\" with tellp() value at : \" << dataFileHandle.tellp());\n				for(; it != slots[slotId].end(); ++it)\n				{\n					(*it)->writeToStream(dataFileHandle);\n					//(*it)->print(cout);\n				}\n				dataFileHandle.flush();\n			}\n\n			// move all the used data nodes to available queue\n			// and then empty the dictionary container\n			SLOT_ITERATOR it = slots[slotId].begin();\n			for(; it != slots[slotId].end(); ++it)\n			{\n				// availableSlotIdIndexObjsQ.push_back(dataIdToSlotMap[(*it)->getId()]);\n				availableSlotIdIndexObjsQ->addItemToPool(dataIdToSlotMap[(*it)->getId()]);\n				dataIdToSlotMap.erase((*it)->getId());\n				//availableDataNodesQ.push_back(*it);\n				availableDataNodesQ->addItemToPool(*it);\n			}\n\n			slots[slotId].clear();\n		}\n\n		Data* getAvailableDataNode()\n		{\n			Data *retVal = 0;\n			if(!availableDataNodesQ->empty())\n			{\n				retVal = availableDataNodesQ->getItemFromPool();\n				//availableDataNodesQ.pop_front();\n				retVal->reset();\n			}\n			else\n			{\n				cout << \"\\n Warning : Allocating a new Data node!\";\n				cout << \" Shouldn't happen if the nodes were pre-allocated\";\n				retVal = new Data();\n			}\n			return retVal;\n		}\n		SlotIdSlotIndex* getAvailableSlotIdSlotIndexObj()\n		{\n			SlotIdSlotIndex *retVal = 0;\n			if(!availableSlotIdIndexObjsQ->empty())\n			{\n				retVal = availableSlotIdIndexObjsQ->getItemFromPool();\n				// availableSlotIdIndexObjsQ.pop_front();\n				retVal->reset();\n			}\n			else\n			{\n				cout << \"\\n Warning : Allocating a new SlotIdSlotIndex object!\";\n				cout << \" Shouldn't happen if the nodes were pre-allocated\";\n				retVal = new SlotIdSlotIndex();\n			}\n			return retVal;\n		}\n\n		SlotIdSlotIndex* isInCache(const DataId id)\n		{\n			SlotIdSlotIndex *dataInfo = 0;\n			DATA_TO_SLOT_MAP_ITERATOR it = dataIdToSlotMap.find(id);\n			if(it != dataIdToSlotMap.end())\n			{\n				dataInfo = (it->second);\n			}\n			return dataInfo;\n		}\n\n		int applyLRUPolicy()\n		{\n			// the head of the use list marks the least recently used\n			// slot. Return the id and subsequent call to markSlotAsMRU\n			// will move this list node to the tail.\n			return useListHead->slotId;\n		}\n\n		void markSlotAsMRU(const int slotId)\n		{\n			ListNode *curNode = slotIdToListNodeMap[slotId];\n			\n			// If its already at the tail then we can simply return\n			if(curNode == useListTail)\n				return;\n\n			// Else move this list node to the tail\n			if(curNode == useListHead)\n			{\n				curNode->next->prev = 0;\n				useListHead = curNode->next;\n			}\n			else\n			{\n				// its a middle node\n				curNode->prev->next = curNode->next;\n				curNode->next->prev = curNode->prev;\n			}\n			curNode->prev = useListTail;\n			useListTail->next = curNode;\n			curNode->next = 0;\n\n			useListTail = curNode;\n		}\n\n		bool initFileHandle(const string &name, fstream &handle, bool rwMode=false)\n		{\n			bool retVal = true;\n			if(name.empty())\n			{\n				retVal = false;\n			}\n			if(rwMode)\n			{\n				handle.open(name.c_str(), fstream::in|fstream::out);\n			}\n			else\n			{\n				handle.open(name.c_str(), fstream::in);\n			}\n\n			if(!handle)\n				retVal = false;\n			return retVal;\n		}\n\n		void readDataIndexFile()\n		{\n			//cout << \"\\n In disk cache readDataIndexFile \\n\";\n			int i=0;\n			streampos pos(0);\n			streampos prev(0);\n			DataId begin = i;\n			while(dataIndexFileHandle.read((char*)&pos, sizeof(streampos)).good())\n			{				\n				//cout << (long)pos <<\" \";\n				if(pos != prev)\n				{\n					DataIdRange range;\n					range.setRange(begin, i-1, prev);\n					dataIdBlockRangeList.push_back(range);\n					begin = i;\n					prev = pos;\n				}\n				pos = 0;\n				++i;\n			}\n\n			DataIdRange range;\n			range.setRange(begin, i-1, prev);\n			dataIdBlockRangeList.push_back(range);\n			sort(dataIdBlockRangeList.begin(), dataIdBlockRangeList.end());\n\n			// Test code: Iterate over set to print block range\n			if(DEBUG_ENABLED)\n			{\n				DEBUG(\"\\n Priting block offset range\");\n				typename vector<DataIdRange>::iterator it = dataIdBlockRangeList.begin();\n				for(; it != dataIdBlockRangeList.end(); ++it)\n				{\n					(*it).printRange();\n				}\n			}\n		}\n\n		streampos getStreamOffsetForDataId(DataId &id)\n		{\n			int start = 0, end = dataIdBlockRangeList.size()-1, mid;\n			streampos retVal = -1;\n			while(start <= end)\n			{\n				mid  = (start + end) >> 1;\n				if(dataIdBlockRangeList[mid].isInRange(id))\n				{\n					retVal = dataIdBlockRangeList[mid].pos;\n					break;\n				}\n				else if(id < dataIdBlockRangeList[mid].begin)\n				{\n					end = mid-1;\n				}\n				else\n				{\n					start = mid+1;\n				}\n			}\n			return retVal;\n		}\n\n		void seekForRead(fstream &handle, streampos offset)\n		{\n			// if(handle.is_open())\n			// {\n			// 	cout <<\"\\n In seekForRead - Handle is open.\"	;\n			// }\n			// if(handle.fail())\n			// {\n			// 	cout <<\"\\n In seekForRead - Fail bit set\";\n			// }\n			// if(handle.bad())\n			// {\n			// 	cout <<\"\\n In seekForRead - bad bit set\";\n			// }\n			// if(handle.good())\n			// {\n			// 	cout <<\"\\n In seekForRead - Good bit set\";\n			// }\n			// if(handle.eof())\n			// {\n			// 	cout << \"\\n In seekForRead - Eof bit set\";\n			// }\n			handle.seekg(offset, ios::beg);\n			if(handle.tellg() == -1)\n			{\n				if(handle.eof() || handle.fail())\n				{\n					handle.clear();\n					handle.seekg(offset, ios::beg); //reset to beginning\n					DEBUG(\"\\nReached end of file - reset to beginning\");\n				}\n				else\n				{\n					// handle.seekg(0, ios::beg); //reset to beginning\n					cout << \"\\n Cache error in stream associated with file :\" << dataFileName;\n				}\n			}\n		}\n\n		void seekForWrite(fstream &handle, streampos offset)\n		{\n			// if(handle.is_open())\n			// {\n			// 	cout <<\"\\n In seekForWrite - Handle is open.\"	;\n			// }\n			// if(handle.fail())\n			// {\n			// 	cout <<\"\\n In seekForWrite - Fail bit set\";\n			// }\n			// if(handle.bad())\n			// {\n			// 	cout <<\"\\n In seekForWrite - bad bit set\";\n			// }\n			// if(handle.good())\n			// {\n			// 	cout <<\"\\n In seekForWrite - Good bit set\";\n			// }\n			// if(handle.eof())\n			// {\n			// 	cout << \"\\n In seekForWrite - Eof bit set\";\n			// }\n			handle.seekp(offset, ios::beg);\n			if(handle.tellp() == -1)\n			{\n				if(handle.eof() || handle.fail())\n				{\n					handle.clear();\n					handle.seekp(offset, ios::beg); //reset to beginning\n					DEBUG(\"\\n Reached end of file - reset to beginning\");\n				}\n				else\n				{\n					// handle.seekg(0, ios::beg); //reset to beginning\n					cout << \"\\n Cache error in stream associated with file :\" << dataFileName;\n				}\n			}\n		}\n\n		// Member variables and data structures\n		struct ListNode\n		{\n			ListNode *prev;\n			ListNode *next;\n			int slotId;\n			ListNode(int id):slotId(id),\n							 prev(0),\n							 next(0)\n			{}\n		};\n\n		struct DataIdRange{\n		 	DataId begin;\n		 	DataId end;\n		 	int slotId;\n		 	streampos pos;\n\n		 	DataIdRange():begin(-1), end(-1), pos(-1), slotId(-1){}\n\n		 	bool operator< (const DataIdRange& other) const\n		 	{\n		 		return this->end < other.end;\n		 	}\n\n		 	bool isInRange(DataId id)\n		 	{\n		 		return (begin <= id && id <= end);\n		 	}\n\n		 	void setRange(DataId b, DataId e, int slot)\n		 	{\n		 		begin = b; end = e; slotId = slot;\n		 	}\n\n		 	void setRange(DataId b, DataId e, streampos p)\n		 	{\n		 		begin = b; end = e; pos = p;\n		 	}\n\n		 	void printRange() const\n		 	{\n		 		cout << \"\\n\" << begin << \" - \" <<end << \" : \" <<pos;\n		 	}\n		};\n\n		// Use Vectors for slots because we want to exploit spatial \n		// locality and its optimized because indexing a file tells\n		// us the number of items we are expecting in cache.\n		typedef typename std::vector<Data*> SLOT;\n		typedef typename std::vector<Data*>::iterator SLOT_ITERATOR;\n		typedef typename std::map<DataId, SlotIdSlotIndex*> DATA_TO_SLOT_MAP;\n		typedef typename std::map<DataId, SlotIdSlotIndex*>::iterator DATA_TO_SLOT_MAP_ITERATOR;\n\n		const size_t BLOCK_SIZE;\n		const int NUM_SLOTS;\n		string dataFileName;\n		bool initFlag;\n		unsigned int policy;\n		bool writeBackFlag;\n		const unsigned int MAX_ITEMS_PER_SLOT;\n		const unsigned int MAX_ITEMS_IN_CACHE;\n		DataId dataCount;\n\n		SLOT *slots;\n		DATA_TO_SLOT_MAP dataIdToSlotMap;	\n\n		ListNode *useListHead; // represents the LRU slot\n		ListNode *useListTail; // represents the MRU slot\n		map<int, ListNode*>  slotIdToListNodeMap; // map for a quick markSlotAsMRU() implementation\n\n		fstream dataFileHandle;\n		fstream dataIndexFileHandle;\n\n		vector<DataIdRange> dataIdBlockRangeList;\n\n		// Object pool for BIG performance improvements\n		// especially when we are dealing with millions of\n		// data items.\n		// deque<Data*> availableDataNodesQ;\n		// deque<SlotIdSlotIndex*> availableSlotIdIndexObjsQ;\n		// Using circular queue to check performance improvement\n\n\n	public:\n		// Implementing a fixed sized queue for pool handler\n		// to verify if it gives some performance improvements\n		template <typename T>\n		class CircularQ\n		{\n		public:\n			CircularQ(unsigned int capacity):popPos(-1), \n												pushPos(-1),\n												poolCapacity(0),\n												curSize(0)\n			{\n				poolCapacity = capacity;\n				poolVec.reserve(poolCapacity);\n				T tempVal = 0;\n				for(int i=0; i<poolCapacity; ++i)\n				{\n					poolVec.push_back(tempVal);\n				}\n			}\n\n			~CircularQ()\n			{\n				for(int i=0; i < curSize; ++i)\n				{\n					//(poolVec[i])~T();\n				}\n			}\n\n			void addItemToPool(T item)\n			{\n				if(curSize >= poolCapacity)\n				{\n					// TODO : maintain name of the pool allocator \n					// for better error messages\n					cout << \"\\n Error : Tried to insert an item when the\";\n					cout << \" pool is full.\";\n					return;\n				}\n				pushPos = (++pushPos) % poolCapacity;\n				poolVec[pushPos] = item;\n				++curSize;\n				if(popPos == -1)\n				{\n					popPos = 0;\n				}\n			}\n\n			T getItemFromPool()\n			{\n				T retVal = 0;\n				if(curSize <= 0)\n				{\n					cout << \"\\n Error : Tried getting an item from empty pool allocator\";\n					return retVal;\n				}\n\n				retVal = poolVec[popPos];\n				popPos = (++popPos) % poolCapacity;\n				--curSize;\n				return retVal;\n			}\n\n			bool empty()\n			{\n				return curSize <= 0;\n			}\n\n			void printPoolHandlerQ()\n			{\n				cout << \"\\n Printing Pool Q :\";\n				for(int i=0, j=popPos; i < curSize; ++i, j=(++j % poolCapacity))\n				{\n					cout << poolVec[j] << \" \";\n				}\n				cout << \"\\n\";\n			}\n		private:\n			unsigned int poolCapacity;\n			std::vector<T> poolVec;\n			int pushPos; // points to the last item inserted\n			int popPos; // points to the element at the head of the queue\n			unsigned int curSize;\n\n		};\n	\n	private:\n		CircularQ<Data*> *availableDataNodesQ;\n		CircularQ<SlotIdSlotIndex*> *availableSlotIdIndexObjsQ;\n	public:\n		// test methods\n		void testCircularQ()\n		{\n			cout << \"\\n Testing pool circular Q\";\n\n			{\n				cout << \"\\n\\nTest1\";\n				CircularQ<int> test(1);\n				test.addItemToPool(1);\n				cout << \"\\nAdd item to pool \"; \n				cout << \"\\nFailed! Add item to pool \";\n				test.addItemToPool(2);\n				cout << \"\\nGet item from poool \" << test.getItemFromPool();\n				cout << \"\\nFailed! Get item from poool \" << test.getItemFromPool();\n			}\n\n			{\n				cout << \"\\n\\n Test2\";\n				CircularQ<int> test(5);\n				test.addItemToPool(1);\n				test.addItemToPool(2);\n				test.addItemToPool(3);\n				test.addItemToPool(4);\n				test.addItemToPool(5);\n				test.printPoolHandlerQ();\n				test.getItemFromPool();\n				test.printPoolHandlerQ();\n				test.addItemToPool(6);\n				test.printPoolHandlerQ();\n				test.getItemFromPool();\n				test.printPoolHandlerQ();\n				test.addItemToPool(7);\n				test.printPoolHandlerQ();\n				test.getItemFromPool();\n				test.printPoolHandlerQ();\n				test.addItemToPool(8);\n				test.printPoolHandlerQ();\n\n				while(!test.empty())\n				{\n					cout << test.getItemFromPool() << \" \";\n				}\n			}\n		}\n\n		void testCacheLRUPolicy()\n		{\n			cout << \"\\n Testing LRU policy\";\n			cout << \"\\n Serial testing for available slots\";\n			for(int i =0 ; i<2*NUM_SLOTS; ++i)\n			{\n				int slot = getAvailableSlot();\n				cout << \"\\n Slot \" << slot << \" used.\";\n				markSlotAsMRU(slot);\n				cout << \"\\n Slot \" << slot << \" marked as used.\";\n			}\n			cout << \"\\n Random testing for available slots\";\n			cout << \"\\n Marking random slots as used\";\n			for(int i =0 ; i<2*NUM_SLOTS; ++i)\n			{\n				int slot = rand() % NUM_SLOTS;\n				markSlotAsMRU(slot);\n				cout << \"\\n Slot \" << slot << \" marked as used.\";\n			}\n			cout << \"\\n Next available slot is \" << getAvailableSlot();\n		}\n\n		void testGetData(int numNodes)\n		{\n			Id n = 0;\n			const Data* node = 0;\n			cout << \"\\n Get Node \" << n;\n			node = getData(n);\n			if(node)\n			{\n				node->print(cout);\n			}\n			else\n			{\n				cout << \"\\n Null node for \" << n;\n			}\n\n			n = 1;\n			node = getData(n);\n			if(node)\n			{\n				node->print(cout);\n			}\n			else\n			{\n				cout << \"\\n Null node for \" << n;\n			}\n\n		}\n\n		void testReadOfDiskGraph(int numNodes)\n		{\n			ofstream out(\"printofdiskgraph\");\n			for(int i=0; i<numNodes; ++i)\n			{\n				const Data *node = getData(i);\n				if(node)\n				{\n					node->print(out);\n				}\n				else\n				{\n					cout << \"\\n Null node for \" << i;\n				}\n			}\n			out.close();\n		}\n		\n	};\n}\n",
-			"settings":
-			{
-				"buffer_size": 25621,
+				"buffer_size": 4879,
 				"line_ending": "Unix"
 			}
 		}
@@ -567,10 +567,14 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 117.0,
-		"last_filter": "Package Control: ins",
+		"height": 75.0,
+		"last_filter": "Package Control: insta",
 		"selected_items":
 		[
+			[
+				"Package Control: insta",
+				"Package Control: Install Package"
+			],
 			[
 				"Package Control: ins",
 				"Package Control: Install Package"
@@ -625,20 +629,50 @@
 		"/home/shashank/project/source_ddg/include",
 		"/home/shashank/project/source_ddg/include/ddg",
 		"/home/shashank/project/source_ddg/include/ddg/analysis",
+		"/home/shashank/project/source_ddg/include/ddg/common",
+		"/home/shashank/project/source_ddg/include/ddg/instrument",
+		"/home/shashank/project/source_ddg/include/ddg/runtime",
+		"/home/shashank/project/source_ddg/include/ddg/util",
+		"/home/shashank/project/source_ddg/lib",
+		"/home/shashank/project/source_ddg/lib/analysis",
+		"/home/shashank/project/source_ddg/lib/instrument",
 		"/home/shashank/project/source_ddg/tools",
+		"/home/shashank/project/source_ddg/tools/disk-graph",
 		"/home/shashank/project/source_ddg/tools/reuse-analysis",
 		"/home/shashank/project/source_ddg/tools/reuse-analysis/include",
 		"/home/shashank/project/source_ddg/tools/reuse-analysis/src"
 	],
 	"file_history":
 	[
-		"/home/shashank/project/test_reuse_v2/mat_mul/asciiGraphPrint",
-		"/home/shashank/project/test_reuse_v2/polaris_matmul/asciiGraphPrint",
+		"/home/shashank/project/source_ddg/tools/disk-graph/disk-graph.cxx",
+		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/region-dynamic-graph.cxx",
+		"/home/shashank/project/source_ddg/tools/reuse-analysis/include/ReadCDAG.hxx",
+		"/home/shashank/project/source_ddg/CMakeLists.txt",
+		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/region-dynamic-graph.hxx",
+		"/home/shashank/project/source_ddg/tools/reuse-analysis/include/ConvexPartitioning.hxx",
+		"/home/shashank/project/source_ddg/tools/disk-graph/CMakeLists.txt",
+		"/home/shashank/project/source_ddg/tools/dynamic-graph/dynamic-graph.cxx",
+		"/home/shashank/project/source_ddg/include/ddg/analysis/DynamicGraph.hxx",
+		"/home/shashank/project/test_reuse_v2/mat_mul/graphInAscii",
+		"/home/shashank/project/test_reuse_v2/mat_mul/orignal_memtrace.txt",
+		"/home/shashank/project/test_reuse_v2/mat_mul/out",
+		"/home/shashank/project/source_ddg/tools/reuse-analysis/src/Main.cxx",
+		"/home/shashank/project/source_ddg/include/ddg/analysis/DiskCache.hxx",
+		"/home/shashank/project/source_ddg/include/ddg/common/types.hxx",
+		"/home/shashank/project/source_ddg/lib/analysis/Ids.cxx",
+		"/home/shashank/project/test_reuse_v2/jacobi1d/out",
 		"/home/shashank/Desktop/scratch",
+		"/home/shashank/project/test_reuse_v2/1d-jacobi/jacobi1d.c",
+		"/home/shashank/project/test_reuse_v2/2pt-gauss-sied/2pt-gauss-sied",
+		"/home/shashank/project/test_reuse_v2/mat_mul/diskgraphconfiguration.txt",
+		"/home/shashank/project/source_ddg/include/ddg/analysis/CDAG.hxx",
+		"/home/shashank/project/test_reuse_v2/mat_mul/asciiGraphPrint",
+		"/home/shashank/.config/sublime-text-3/Packages/User/Default (Linux).sublime-keymap",
+		"/home/shashank/project/source_ddg/tools/reuse-analysis/CMakeLists.txt",
+		"/home/shashank/project/test_reuse_v2/polaris_matmul/asciiGraphPrint",
 		"/home/shashank/project/test_reuse_v2/mat_mul/bfsWithQ",
 		"/home/shashank/project/test_reuse_v2/mat_mul/bfsWithoutQ",
 		"/home/shashank/project/source_ddg/build_dbg/tools/reuse-analysis/reuse-analysis-v2",
-		"/home/shashank/project/source_ddg/include/ddg/analysis/DiskCache.hxx",
 		"/home/shashank/project/source_ddg/build_dbg/test.cpp",
 		"/home/shashank/project/source_ddg/build_dbg/oprofile_data/samples/operf.log",
 		"/home/shashank/project/test_reuse_v2/mat_mul/bfsOut",
@@ -650,26 +684,19 @@
 		"/home/shashank/project/test_reuse_v2/vec_add/reuse_testdiskgraph",
 		"/home/shashank/project/source_ddg/include/ddg/analysis/LazyGraph.hxx",
 		"/home/shashank/project/source_ddg/build_dbg/test.c",
-		"/home/shashank/project/test_reuse_v2/mat_mul/out",
 		"/home/shashank/project/test_reuse_v2/mat_mul/matmul.c",
 		"/home/shashank/project/test_reuse_v2/vec_add/reuse_test.c",
 		"/home/shashank/project/source_ddg/sftp-config.json",
 		"/home/shashank/project/source_ddg/include/ddg/analysis/Ids.hxx",
-		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/region-dynamic-graph.hxx",
 		"/home/shashank/project/source_ddg/lib/runtime/Runtime.cxx",
 		"/home/shashank/project/source_ddg/lib/instrument/InstrumentDDG.cxx",
-		"/home/shashank/project/source_ddg/lib/analysis/Ids.cxx",
-		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/region-dynamic-graph.cxx",
 		"/home/shashank/Downloads/CMakeLists(1).txt",
 		"/home/shashank/project/source_ddg/.git/COMMIT_EDITMSG",
-		"/home/shashank/project/source_ddg/tools/dynamic-graph/dynamic-graph.cxx",
-		"/home/shashank/project/source_ddg/include/ddg/analysis/DynamicGraph.hxx",
 		"/home/shashank/project/source_ddg/lib/runtime/TraceCount.cxx",
 		"/home/shashank/project/source_ddg/lib/analysis/Trace.cxx",
 		"/home/shashank/project/source_ddg/tools/ddg-vect/LazyPartitionGraph.hxx",
 		"/home/shashank/project/source_ddg/lib/analysis/DynamicGraph.cxx",
 		"/home/shashank/project/source_ddg/tools/dynamic-graph/CMakeLists.txt",
-		"/home/shashank/project/source_ddg/CMakeLists.txt",
 		"/home/shashank/project/source_ddg/tools/region-dynamic-graph/CMakeLists.txt",
 		"/home/shashank/project/source_ddg/.gitignore",
 		"/home/shashank/project/source_ddg/tools/dynamic-graph/region-dynamic-graph.cxx",
@@ -680,7 +707,6 @@
 		"/home/shashank/project/source_ddg/include/ddg/instrument/Visitors.hxx",
 		"/home/shashank/project/source_ddg/tools/ddg-vect/TimestampVector.cxx",
 		"/home/shashank/project/source_ddg/tools/ddg-vect/ddg-vect-rt.cxx",
-		"/home/shashank/project/source_ddg/include/ddg/common/types.hxx",
 		"/home/shashank/tmp/test/trace.txt",
 		"/home/shashank/softwares/gcc-4.6.1/libjava/prims.cc",
 		"/home/shashank/softwares/mpc-1.0.2/INSTALL",
@@ -724,7 +750,6 @@
 		"/home/shashank/lisp_project/tests/invalid1",
 		"/home/shashank/lisp_project/src/LispIntException.java",
 		"/home/shashank/.config/sublime-text-3/Packages/navigationHistory.py",
-		"/home/shashank/.config/sublime-text-3/Packages/User/Default (Linux).sublime-keymap",
 		"/home/shashank/.config/sublime-text-3/Packages/User/Package Control.sublime-settings",
 		"/home/shashank/lisp_project/tests/parser/test4",
 		"/home/shashank/lisp_project/tests/invalid2",
@@ -746,20 +771,7 @@
 		"/home/shashank/lisp_project/src/Debug.java",
 		"/tmp/CMakeLists.txt",
 		"/home/shashank/.cache/.fr-Vf8rQV/eclipse/eclipse.ini",
-		"/home/shashank/.config/sublime-text-3/Packages/User/subclim_plugin.py",
-		"/home/shashank/remote/jlex-1.2.6/JLex/CMakeNfa.java",
-		"/home/shashank/remote/jlex-1.2.6/sootOutput/JLex.CMakeNfa.jimple",
-		"/home/shashank/lisp_project/.git/info/exclude",
-		"/home/shashank/remote/proj4/MyTransform.jva",
-		"/home/shashank/remote/proj4/jlex-1.2.6/test.txt",
-		"/home/shashank/Downloads/cg.f",
-		"/home/shashank/remote/cta/MyTransform.java~",
-		"/home/shashank/remote/proj3/MyTransform.java",
-		"/home/shashank/lisp_project/proj_java/invalid1",
-		"/home/shashank/lisp_interpreter_in_java-master/Makefile",
-		"/home/shashank/lisp_interpreter_in_java-master/manifest.txt",
-		"/home/shashank/lisp_project/proj_java/Makefile",
-		"/home/shashank/lisp_project/proj_java/test1"
+		"/home/shashank/.config/sublime-text-3/Packages/User/subclim_plugin.py"
 	],
 	"find":
 	{
@@ -770,6 +782,7 @@
 		"height": 93.0,
 		"where_history":
 		[
+			"<current file>",
 			"",
 			"region-dynamic-graph.cxx",
 			"region-dynamic-graph.hxx",
@@ -788,134 +801,134 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"graphinasci",
-			"asciigra",
-			"readNodefrombin",
-			"readBlockFromFile",
-			"succscache",
-			"updateGraphWithSuccessorInfo",
-			"succsca",
-			"succsc",
-			"cleanup",
-			"succsCa",
-			"281201",
-			"printDiskGraph",
-			"test",
-			"availableDataNodesQ.",
-			"availableSlotIdIndexObjsQ.",
-			"availableDataNodesQ",
-			"availableSlotIdIndexObjsQ",
-			"PoolHandlerCircularQ",
-			"lrucache = new",
-			"lruCac",
-			"lruCace",
-			"diskcache",
-			"diskcace",
-			"unmarkNode",
-			"perf",
-			"numOfBytesFornodeMarkerBitSet",
-			"getFir",
-			"readBlockInSlot",
-			"availableDataNodesQ",
-			"invalidateslot",
-			"applyLRUPolicy",
-			"getAvailableSlot",
-			"vector<Id>",
-			"readBlockin",
-			"done",
-			"slotIndex",
-			"readBlockinslo",
-			"getAvailableDataNode",
-			"availableDataNodesQ",
-			"readBlockInSlot",
-			"readBl",
-			"isInCache",
-			"availableDataNodesQ",
-			"availableDataNodesQ.pop_front()",
-			"availableDataNodesQ",
-			"readBlockInSlot",
-			"setVa",
-			"dataIdToSlotMap",
-			"availableSlotIdIndexObjsQ",
-			"dataIdToSlotMap",
-			"SlotIdSlotIndex",
-			"readBlockForDataIndexing",
-			"createDataIndex",
-			"succsCa",
-			"createDataIndex",
-			"availableDataNodesQ",
-			"availableSlotIdIndexObjs",
-			"availableDataNodesQ",
-			"readBlockInSlot",
-			"starting vertex",
-			"new .*\\[",
-			"new .*/[",
-			"new .*[",
-			"new ",
-			"new",
-			"delete",
-			"prev",
-			"perf",
-			"Number of nodes processed",
-			"NUM_S",
-			"availableDataNodesQ",
-			"erase",
-			"SLOT_ITERATOR",
-			"erase",
-			"1024",
-			"nUM_S",
-			"isBitSet",
-			"unsetBitInBitset",
-			"unmarkNode",
-			"unsetBitInBitset",
-			"unmarkNode",
-			"perf",
-			"getFirstReadyNode",
-			"unmarkAllNodes",
-			"unmark",
-			"unmarkAllNodes",
-			"100",
-			"bfsOutput",
-			"NUM_SLOTS",
-			"remove",
-			"writeToStreamInBinary",
-			"update",
-			"print(c",
-			"readBlockFromFile",
-			"readNodeFromBinaryFile",
-			"remove",
-			"readNodeFromB",
-			"writeToStreamInBinary",
-			"writetostream",
-			"readNodeFromASCIIFile",
-			"readNodeFromAsc",
-			"writetos",
-			"readNodefromasci",
-			"readNodefrom",
-			"writetostre",
-			"initFileHandle",
-			"writeToStream",
-			".write",
+			"getNode",
+			"cacheSize",
+			"availableCDAGNodesQ",
+			"number of node",
+			"printde",
+			"cout",
+			"load",
+			"incnu",
+			"addNode",
+			"printGraphInDotFormat",
+			"generate",
+			"generateGraph",
+			"cleanUpTemporaryFiles",
+			"printaddre",
+			"updateNodeAddress",
+			"incNumNodesCounter",
+			"nodeAddrFile",
+			"printSuccessorCountFile",
+			"addNode",
+			"graphdump",
+			"diskgraph",
+			"diskgraphfile",
+			"updateNodeAddress",
+			"payload_type",
+			"DiskCDAGBuilder",
+			"incNumNodesCounter",
+			"addNode",
+			"staticId",
+			"address",
+			"tempSuccsCountFNSuffix",
+			"tempSuccsListFNSuffix",
+			"succscac",
+			"generateGra",
+			"Selected node",
+			"selected",
+			"idToNeighborsListMap",
+			"to ready list with id : 16",
+			"Selected node (from selectBestNode): 16",
+			"updateLiveSet",
 			"lruCache",
 			"LRUCache",
 			"lruCache",
 			"LRUCache",
 			"lruCache",
 			"LRUCache",
+			"lruCache",
+			"generateGraph",
+			"DiskCDAGBuilder",
+			"generateGraph",
+			"initLRUCacheForDiskGraph",
 			"lruCache",
 			"LRUCache",
 			"lruCache",
 			"LRUCache",
 			"lruCache",
 			"initLRUCacheForDiskGraph",
-			"initLr",
-			"datac",
-			"dataIdBlockRangeList",
-			"readDataIndexFile",
-			"numNodes",
-			"generateGra",
-			"CHILDCOUNT",
-			"NCOUNT"
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"LRUCache",
+			"lruCache",
+			"zlib",
+			"tileId",
+			"writeNodesOfComponent",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"CDAG",
+			"cdag",
+			"selectNeighborFlag",
+			"neighborCount",
+			"bs",
+			"processTrace",
+			"buildgra",
+			"builder",
+			"graphInAscii",
+			"printGraphInAsciiFormat",
+			"BLOCK_SIZE",
+			"BLOCK_SISZE",
+			"BLOCK_SOZE",
+			"blockSize",
+			"BLOCK_SIZE",
+			"blockSize",
+			"BLOCK_SIZE",
+			"blockSize",
+			"BlockSize",
+			"blockSize",
+			"GraphInAscii",
+			"graphInAscii",
+			"GraphInAscii",
+			"graphInAscii",
+			"GraphInAscii",
+			"graphInAscii",
+			"GraphInAscii",
+			"graphInAscii",
+			"GraphInAscii",
+			"graphInAscii",
+			"asciigra",
+			"asciitGra",
+			"ascii",
+			"printGraphInAsciiFormat",
+			"blockSize",
+			"graphCreatedFlag",
+			"pod",
+			"po",
+			"pod",
+			"graphCreatedFlag",
+			"blockSize",
+			"selectReadyNode",
+			"comp",
+			"readySuccessorList",
+			"unprocessedNodeCount",
+			"updateListOfReadyNodes",
+			"NUM_SLOTS",
+			";\n"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -923,6 +936,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"ConvexPartitioning",
 			"CircularQ",
 			"RegionDynamicGraph",
 			"ddg_region_end",
@@ -953,15 +967,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 25621,
+						"buffer_size": 23586,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1327,
-								1327
+								0,
+								0
 							]
 						],
 						"settings":
@@ -975,10 +989,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 684.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -987,15 +1001,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 46900,
+						"buffer_size": 51487,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9497,
-								9497
+								547,
+								547
 							]
 						],
 						"settings":
@@ -1009,40 +1023,42 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 6938.0,
+						"translation.y": 456.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "tools/reuse-analysis/include/ReadCDAG.hxx",
+					"file": "tools/reuse-analysis/include/ConvexPartitioning.hxx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2960,
+						"buffer_size": 24026,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								849,
-								860
+								7841,
+								7841
 							]
 						],
 						"settings":
 						{
 							"incomplete_sync": null,
 							"remote_loading": false,
+							"sftp_duplicate_views": 0,
 							"synced": false,
 							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 741.0,
+						"translation.y": 4816.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -1051,38 +1067,103 @@
 			]
 		},
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
-					"buffer": 0,
-					"file": "include/ddg/analysis/DiskCache.hxx",
+					"buffer": 2,
+					"file": "tools/reuse-analysis/include/ConvexPartitioning.hxx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 25621,
+						"buffer_size": 24026,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								25621,
-								25621
+								4859,
+								4859
 							]
 						],
 						"settings":
 						{
-							"history_list_is_closing": true,
 							"incomplete_sync": null,
 							"remote_loading": false,
 							"sftp_duplicate_views": 0,
 							"synced": false,
 							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2889.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/home/shashank/project/cdag_disk.cxx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7464,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2989,
+								2989
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 19893.0,
+						"translation.y": 2131.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "tools/reuse-analysis/src/Main.cxx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4879,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3173,
+								3173
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2793.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
@@ -1094,15 +1175,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 46900,
+						"buffer_size": 51487,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								26474,
-								26474
+								32118,
+								32118
 							]
 						],
 						"settings":
@@ -1116,68 +1197,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 19326.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "tools/reuse-analysis/src/Main.cxx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4932,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								666,
-								666
-							]
-						],
-						"settings":
-						{
-							"incomplete_sync": null,
-							"remote_loading": false,
-							"synced": false,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 25621,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								25621,
-								25621
-							]
-						],
-						"settings":
-						{
-							"incomplete_sync": null,
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 18952.0,
+						"translation.y": 22526.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
@@ -1214,7 +1234,7 @@
 		"cols":
 		[
 			0.0,
-			0.488950276243,
+			0.490685530961,
 			1.0
 		],
 		"rows":
@@ -1282,7 +1302,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 226.0,
+	"side_bar_width": 320.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

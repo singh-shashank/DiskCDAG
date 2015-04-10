@@ -167,12 +167,13 @@ int main(int argc, char* argv[])
 
 		//for(fileIter = files.begin(); fileIter != files.end(); ++fileIter)
 		{
-			//ReadCDAG rcg;
-			//rcg.init(files[0]);
+			// ReadCDAG rcg;
+			// rcg.init(files[0]);
 
 			ConvexPartitioning cp;
 			cp.init(files[0]);
 			cp.generateConvexComponents(100, 1, 1);
+			cp.writeMemTraceForSchedule();
 		}
 
 	}
@@ -199,7 +200,7 @@ int main(int argc, char* argv[])
 	te1 = rtclock();
 	ttotal = te1-ts1;
 	//cout<< ttotal <<""<<endl;cout.flush();		//time in second
-
+	cout << "\n";
 	return 0;
 }
 

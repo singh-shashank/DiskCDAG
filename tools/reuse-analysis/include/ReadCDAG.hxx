@@ -75,7 +75,8 @@ public:
     Ids ids;
     ids.runOnModule(*module.get());
 
-    const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
+    string programNameWithExt = llvmBCFilename.substr(llvmBCFilename.find_last_of("\\/")+1, llvmBCFilename.length());
+    const string programName = programNameWithExt.substr(0, programNameWithExt.find("."));
 
     clock_t begin = clock();
     DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName); 
@@ -92,8 +93,8 @@ public:
       //cdag->testMethodForDiskCache();
       begin = clock();
       //cdag->performBFSWithoutQ("bfsOut");
-      //cdag->performBFS("bfsOut");
-      cdag->printDOTGraph("diskgraph.dot");
+      cdag->performBFSWithSortedQ("bfsOut");
+      //cdag->printDOTGraph("diskgraph.dot");
       end = clock();
       elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
       cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;

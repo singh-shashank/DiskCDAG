@@ -12,7 +12,7 @@
 #include <iostream>
 #include <ctime>
 
-#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/array.hpp>
 
 #include "ddg/analysis/DiskCDAG.hxx"
@@ -65,10 +65,10 @@ public:
         // Everything except erase is achieved in constant time by
         // using a unordered map and deque.
         deque<Id> readyNeighborsList;
-        boost::unordered_map<Id, deque<Id>::iterator> idToNeighborsListMap;
+        boost::unordered_set<Id> idToNeighborsListMap;
 
         deque<Id> readySuccsList;
-        boost::unordered_map<Id, deque<Id>::iterator> idToSuccsListMap;
+        boost::unordered_set<Id> idToSuccsListMap;
 
         unsigned long takenNeighbors;
         unsigned long takenSuccs;
@@ -103,6 +103,7 @@ public:
                 out << " " << llvm::Instruction::getOpcodeName(temp->type) << ";";
             }
             out << "\n";
+            out << flush;
         }
     };
 
@@ -137,6 +138,7 @@ public:
             numOfBytesForReadyNodeBitSet = cdag->getNumOfBytesForNodeMarkerBS();
             readyNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
             numNodes = cdag->getNumNodes();
+            writeOriginalMemTrace();
 
             // begin = clock();
             // // cdag->performBFSWithoutQ("bfsOut");
@@ -168,6 +170,10 @@ public:
 
         outFile.open("convex_out_file");
 
+        ofstream prog("progress");
+        int processedNodeCount = 0;
+        int prev = -1;
+        cout << "\n";
         
         Id nodeId = 0;
 
@@ -178,10 +184,12 @@ public:
         {
             nodeId = selectReadyNode();
             DiskCDAG::CDAGNode *curNode = cdag->getNode(nodeId);
+            //cout << "\n\nSelected node (from selectReadyNode): " << nodeId;
 
             // we have valid nodeId for a ready node
             curConvexComp.reset();
-            liveSet.clear();            
+            liveSet.clear();
+            //cout << "\nConvex component with id : " << ConvexComponent::tileId;
 
             // The ready node is already selected in the variable 'node'
             while(readyNodeCount > 0 && updateLiveSet(liveSet, curNode))
@@ -213,25 +221,54 @@ public:
 
                 // Get the next ready node to add to the convex component
                 nodeId = selectBestNode(curConvexComp, curNode);
+                //cout << "\n\nSelected node (from selectBestNode): " << nodeId;
                 if(nodeId == 0)
                 {
                     break;
                 }
                 else
                 {
+                    if(curNode->getId() == nodeId)
+                    {
+                        //cout << "\n Error selected the same node...";
+                        return;
+                    }
                     curNode = cdag->getNode(nodeId);
                 }
             }
             convexComponents.push_back(curConvexComp.nodesList);
-            curConvexComp.writeNodesOfComponent(outFile, cdag);
-            cout << "\n end of one convex component. live set size = " <<liveSet.size();
+            //curConvexComp.writeNodesOfComponent(outFile, cdag);
+            //cout << "\n end of one convex component. live set size = " <<liveSet.size();
+            processedNodeCount += curConvexComp.nodesList.size();
+            prog.seekp(0, ios::beg);
+            prog << processedNodeCount;
+            int perc = (processedNodeCount*100)/numNodes;
+            if((perc % 1) == 0 && perc != prev)
+            {
+                cout << "\r\033[K ";
+                cout << "Number of nodes processed : " << processedNodeCount;
+                cout << " (of " << numNodes << ") - ";
+                cout << perc << " % done.";
+                cout << flush;
+                prev = perc;
+            }
+
+
         }
 
+    }
+
+    void printDeque(deque<Id> &mydeque, string qname)
+    {
+        cout <<"\n"<<qname << ":";
+        for (std::deque<Id>::iterator it = mydeque.begin(); it!=mydeque.end(); ++it)
+            std::cout << ' ' << *it;
     }
 
     Id selectBestNode(ConvexComponent &cc,
         DiskCDAG::CDAGNode *curNode)
     {
+        //cout <<"\nIn selectBestNode...";
         Id nextNodeId = 0;
         // Update readyNeighborsList and readySuccsList
         // i.e. neighbors(curNode) INTERSECTION ReadyNodeSet
@@ -255,7 +292,9 @@ public:
                 {
                     // this neighbor can now be added to the ready neighbor list
                     cc.readyNeighborsList.push_back(succNode->predsList[j]);
-                    cc.idToNeighborsListMap[succNode->predsList[j]] = cc.readyNeighborsList.end()-1;
+                    cc.idToNeighborsListMap.insert(succNode->predsList[j]);
+                    //cout << "\n Adding neighbor to ready list with id : " << succNode->predsList[j];
+                    //printDeque(cc.readyNeighborsList, "n-list");
                 }
 
             }
@@ -266,66 +305,133 @@ public:
             {
                 // this successor can now be added to ready successor list
                 cc.readySuccsList.push_back(curNode->succsList[i]);
-                cc.idToSuccsListMap[curNode->succsList[i]] = cc.readySuccsList.end()-1;
+                cc.idToSuccsListMap.insert(curNode->succsList[i]);
+                //cout << "\n Adding successor to ready list with id : " << curNode->succsList[i];
+                //printDeque(cc.readySuccsList, "s-list");
             }
         }
 
         // Remove curNode from ready lists
+        //cout << "\nRemove node from ready lists : " << curNode->getId();
         if(cc.idToNeighborsListMap.find(curNode->getId()) != cc.idToNeighborsListMap.end())
         {
-            cc.readyNeighborsList.erase(cc.idToNeighborsListMap[curNode->getId()]);
+            //cout <<"\n Removing from neighbors list...";
+            cc.readyNeighborsList.erase(find(cc.readyNeighborsList.begin(), cc.readyNeighborsList.end(), curNode->getId()));
             cc.idToNeighborsListMap.erase(curNode->getId());
+            //printDeque(cc.readyNeighborsList, "n-list");
         }
         if(cc.idToSuccsListMap.find(curNode->getId()) != cc.idToSuccsListMap.end())
         {
-            cc.readySuccsList.erase(cc.idToSuccsListMap[curNode->getId()]);
+            //cout <<"\n Removing from successors list...";
+            cc.readySuccsList.erase(find(cc.readySuccsList.begin(), cc.readySuccsList.end(), curNode->getId()));
             cc.idToSuccsListMap.erase(curNode->getId());
+            //printDeque(cc.readySuccsList, "s-list");
         }
 
         // Determine the next ready node to be returned
+        //cout << "\n";
+        //cout << "Neighbors turn ? " << selectNeighborFlag;
+        //cout << " readyNeighborsList size : " <<  cc.readyNeighborsList.size();
+        //cout << " readySuccsList size : " << cc.readySuccsList.size();
+        //cout << " takenNeighbors : " << cc.takenNeighbors;
+        //cout << " takenSuccs : " << cc.takenSuccs;
         if(cc.readyNeighborsList.size() > 0 || cc.readySuccsList.size() > 0)
         {
             // Choose between a neighbor or a successor depending on the
             // priority
-            if(selectNeighborFlag && cc.readyNeighborsList.size() > 0)
+            if(selectNeighborFlag) 
             {
-                // no need to pop and erase the next node here
-                // because in next call this will be erased
-                // or if there is no next call then this data structure
-                // will be reset before use.
-                nextNodeId = cc.readyNeighborsList.front();
-                ++cc.takenNeighbors;
-                if(cc.takenNeighbors >= neighborPriorityCount)
+                //cout << "\nNeighbor turn...";
+                // It's ready neighbors turn...
+                if(cc.readyNeighborsList.size() > 0)
                 {
-                    cc.takenNeighbors = 0;
-                    selectNeighborFlag = false;
+                    // ... and there are neighbors.
+
+                    // no need to pop and erase the next node here
+                    // because in next call this will be erased
+                    // or if there is no next call then this data structure
+                    // will be reset before use.
+                    nextNodeId = cc.readyNeighborsList.front();
+                    ++cc.takenNeighbors;
+                    if(cc.takenNeighbors >= neighborPriorityCount)
+                    {
+                        cc.takenNeighbors = 0;
+                        selectNeighborFlag = false;
+                    }
+                    //cout << "selected neighbor with id : " <<nextNodeId;
+                }
+                else
+                {
+                    // but we ran out of neighbors..return ready successors
+                    // till we get a neighbor.
+                    // Do not increment takenSuccs count.
+                    nextNodeId = cc.readySuccsList.front();
+                    //cout << "selected successor with id : " <<nextNodeId;
                 }
             }
-            else if(cc.readyNeighborsList.size() > 0)
+            else 
             {
-                // Its turn of a successor or readyNeighborsList ran out of
-                // neighbors
-                nextNodeId = cc.readySuccsList.front();
-                ++cc.takenSuccs;
-                if(cc.takenSuccs >= successorPriorityCount)
+                //cout <<"\nSuccessor turn...";
+                // It's ready successors turn...
+                if(cc.readySuccsList.size() > 0)
                 {
-                    cc.takenSuccs = 0;
-                    selectNeighborFlag = true;
+                    // ... and there are successors
+                    nextNodeId = cc.readySuccsList.front();
+                    ++cc.takenSuccs;
+                    if(cc.takenSuccs >= successorPriorityCount)
+                    {
+                        cc.takenSuccs = 0;
+                        selectNeighborFlag = true;
+                    }
+                    //cout << "selected successor with id : "<<nextNodeId;
+                }
+                else
+                {
+                    // but we ran out of successors..return ready neighbors
+                    // till we get a successor.
+                    // Do not increment takenNeighbors count.
+                    nextNodeId = cc.readyNeighborsList.front();
+                    //cout << "selected neighbor with id : " <<nextNodeId;
                 }
             }
-            else
-            {
-                // Oh it was a successor's turn but we have ran out of 
-                // successors.
-                // Choose a neighbor until we get a successor and yea, 
-                // neighbor list cannot be empty otherwise we woudln't have
-                // reached until here
-                nextNodeId = cc.readyNeighborsList.front();
-                // takenNeighbors should still be zero in this case
-                // because we are going over the specified neighbor 
-                // priority count.
-                // cc.takenNeighbors = 0;
-            }
+            // cout << "\n";
+            // if(cc.takenNeighbors == neighborPriorityCount && 
+            //     cc.takenSuccs == successorPriorityCount)
+            // {
+            //     cc.takenNeighbors = 0;
+            //     cc.takenSuccs = 0;
+            // }
+
+            // if(cc.takenSuccs < successorPriorityCount)
+            // {
+            //     if(cc.readySuccsList.size() > 0)
+            //     {
+            //         nextNodeId = cc.readySuccsList.front();
+            //         ++cc.takenSuccs;
+            //         cout << "selected successor with id : "<<nextNodeId;
+            //     }
+            //     else
+            //     {
+            //         nextNodeId = cc.readyNeighborsList.front();
+            //         ++cc.takenNeighbors;
+            //         cout << "selected neighbor with id : " <<nextNodeId;
+            //     }
+            // }
+            // else if(cc.takenNeighbors < neighborPriorityCount)
+            // {
+            //     if(cc.readyNeighborsList.size() > 0)
+            //     {
+            //         nextNodeId = cc.readyNeighborsList.front();
+            //         ++cc.takenNeighbors;
+            //         cout << "selected neighbor with id : "<<nextNodeId;
+            //     }
+            //     else
+            //     {
+            //         nextNodeId = cc.readySuccsList.front();
+            //         ++cc.takenSuccs;
+            //         cout << "selected successor with id : " <<nextNodeId;
+            //     }
+            // }
         }
         else
         {
@@ -338,6 +444,7 @@ public:
 
     bool updateLiveSet(set<Id> &liveSet, DiskCDAG::CDAGNode *curNode)
     {
+        //cout << "\nIn updateLiveSet...";
         bool retVal = true;
         set<Id> oldLiveSet = liveSet;
 
@@ -349,6 +456,7 @@ public:
             if(nodeIdToUnprocPredsSuccsCountMap[curNode->succsList[i]][PRED_INDEX] > 0)
             {
                 liveSet.insert(curNode->succsList[i]);
+                //cout << "\nBirth of a successor node : " << curNode->succsList[i];
             }
         }
 
@@ -367,6 +475,7 @@ public:
                     // Yes this successor of the current predecessor is still unprocessed
                     liveSet.insert(predNode->getId());
                     hasAnyUnprocSuccs = true;
+                    //cout << "\nResurrecting node : " << predNode->getId();
                     break;
                 }
             }
@@ -375,6 +484,7 @@ public:
                 // If all the successors of this predecessors are processed then we 
                 // can remove this predecessor from the liveset
                 liveSet.erase(predNode->getId());
+                //cout << "\nRemoving died node : " << predNode->getId();
             }
         }
 
@@ -384,6 +494,7 @@ public:
             liveSet = oldLiveSet;
             retVal = false;
         }
+        //cout << "\nExiting updateLiveSet with retVal = " << retVal;
         return retVal;
     }
 
@@ -410,6 +521,7 @@ public:
                 // mark this successor as ready
                 utils::unsetBitInBitset(readyNodesBitSet, succId, numOfBytesForReadyNodeBitSet);
                 ++readyNodeCount;
+                //cout <<"\n In updateListOfReadyNodes, successor is now ready : " << succId;
             }
         }
     }
@@ -466,6 +578,57 @@ public:
     DiskCDAG* getCdagPtr()
     {
         return cdag;
+    }
+
+    void writeOriginalMemTrace()
+    {
+        ofstream origMemTraceFile("original_memtrace.txt");
+        for(int i=0; i<numNodes; ++i)
+        {
+            DiskCDAG::CDAGNode *curNode = cdag->getNode(i);
+            if(curNode->type == Instruction::Load)
+            {
+                continue;
+            }
+            else
+            {
+                Id predCount = curNode->predsList.size();
+                for(int j=0; j < predCount; ++j)
+                {
+                    DiskCDAG::CDAGNode *predNode = cdag->getNode(curNode->predsList[j]);
+                    origMemTraceFile << predNode->addr << "\n";
+                }
+                origMemTraceFile << curNode->addr << "\n";
+            }
+        }
+    }
+
+    void writeMemTraceForSchedule()
+    {
+        ofstream memTraceFile("memtrace.txt");
+        int numOfCC = convexComponents.size();
+        for(int i=0; i<numOfCC; ++i)
+        {
+            int numNodesInCC = convexComponents[i].size();
+            for(int j=0; j<numNodesInCC; ++j)
+            {
+                DiskCDAG::CDAGNode *curNode = cdag->getNode(convexComponents[i][j]);
+                if(curNode->type == Instruction::Load)
+                {
+                    continue;
+                }
+                else
+                {
+                    Id predCount = curNode->predsList.size();
+                    for(int k=0; k < predCount; ++k)
+                    {
+                        DiskCDAG::CDAGNode *predNode = cdag->getNode(curNode->predsList[k]);
+                        memTraceFile << predNode->addr << "\n";
+                    }
+                    memTraceFile << curNode->addr << "\n";
+                }
+            }
+        }
     }
 
     
