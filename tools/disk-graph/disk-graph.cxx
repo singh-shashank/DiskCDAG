@@ -43,7 +43,7 @@ int main(int argc, char **argv)
   const string programName = programNameWithExt.substr(0, programNameWithExt.find("."));
 
   clock_t begin = clock();
-  DiskCDAG *cdag = DiskCDAG::generateGraph(ids, programName); 
+  DiskCDAG<GraphNode> *cdag = DiskCDAG<GraphNode>::generateGraph(ids, programName); 
   clock_t end = clock();
   double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
   cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;

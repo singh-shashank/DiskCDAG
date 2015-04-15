@@ -187,6 +187,10 @@ namespace ddg{
 				startPos = dataFileHandle.tellg();
 				begin = 0, end =0;
 				readBlockForDataIndexing(begin, end);
+				if(begin > end) // file is written in decreasing order of IDs
+				{
+					swap(begin, end);
+				}
 				DataIdRange range;
 				range.setRange(begin,
 								end,
@@ -331,7 +335,7 @@ namespace ddg{
 				//node->readNodeFromASCIIFile(dataFileHandle);
 				node->readNodeFromBinaryFile(dataFileHandle);
 				// TODO : a check to see if the read node is valid
-				curSize += sizeof(*node);
+				curSize += node->getSize(BLOCK_SIZE);//sizeof(*node);
 				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
 				{
 					slots[slotId].push_back(node);
@@ -397,7 +401,7 @@ namespace ddg{
 				//node->readNodeFromASCIIFile(dataFileHandle);
 				node->readNodeFromBinaryFile(dataFileHandle);
 				// TODO : a check to see if the read node is valid
-				curSize += sizeof(*node);
+				curSize += node->getSize(BLOCK_SIZE); //sizeof(*node);
 				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
 				{
 					if(firstNode)
