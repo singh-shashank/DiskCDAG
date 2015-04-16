@@ -34,6 +34,7 @@ namespace ddg{
 									  writeBackFlag(flag),
 									  initFlag(false),
 									  dataCount(),
+									  inMemoryCache(false),
 									  MAX_ITEMS_PER_SLOT(BLOCK_SIZE/sizeof(Data)),
 									  MAX_ITEMS_IN_CACHE(MAX_ITEMS_PER_SLOT*NUM_SLOTS)
 		{}
@@ -76,10 +77,18 @@ namespace ddg{
 		{
 			initFlag = true;
 
-			if(BLOCK_SIZE == 0 || BLOCK_SIZE < sizeof(Data) || NUM_SLOTS == 0)
+			if(BLOCK_SIZE < sizeof(Data) || NUM_SLOTS == 0)
 			{
 				initFlag = false;
 				return initFlag;
+			}
+			if(BLOCK_SIZE == 0)
+			{
+				// We are maintaining an in memory cache.
+				// Reset NUM_SLOTS to 1 i.e. the user passed
+				// value will not matter.
+				inMemoryCache = true;
+				NUM_SLOTS = 1; 
 			}
 
 			policy = p;
@@ -130,8 +139,6 @@ namespace ddg{
 				}
 				dataCount = dataIdBlockRangeList.size() > 0 ? dataIdBlockRangeList[dataIdBlockRangeList.size()-1].end : 0;
 				cout << "done!";
-				cout << "\nApproximately number of slots needed for in-memory data : ";
-				cout << dataIdBlockRangeList.size();
 			}
 
 			// We have a valid data count now
@@ -336,7 +343,7 @@ namespace ddg{
 				node->readNodeFromBinaryFile(dataFileHandle);
 				// TODO : a check to see if the read node is valid
 				curSize += node->getSize(BLOCK_SIZE);//sizeof(*node);
-				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
+				if((curSize < BLOCK_SIZE || inMemoryCache) && dataFileHandle.tellg() != -1)
 				{
 					slots[slotId].push_back(node);
 					//SlotIdSlotIndex dataInfo(slotId, slots[slotId].size()-1);
@@ -402,7 +409,7 @@ namespace ddg{
 				node->readNodeFromBinaryFile(dataFileHandle);
 				// TODO : a check to see if the read node is valid
 				curSize += node->getSize(BLOCK_SIZE); //sizeof(*node);
-				if(curSize < BLOCK_SIZE && dataFileHandle.tellg() != -1)
+				if((curSize < BLOCK_SIZE || inMemoryCache) && dataFileHandle.tellg() != -1)
 				{
 					if(firstNode)
 					{
@@ -740,7 +747,7 @@ namespace ddg{
 		typedef typename boost::unordered_map<DataId, SlotIdSlotIndex*>::iterator DATA_TO_SLOT_MAP_ITERATOR;
 
 		const size_t BLOCK_SIZE;
-		const int NUM_SLOTS;
+		int NUM_SLOTS;
 		string dataFileName;
 		bool initFlag;
 		unsigned int policy;
@@ -748,6 +755,7 @@ namespace ddg{
 		const unsigned int MAX_ITEMS_PER_SLOT;
 		const unsigned int MAX_ITEMS_IN_CACHE;
 		DataId dataCount;
+		bool inMemoryCache;
 
 		SLOT *slots;
 		DATA_TO_SLOT_MAP dataIdToSlotMap;	
@@ -858,7 +866,6 @@ namespace ddg{
 			int pushPos; // points to the last item inserted
 			int popPos; // points to the element at the head of the queue
 			unsigned int curSize;
-
 		};
 	
 	private:
