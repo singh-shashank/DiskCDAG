@@ -7,6 +7,7 @@
 #include "ddg/analysis/LazyGraph.hxx"
 #include "CDAGCounter.hxx"
 
+#include <boost/type_traits.hpp>
 #include <map>
 #include <set>
 #include <climits>
@@ -117,7 +118,9 @@ typedef size_t payload_type;
 typedef std::set<size_t> payload_type;
 #endif
 
+template <typename Node>
 class DiskCDAGBuilder;
+
 template <typename CDAGNode>
 class DiskCDAG;
 
@@ -138,6 +141,10 @@ bool printGraphInAsciiFormat = false;
 bool cleanUpTemporaryFiles = true;
 bool graphCreatedFlag = false;
 bool printGraphInDotFormat = false;
+bool writeIVFlag = false;
+
+// Other global DS
+deque<Id> curIV;
 
 struct GraphNode{
 	Id dynId;	// Dynamic Id 
@@ -155,7 +162,7 @@ struct GraphNode{
 	{
 	}
 
-	void deepCopy(const GraphNode *node)
+	virtual void deepCopy(const GraphNode *node)
 	{
 		// deep copy this node
 		dynId = node->dynId;
@@ -374,6 +381,136 @@ struct GraphNode{
 	}
 };
 
+struct LoopIV
+{
+	unsigned int loopId;
+	int stmtNum;
+	LoopIV(int id)
+	{
+		loopId = id;
+		stmtNum = -1;
+	}
+};
+
+struct GraphNodeWithIV : public GraphNode
+{
+	deque<unsigned int> loopItVec;
+	GraphNodeWithIV(): GraphNode()
+	{
+	}
+
+	virtual void deepCopy(const GraphNodeWithIV *node)
+	{
+		GraphNode::deepCopy(node);
+
+		loopItVec.insert(loopItVec.begin(), node->loopItVec.begin(), node->loopItVec.end());
+	}
+
+	virtual void print(ostream &out) const
+	{
+		GraphNode::print(out);
+
+		out << "\n Iteration Vector : " << loopItVec.size() << "\n";
+		for(deque<unsigned int>::const_iterator it = loopItVec.begin(); 
+			it != loopItVec.end(); ++it)
+		{
+			out << *it << " ";
+		}
+		out << "\n------------------------------------------------------\n";
+	}
+
+	virtual void writeToStream(stringstream &ss)
+	{
+		GraphNode::writeToStream(ss);
+
+		ss << loopItVec.size() << " ";
+		for(std::deque<unsigned int>::iterator it = loopItVec.begin();
+			it != loopItVec.end();
+			++it)
+		{
+			ss << *it << " ";
+		}
+		ss << "\n";
+	}
+
+	virtual void writeToStreamInBinary(ostream &file)
+	{
+		GraphNode::writeToStreamInBinary(file);
+
+		unsigned int itVecCount = loopItVec.size();
+		file.write((const char*)&itVecCount, sizeof(unsigned int));
+		for(int i=0; i<itVecCount; ++i)
+		{
+			unsigned int temp = loopItVec[i];
+			file.write((const char*)&temp, sizeof(unsigned int));
+		}
+	}
+
+	virtual void writeToStream(fstream &ss)
+	{
+		GraphNode::writeToStream(ss);
+	}
+
+	virtual bool readNodeFromBinaryFile(istream &file)
+	{
+		GraphNode::readNodeFromBinaryFile(file);
+
+		unsigned int itVecCount = 0;
+		file.read((char*)&itVecCount, sizeof(unsigned int));
+		for(int i=0; i < itVecCount; ++i)
+		{
+			unsigned int temp = 0;
+			file.read((char*)&temp, sizeof(unsigned int));
+			loopItVec.push_back(temp);
+		}
+		return false; // TODO : check for errors and return
+	}
+
+	virtual bool readNodeFromASCIIFile(istream &file)
+	{
+		GraphNode::readNodeFromASCIIFile(file);
+
+		// Read the iteration vector
+		{
+			std::string temp, line;
+			std::stringstream tempss;
+			getline(file, line);
+			tempss.str(string());
+			tempss.str(line);
+			getline(tempss, temp, ' '); // read the count
+			while(getline(tempss, temp, ' ')) // start reading the iteration vector
+			{
+				loopItVec.push_back(atoi(temp.c_str()));
+			}
+		}
+		return false; // TODO compelete this. Return true if errors	
+	}
+
+	virtual void reset()
+	{
+		GraphNode::reset();
+
+		loopItVec.clear();
+	}
+
+	virtual size_t getSize(unsigned int bs = 0)
+	{
+		size_t retVal = 0;
+		retVal += sizeof(Id) + sizeof(Address) + sizeof(Id) + sizeof(unsigned int);
+		retVal += (predsList.size() + succsList.size())*sizeof(Id);
+		retVal += (loopItVec.size())*sizeof(unsigned int);
+		retVal = retVal > sizeof(*this) ? retVal : sizeof(*this);
+		if(bs != 0 && retVal >= bs)
+		{
+			cout << "\nError : Size of graph node with id : " << dynId;
+			cout << " is " << retVal << ", which is bigger then ";
+			cout << " the specified block size of " << bs;
+			exit(0);
+		}
+		return retVal;
+	}
+};
+
 struct NodeNeighborInfo
 {
 	Id dynId;
@@ -477,10 +614,11 @@ struct NodeNeighborInfo
 	}
 };
 
+template <typename Node>
 class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 {
 	protected:
-		DiskCDAG<GraphNode> *cdag;
+		DiskCDAG<Node> *cdag;
 		map<Address, size_t> loadMap; //Maps the memory address to ddg input node id
 		bool getCountsFlag;
 		Id numNodes;
@@ -489,8 +627,10 @@ class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 		fstream nodeAddrFile;
 
 	public:
-		DiskCDAGBuilder(DiskCDAG<GraphNode> *cdag) :	cdag(cdag), loadMap(), 
-											getCountsFlag(false), numNodes(0),
+		DiskCDAGBuilder(DiskCDAG<Node> *cdag) : cdag(cdag), 
+											loadMap(), 
+											getCountsFlag(false), 
+											numNodes(0),
 											successorCountFile(""),
 											nodeAddrFile("")
 		{
@@ -504,8 +644,10 @@ class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 
 		}
 
-		DiskCDAGBuilder(string fileName) : cdag(0), loadMap(), getCountsFlag(true), 
-											numNodes(0), bcFileName(fileName)
+		DiskCDAGBuilder(string fileName) : cdag(0), loadMap(), 
+											getCountsFlag(true), 
+											numNodes(0), 
+											bcFileName(fileName)
 		{
 			successorCountFile.open((bcFileName+tempSuccsCountFNSuffix).c_str(), std::fstream::out | std::fstream::trunc);
 			successorCountFile.close();
@@ -519,11 +661,44 @@ class DiskCDAGBuilder: public LazyGraphVisitor<payload_type>
 		Id getNumNodes(){return numNodes;}
 
 		virtual void visitNode(LazyNode<payload_type> *node, Predecessors	&predecessors, Operands &operands);
+
+
 		void incSuccessorCountInFile(Id nodeId);
 		size_t incNumNodesCounter(Address addr);
 		void printSuccessorCountFile();
 		void updateNodeAddress(Id nodeId, Address addr);
 		void printAddressFile();
+
+};
+
+class DiskCDAGBuilderWithIV : public DiskCDAGBuilder<GraphNodeWithIV>
+{
+protected:
+	unsigned int curDepth;
+public:
+	DiskCDAGBuilderWithIV(DiskCDAG<GraphNodeWithIV> *cdag) : 
+								DiskCDAGBuilder(cdag)
+	{
+		curDepth = 0;
+		curIV.clear();
+	}
+
+	DiskCDAGBuilderWithIV() : DiskCDAGBuilder()
+	{
+		curDepth = 0;
+		curIV.clear();
+	}
+
+	DiskCDAGBuilderWithIV(string fileName): DiskCDAGBuilder(fileName)
+	{
+		curDepth = 0;
+		curIV.clear();
+	}
+	virtual void visitLoopBegin(Id loopId);
+	virtual void visitLoopEnd(Id loopId);
+	virtual void visitLoopIterBegin();
+	virtual void visitLoopIterEnd();
+	virtual void visitNode(LazyNode<payload_type> *node, Predecessors	&predecessors, Operands &operands);
 };
 
 struct DataList
@@ -646,7 +821,7 @@ template <typename CDAGNode>
 class DiskCDAG
 {
 	public:
-		
+		unsigned int maxDepth;
 
 	private:
 
@@ -689,11 +864,13 @@ class DiskCDAG
 
 
 
+
 		void init(size_t count)
 		{
 			lruCache = 0;
 			succsCache = 0;
 			neighborCache = 0;
+			maxDepth = 0;
 			numOfBytesForSuccBS = utils::convertNumNodesToBytes(count);
 			succsBitSet = new BYTE[numOfBytesForSuccBS];
 			nodeMarkerBitSet = 0; // to be initialized if we get actual node count
@@ -895,31 +1072,7 @@ class DiskCDAG
 			nodeAddrFile.read((char*)&addr, sizeof(Address));
 		}
 
-		//Adds a node to the cdag with instruction type 'currType' and static id 'id'
-		size_t addNode(unsigned int currType, size_t id, Address addr)
-		{
-			assert(numNodes < count);
-
-			CDAGNode *node = getAvailableCDAGNode();
-			node->dynId = numNodes;
-			node->type = currType;
-			node->staticId = id;
-			if(currType == Instruction::Load){
-				// addr is only consumed in case of load instruction
-				node->addr = addr;
-			}
-			else
-			{
-				readAddressFromFile(node->dynId, node->addr);
-				if(node->addr == 0)
-				{
-					node->addr = node->staticId;
-				}
-			}
-
-			addUpdateNodeToBlock(node);
-			return numNodes++;
-		}
+		
 
 		void setPredecessor(size_t nodeId, const set<size_t> &predSet)
 		{
@@ -1302,6 +1455,10 @@ class DiskCDAG
 					("DiskGraph.CLEAN_UP_TEMP_FILES",
 					po::value(&cleanUpTemporaryFiles)->default_value(true),
 					"Clean up temporary files created");
+				options.add_options()
+					("DiskGraph.WRITE_IV",
+					po::value(&writeIVFlag)->default_value(false),
+					"Write Iteration Vectors for the graph");
 			bool err = false;
 			if(configFile.is_open())
 			{
@@ -1338,34 +1495,37 @@ class DiskCDAG
 				configFile << "\nDISK_GRAPH_FN = " << diskGraphFNSuffix << "\t #" <<options.options()[3]->description();;
 				configFile << "\nPRINT_GRAPH_ASCII = " << printGraphInAsciiFormat << "\t #" <<options.options()[4]->description();;
 				configFile << "\nPRINT_GRAPH_DOT = " << printGraphInDotFormat << "\t #" <<options.options()[5]->description();;
-				configFile << "\nCLEAN_UP_TEMP_FILES = " << cleanUpTemporaryFiles << "\t #" <<options.options()[6]->description();;
+				configFile << "\nCLEAN_UP_TEMP_FILES = " << cleanUpTemporaryFiles << "\t #" <<options.options()[6]->description();
+				configFile << "\nWRITE_IV = " << writeIVFlag << "\t #" <<options.options()[7]->description();
 			}
 			configFile.close();
 		}
 
 		//Generates the DiskCDAG using DiskCDAGBuilder
-		static DiskCDAG<GraphNode>* generateGraph(Ids& ids, const string &bcFileName)
+		template<typename Node, typename GraphBuilder>
+		static DiskCDAG<Node>* generateGraph(Ids& ids, const string &bcFileName)
 		{
-			DiskCDAG<GraphNode> *cdag;
+			DiskCDAG<Node> *cdag;
 			readConfigurationFromFile();
 			BLOCK_SIZE = BLOCK_SIZE * 1024; // Convert to BYTES
 
 			if(!graphCreatedFlag)
 			{
 				cout <<"\n-----Starting First pass over the trace to get counts." << flush;
-				DiskCDAGBuilder countBuilder(bcFileName);
+				GraphBuilder countBuilder(bcFileName);
 				countBuilder.visit(ids);
 				cout <<"\n-----Pass complete. Number of nodes : "<<countBuilder.getNumNodes() << flush;
 				//countBuilder.printSuccessorCountFile();
 				//countBuilder.printAddressFile();
 				//cin.get();
-				cdag = new DiskCDAG<GraphNode>(ids, bcFileName, 
+				cdag = new DiskCDAG<Node>(ids, bcFileName, 
 					countBuilder.getNumNodes());
 
 				cout << "\n \n ";
 				cout <<"\n-----Starting Second Pass over the trace to dump out the graph.\n";
-				cout << "\n Step 1 (of 2) : Writing temporary graphdump and successor information now!\n"<<flush;			
-				DiskCDAGBuilder builder(cdag);
+				cout << "\n Step 1 (of 2) : Writing temporary graphdump and successor information now!\n"<<flush;
+
+				GraphBuilder builder(cdag);
 				builder.visit(ids);
 				cdag->flushCurrentBlockToDisk(true);
 				cout << "\n Done!" <<flush;
@@ -1380,8 +1540,9 @@ class DiskCDAG
       		}
       		else
       		{
+      			// TODO : read graph with IV info as well
       			cout << "\nRead graph from file configuration specified.\n";
-      			cdag = new DiskCDAG<GraphNode>(ids, bcFileName);
+      			cdag = new DiskCDAG<Node>(ids, bcFileName);
       		}
 
       		cdag->initLRUCacheForDiskGraph();
@@ -1399,7 +1560,7 @@ class DiskCDAG
 			static DiskCDAG<GraphNode>* generateGraph(Ids& ids, string &bcFileName)
 			{
 				cout <<"\n First pass through trace to get counts" << flush;
-				DiskCDAGBuilder countBuilder(bcFileName);
+				DiskCDAGBuilder<GraphNode> countBuilder(bcFileName);
 				countBuilder.visit(ids);
 				cout <<"\n Pass complete. Number of nodes : "<<countBuilder.getNumNodes() << flush;
 				//countBuilder.printSuccessorCountFile();
@@ -1985,10 +2146,78 @@ class DiskCDAG
 		{
 			
 		}
+		size_t addNode(unsigned int currType, size_t id, Address addr);
 };
 
+//Adds a node to the cdag with instruction type 'currType' and static id 'id'
+template<typename CDAGNode>
+size_t DiskCDAG<CDAGNode>::addNode(unsigned int currType, size_t id, Address addr)
+{
+	assert(numNodes < count);
+
+	CDAGNode *node = getAvailableCDAGNode();
+	node->dynId = numNodes;
+	node->type = currType;
+	node->staticId = id;
+	if(currType == Instruction::Load){
+		// addr is only consumed in case of load instruction
+		node->addr = addr;
+	}
+	else
+	{
+		readAddressFromFile(node->dynId, node->addr);
+		if(node->addr == 0)
+		{
+			node->addr = node->staticId;
+		}
+	}
+
+	// if(boost::is_same<CDAGNode, GraphNodeWithIV>::value)
+	// {
+	// 	node->loopItVec.insert(node->loopItVec.begin(), curItVec.begin(), curItVec.end());
+	// }
+
+	addUpdateNodeToBlock(node);
+	return numNodes++;
+}
+
+//Adds a node to the cdag with instruction type 'currType' and static id 'id'
+template<>
+size_t DiskCDAG<GraphNodeWithIV>::addNode(unsigned int currType, size_t id, Address addr)
+{
+	assert(numNodes < count);
+
+	GraphNodeWithIV *node = getAvailableCDAGNode();
+	node->dynId = numNodes;
+	node->type = currType;
+	node->staticId = id;
+	if(currType == Instruction::Load){
+		// addr is only consumed in case of load instruction
+		node->addr = addr;
+	}
+	else
+	{
+		readAddressFromFile(node->dynId, node->addr);
+		if(node->addr == 0)
+		{
+			node->addr = node->staticId;
+		}
+	}
+	
+	if(curIV.size() > 0)
+	{
+		node->loopItVec.insert(node->loopItVec.begin(), curIV.begin(
+			), curIV.end());
+		++curIV[curIV.size()-1];
+	}
+
+	addUpdateNodeToBlock(node);
+	return numNodes++;
+}
+
 #ifdef FULL_DAG
-void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)
+template <typename Node>
+void DiskCDAGBuilder<Node>::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)
 {
 	set<size_t> predSet;
 	Instruction *instr = node->getInstruction();
@@ -2069,7 +2298,8 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 	node->set(nodeId);
 }
 #else
-void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)
+template <typename Node>
+void DiskCDAGBuilder<Node>::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)
 {
 	set<size_t> predSet;
 	Instruction *instr = node->getInstruction();
@@ -2172,7 +2402,8 @@ void DiskCDAGBuilder::visitNode(LazyNode<payload_type> *node, Predecessors &pred
 }
 #endif
 
-void DiskCDAGBuilder::incSuccessorCountInFile(Id nodeId)
+template <typename Node>
+void DiskCDAGBuilder<Node>::incSuccessorCountInFile(Id nodeId)
 {
 	streampos pos(sizeof(Id)*nodeId);
 	successorCountFile.seekg(pos, ios::beg);
@@ -2186,7 +2417,8 @@ void DiskCDAGBuilder::incSuccessorCountInFile(Id nodeId)
 	successorCountFile.flush();// Do not remove this. Write 0 for the second last node
 }
 
-void DiskCDAGBuilder::updateNodeAddress(Id nodeId, Address addr)
+template <typename Node>
+void DiskCDAGBuilder<Node>::updateNodeAddress(Id nodeId, Address addr)
 {	
 	streampos pos(sizeof(Address)*nodeId);
 	nodeAddrFile.seekp(pos, ios::beg);
@@ -2194,7 +2426,8 @@ void DiskCDAGBuilder::updateNodeAddress(Id nodeId, Address addr)
 	nodeAddrFile.flush();
 }
 
-size_t DiskCDAGBuilder::incNumNodesCounter(Address addr)
+template <typename Node>
+size_t DiskCDAGBuilder<Node>::incNumNodesCounter(Address addr)
 {
 	if(successorCountFile && nodeAddrFile)
 	{
@@ -2209,7 +2442,8 @@ size_t DiskCDAGBuilder::incNumNodesCounter(Address addr)
 	return numNodes++;
 }
 
-void DiskCDAGBuilder::printSuccessorCountFile()
+template <typename Node>
+void DiskCDAGBuilder<Node>::printSuccessorCountFile()
 {
 	Id temp = 0, i=0;
 	cout <<"\n";
@@ -2221,7 +2455,8 @@ void DiskCDAGBuilder::printSuccessorCountFile()
 	cout <<"\n";
 }
 
-void DiskCDAGBuilder::printAddressFile()
+template <typename Node>
+void DiskCDAGBuilder<Node>::printAddressFile()
 {
 	Address addr = 0;
 	Id i=0;
@@ -2231,6 +2466,75 @@ void DiskCDAGBuilder::printAddressFile()
 		cout << "\n" << i++ << " : " <<addr;
 	}
 	cout << "\n";
+}
+
+
+void DiskCDAGBuilderWithIV::visitNode(LazyNode<payload_type> *node, Predecessors &predecessors, Operands &operands)
+{
+	// if(curIV.size() > 0)
+	// {
+	// 	++curIV.back().stmtNum;
+	// }
+	// if(cdag)
+	// {
+	// 	cdag->curItVec.clear();
+	// 	for(int i=0; i<curIV.size(); ++i)
+	// 	{
+	// 		cdag->curItVec.push_back(curIV[i].loopId);
+	// 		cdag->curItVec.push_back(curIV[i].stmtNum);
+	// 	}
+	// }
+
+	DiskCDAGBuilder<GraphNodeWithIV>::visitNode(node, predecessors, operands);
+}
+
+void printCurIV(deque<Id> &curIV)
+{
+	cout << "\n";
+	for(int i=0; i<curIV.size(); ++i)
+	{
+		cout << curIV[i] << " ";
+	}
+}
+void DiskCDAGBuilderWithIV::visitLoopBegin(Id loopId)
+{
+	LoopIV newloop(loopId);
+	curIV.push_back(0);
+	curIV.push_back(0);
+	curDepth++;
+	if(cdag && cdag->maxDepth < curDepth)
+	{
+		cdag->maxDepth = curDepth;
+	}	
+	cout << "\n Loop Begin with ID :  " << loopId;
+	printCurIV(curIV);
+}
+
+void DiskCDAGBuilderWithIV::visitLoopIterBegin()
+{
+	assert(curIV.size() > 0 );
+	curIV[curIV.size()-1] = 0; // reset the statement number column
+	cout << "\n Loop iter begin ";
+	printCurIV(curIV);
+}
+
+void DiskCDAGBuilderWithIV::visitLoopIterEnd()
+{
+	assert(curIV.size() > 0 );
+	++curIV[curIV.size()-2]; // increment the column representing induction variable
+	cout << "\n Loop iter end ";
+	printCurIV(curIV);
+}
+
+void DiskCDAGBuilderWithIV::visitLoopEnd(Id loopId)
+{
+	assert(curIV.size() > 0);
+	// delete last_loopinfo;
+	curIV.pop_back();
+	curIV.pop_back();
+	curDepth--;
+	cout << "\n Loop end with ID :  " << loopId;
+	printCurIV(curIV);
 }
 
 // void updateSuccessorCountInFile(Id nodeId, Id incCount)

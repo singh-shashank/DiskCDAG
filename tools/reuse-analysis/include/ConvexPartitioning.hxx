@@ -137,7 +137,7 @@ public:
         const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
 
         clock_t begin = clock();
-        cdag = DiskCDAG<GraphNode>::generateGraph(ids, programName); 
+        cdag = DiskCDAG<GraphNode>::generateGraph<GraphNode, DiskCDAGBuilder<GraphNode> >(ids, programName); 
         clock_t end = clock();
         double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
         cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;
@@ -1148,8 +1148,8 @@ public:
 
     void assignAddr(Address *addr, deque<Address> &freeAddr, Address &nextAddr)
     {
-        //*addr = nextAddr++;
-        //return;
+        *addr = nextAddr++;
+        return;
         if(freeAddr.empty())
         {
             *addr = nextAddr++;
