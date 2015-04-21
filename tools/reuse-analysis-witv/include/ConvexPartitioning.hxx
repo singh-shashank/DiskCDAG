@@ -734,7 +734,7 @@ private:
     int binarySearchForIV(Id nodeId, NodeIVInfo &ptr)
     {
         int beg = nodeIdToIvMapIndexMap[nodeId]; 
-        int redInd = beg;
+        int retInd = beg;
         int end = ivMap.size()-1;
         while(beg < end)
         {

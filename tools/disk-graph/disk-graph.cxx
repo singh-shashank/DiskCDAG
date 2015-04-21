@@ -51,11 +51,6 @@ int main(int argc, char **argv)
   if(cdag)
   {
     cout << "\n";
-    begin = clock();
-    cdag->performBFSWithSortedQ("bfsOutWithSortedQ");
-    end = clock();
-    elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;
 
     cout << "\n";
     begin = clock();

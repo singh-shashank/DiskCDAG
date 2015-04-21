@@ -10,12 +10,9 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/include")
 #
 # Define our sources.
 #
-SET(_SOURCES  "src/GraphNode.cxx"
-			  "src/Main.cxx")
+SET(_SOURCES  "src/Main.cxx")
               
-SET(_HEADERS  "include/GraphAnalysis.hxx"
-			  "include/GraphNode.hxx"
-			  "include/ReadCDAG.hxx")
+SET(_HEADERS  "include/ConvexPartitioning.hxx")
 
 
 
