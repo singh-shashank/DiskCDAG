@@ -34,10 +34,18 @@ namespace ddg{
 									  writeBackFlag(flag),
 									  initFlag(false),
 									  dataCount(),
-									  inMemoryCache(false),
-									  MAX_ITEMS_PER_SLOT(BLOCK_SIZE/sizeof(Data)),
-									  MAX_ITEMS_IN_CACHE(MAX_ITEMS_PER_SLOT*NUM_SLOTS)
-		{}
+									  inMemoryCache(false)
+		{
+			Data temp;
+			MAX_ITEMS_PER_SLOT = BLOCK_SIZE/temp.getSize();
+			MAX_ITEMS_IN_CACHE = MAX_ITEMS_PER_SLOT*NUM_SLOTS;
+			// Its being set to TRUE for know but make it
+			// configurable if the need be.
+			// Just remember, when dealing with huge graphs
+			// pre-allocation gives a huge gain i.e. reducing
+			// analysis time from 24 hrs to just an hour or less.
+			preAllocateFlag = true;
+		}
 
 		~DiskCache()
 		{
@@ -160,15 +168,23 @@ namespace ddg{
 
 			}
 
-			availableDataNodesQ = new CircularQ<Data*>(maxDataObjectsRequired);
-			availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>(maxDataObjectsRequired);
-			for(int i=0; i<maxDataObjectsRequired; ++i)
+			if(!preAllocateFlag)
 			{
-				Data *node = new Data();
-				availableDataNodesQ->addItemToPool(node);
+				availableDataNodesQ = new CircularQ<Data*>();
+				availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>();
+			}
+			else
+			{
+				availableDataNodesQ = new CircularQ<Data*>(maxDataObjectsRequired);
+				availableSlotIdIndexObjsQ = new CircularQ<SlotIdSlotIndex*>(maxDataObjectsRequired);
+				for(int i=0; i<maxDataObjectsRequired; ++i)
+				{
+					Data *node = new Data();
+					availableDataNodesQ->addItemToPool(node);
 
-				SlotIdSlotIndex *obj = new SlotIdSlotIndex();
-				availableSlotIdIndexObjsQ->addItemToPool(obj);
+					SlotIdSlotIndex *obj = new SlotIdSlotIndex();
+					availableSlotIdIndexObjsQ->addItemToPool(obj);
+				}
 			}
 
 			return initFlag;
@@ -451,17 +467,32 @@ namespace ddg{
 				cout << "Empty Slot";
 				return;
 			}
+			cout << "SLOT ID : " << slotId << "\n";
+			cout << "\n SLOT DATA (SIZE : " << slots[slotId].size() << ") : \n";
 			SLOT_ITERATOR it = slots[slotId].begin();
 			for(; it != slots[slotId].end(); ++it)
 			{
 				cout << (*it)->getId() <<" ";
 			}
+
+			DATA_TO_SLOT_MAP_ITERATOR it2 = dataIdToSlotMap.begin();
+			cout << "\n ID TO SLOT INDEX MAP (SIZE : " << dataIdToSlotMap.size() <<") : \n";
+			for (;it2 != dataIdToSlotMap.end(); ++it2)
+			{
+				cout << it2->first << ":" ;
+				cout << "(" << it2->second->slotId << "," << it2->second->slotIndex;
+				cout << ")";
+				cout << "\n";
+			}
+			cout << flush;
 		}
 
 		void invalidateSlot(const unsigned int slotId)
 		{
 			assert(slotId < NUM_SLOTS);
 
+			//cout << "\n In invalidateSlot for slotId : " << slotId;
+			//dumpSlot(slotId);
 			if(writeBackFlag && slots[slotId].size() > 0)
 			{
 				DEBUG("\n Doing a write back for slot : "<<slotId);
@@ -482,8 +513,17 @@ namespace ddg{
 			SLOT_ITERATOR it = slots[slotId].begin();
 			for(; it != slots[slotId].end(); ++it)
 			{
-				availableSlotIdIndexObjsQ->addItemToPool(dataIdToSlotMap[(*it)->getId()]);
-				dataIdToSlotMap.erase((*it)->getId());
+				if(dataIdToSlotMap.find((*it)->getId()) != dataIdToSlotMap.end() )
+				{
+					availableSlotIdIndexObjsQ->addItemToPool(dataIdToSlotMap[(*it)->getId()]);
+					dataIdToSlotMap.erase((*it)->getId());
+				}
+				else
+				{
+					cout << "\n Error : Id " << (*it)->getId() << " exists in SLOTS but ";
+					cout << " not found in dataIdToSlotMap";
+					exit(-1);
+				}
 				availableDataNodesQ->addItemToPool(*it);
 			}
 
@@ -500,9 +540,13 @@ namespace ddg{
 			}
 			else
 			{
-				cout << "\n Warning : Allocating a new Data node!";
-				cout << " Shouldn't happen if the nodes were pre-allocated";
+				if(preAllocateFlag)
+				{
+					cout << "\n Warning : Allocating a new Data node!";
+					cout << " Shouldn't happen if the nodes were pre-allocated";
+				}
 				retVal = new Data();
+				availableDataNodesQ->addNewItemToPool(retVal);
 			}
 			return retVal;
 		}
@@ -517,9 +561,13 @@ namespace ddg{
 			}
 			else
 			{
-				cout << "\n Warning : Allocating a new SlotIdSlotIndex object!";
-				cout << " Shouldn't happen if the nodes were pre-allocated";
+				if(preAllocateFlag)
+				{
+					cout << "\n Warning : Allocating a new SlotIdSlotIndex object!";
+					cout << " Shouldn't happen if the nodes were pre-allocated";
+				}
 				retVal = new SlotIdSlotIndex();
+				availableSlotIdIndexObjsQ->addNewItemToPool(retVal);
 			}
 			return retVal;
 		}
@@ -752,10 +800,11 @@ namespace ddg{
 		bool initFlag;
 		unsigned int policy;
 		bool writeBackFlag;
-		const unsigned int MAX_ITEMS_PER_SLOT;
-		const unsigned int MAX_ITEMS_IN_CACHE;
+		unsigned int MAX_ITEMS_PER_SLOT;
+		unsigned int MAX_ITEMS_IN_CACHE;
 		DataId dataCount;
 		bool inMemoryCache;
+		bool preAllocateFlag;
 
 		SLOT *slots;
 		DATA_TO_SLOT_MAP dataIdToSlotMap;	
@@ -790,6 +839,14 @@ namespace ddg{
 		class CircularQ
 		{
 		public:
+			CircularQ():popPos(-1), 
+					pushPos(-1),
+					poolCapacity(0),
+					curSize(0)
+			{
+				
+			}
+
 			CircularQ(unsigned int capacity):popPos(-1), 
 												pushPos(-1),
 												poolCapacity(0),
@@ -812,8 +869,31 @@ namespace ddg{
 				}
 			}
 
+			void addNewItemToPool(T &item)
+			{
+				//cout << "\n called addNewItemToPool";
+				if(!empty())
+				{
+					cout << "\n Error : Trying to add a new item to a non empty pool!";
+					return;
+				}
+				//poolVec.push_back(item);
+				
+				if(popPos == -1)
+				{
+					popPos = 0;
+				}
+				++poolCapacity;
+				poolVec.insert(poolVec.begin()+popPos, item);
+				
+				// ++curSize; // would be decremented in next call
+				// getItemFromPool();
+			}
+
 			void addItemToPool(T item)
 			{
+				//cout << "\n called addItemToPool";
+				
 				if(curSize >= poolCapacity)
 				{
 					// TODO : maintain name of the pool allocator 
@@ -823,8 +903,15 @@ namespace ddg{
 					return;
 				}
 				pushPos = (++pushPos) % poolCapacity;
+				if(item == 0)
+				{
+					cout << "\n Null object being added back to item pool at "<<pushPos;
+				}
 				poolVec[pushPos] = item;
 				++curSize;
+				// cout << "\n push pos : " << pushPos;
+				// cout << " popPos : " << popPos << " poolCapacity : " << poolCapacity << flush;
+				// cout << " pool size : " << poolVec.size() << "cursize  : " << curSize << flush;
 				if(popPos == -1)
 				{
 					popPos = 0;
@@ -833,6 +920,7 @@ namespace ddg{
 
 			T getItemFromPool()
 			{
+				// cout << "\n called getItemFromPool";
 				T retVal = 0;
 				if(curSize <= 0)
 				{
@@ -841,6 +929,13 @@ namespace ddg{
 				}
 
 				retVal = poolVec[popPos];
+				if(!retVal)
+				{
+					cout << "\n Null object in pool";
+				}
+				// cout << "\n push pos : " << pushPos;
+				// cout << " popPos : " << popPos << " poolCapacity : " << poolCapacity << flush;
+				// cout << " pool size : " << poolVec.size() << "cursize  : " << curSize << flush;
 				popPos = (++popPos) % poolCapacity;
 				--curSize;
 				return retVal;
@@ -848,6 +943,11 @@ namespace ddg{
 
 			bool empty()
 			{
+				// if(poolCapacity && curSize <=0)
+				// {
+				// 	cout << "\n pop pos = " << popPos << " pushPos : " << pushPos;
+				// 	assert(popPos%poolCapacity == pushPos%poolCapacity);
+				// }
 				return curSize <= 0;
 			}
 

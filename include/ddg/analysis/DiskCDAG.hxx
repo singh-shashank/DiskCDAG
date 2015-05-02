@@ -39,7 +39,7 @@ using namespace ddg;
 
 // Method for calculating storage space needed to represent
 // each node by a bit.
-inline int convertNumNodesToBytes(const int &numNodes)
+inline int convertNumNodesToBytes(const Id &numNodes)
 {
 	// You can represent 8 nodes with a byte
 	if(numNodes % 8 == 0)
@@ -256,7 +256,7 @@ struct DataList
 		file.write((const char*)&id, sizeof(Id));
 		file.write((const char*)&listCapacity, sizeof(Id));
 		file.write((const char*)&list[0], sizeof(Id)*list.size());
-		for(int i=0; i<(listCapacity-list.size()); ++i)
+		for(Id i=0; i<(listCapacity-list.size()); ++i)
 		{
 			file.write((const char*)&temp, sizeof(Id));
 		}
@@ -267,7 +267,7 @@ struct DataList
 		listCapacity = 0;
 		file.read((char*)&id, sizeof(Id));
 		file.read((char*)&listCapacity, sizeof(Id));		
-		for(int i=0; i<listCapacity;++i)
+		for(Id i=0; i<listCapacity;++i)
 		{
 			Id temp =0;
 			file.read((char*)&temp, sizeof(Id));
@@ -286,7 +286,7 @@ struct DataList
 		listCapacity = 0;
 		file.read((char*)&id, sizeof(Id));
 		file.read((char*)&listCapacity, sizeof(Id));		
-		for(int i=0; i<listCapacity;++i)
+		for(Id i=0; i<listCapacity;++i)
 		{
 			Id temp =0;
 			file.read((char*)&temp, sizeof(Id));
@@ -490,7 +490,7 @@ class DiskCDAG
 			{
 				succsListTempFile.write((const char*)&id, sizeof(Id));
 				succsListTempFile.write((const char*)&succCount, sizeof(Id));
-				for(int i=0; i<succCount; ++i)
+				for(Id i=0; i<succCount; ++i)
 				{
 					succsListTempFile.write((const char*)&temp, sizeof(Id));
 				}
@@ -803,17 +803,6 @@ class DiskCDAG
 			diskGraphIndex.close();
 
 			cleanUpTemporaries();
-
-			// delete the graph nodes and clean up the maps
-			// its a good idea to free up some memory because we don't
-			// need this map anymore.
-			typename std::map<Id, CDAGNode*>::iterator it1 = idToCDAGNodeMap.begin();
-			for(; it1 != idToCDAGNodeMap.end(); ++it1)
-			{
-				delete it1->second;
-				it1->second = 0;
-			}
-			idToCDAGNodeMap.clear();
 		}
 
 		void writeGraphWithSuccessorInfoToFile(ofstream &diskGraph,
@@ -920,13 +909,13 @@ class DiskCDAG
 			set<Id> nSet;
 			NodeNeighborInfo *tempNeighborInfo = new NodeNeighborInfo(); 
 			CDAGNode node;
-			for(int i=0; i<numNodes; ++i)
+			for(Id i=0; i<numNodes; ++i)
 			{
 				nSet.clear();
 				node.reset();
 				node.deepCopy(lruCache->getData(i));
-				int succCount = node.succsList.size();
-				for(int j=0; j<succCount; ++j)
+				Id succCount = node.succsList.size();
+				for(Id j=0; j<succCount; ++j)
 				{
 					CDAGNode *succNode = lruCache->getData(node.succsList[j]);
 					nSet.insert(succNode->predsList.begin(),succNode->predsList.end());
@@ -1132,7 +1121,7 @@ class DiskCDAG
 			}
 			else
 			{
-				cout << "\n Traversal type: Depth First Search";	
+				cout << "\n Traversal type: Breadth First Search";	
 			}
 			cout << "\n";
 
@@ -1147,13 +1136,13 @@ class DiskCDAG
 			deque<Id> q;
 			Id startV;
 			//vector<Id> bfsOutput;
-			ofstream bfsOutFile(outFile.c_str());
+			//ofstream bfsOutFile(outFile.c_str());
 			bool error = false;
 			unsigned int bitSetIndex = 0;
 			int prev = -1;
 			while(getFirstReadyNode(nodeMarkerBitSet, startV, bitSetIndex))
 			{
-				bfsOutFile << "\nStarting vertex : " << startV << "\n";
+				//bfsOutFile << "\nStarting vertex : " << startV << "\n";
 				q.push_back(startV);
 				markNode(nodeMarkerBitSet, startV);
 				
@@ -1177,7 +1166,7 @@ class DiskCDAG
 						break;
 					}
 					//bfsOutput.push_back(curNode->dynId);
-					bfsOutFile << curNode->dynId << " ";
+					//bfsOutFile << curNode->dynId << " ";
 					for(std::deque<Id>::const_iterator it = curNode->succsList.begin();
 						it != curNode->succsList.end(); ++it)
 					{
@@ -1224,14 +1213,14 @@ class DiskCDAG
 			//memset(qBitSetForNodes, 0, numOfBytesFornodeMarkerBitSet);
 			Id startV;
 			//vector<Id> bfsOutput;
-			ofstream bfsOutFile(outFile.c_str());
+			// ofstream bfsOutFile(outFile.c_str());
 			bool error = false;
 			int prev = -1;
 			unsigned int bitSetIndex = 0;
 			while(getFirstReadyNode(nodeMarkerBitSet, startV, bitSetIndex))
 			{
 				//cout << "\nStarting vertex : " << startV << "\n";
-				bfsOutFile << "\nStarting vertex : " << startV << "\n";
+				//bfsOutFile << "\nStarting vertex : " << startV << "\n";
 				//q.push(startV);
 				memset(qBitSetForNodes, ~0, numOfBytesFornodeMarkerBitSet);
 				unmarkNode(qBitSetForNodes, startV);
@@ -1250,7 +1239,7 @@ class DiskCDAG
 					}
 					markNode(qBitSetForNodes, onQNode);
 					//bfsOutput.push_back(curNode->dynId);
-					bfsOutFile << curNode->dynId << " ";
+					//bfsOutFile << curNode->dynId << " ";
 					for(std::deque<Id>::const_iterator it = curNode->succsList.begin();
 						it != curNode->succsList.end(); ++it)
 					{
@@ -1303,7 +1292,7 @@ class DiskCDAG
 
 	        // Traverse over the graph once to mark all the nodes as ready
 	        // that have 0 preds i.e. all input vertices
-	        for(int i=0; i<numNodes; ++i)
+	        for(Id i=0; i<numNodes; ++i)
 	        {
 	            CDAGNode *node = this->getNode(i);
 	            if(node->predsList.size() == 0)
@@ -1317,7 +1306,7 @@ class DiskCDAG
 	            nodeIdToUnprocSuccsCountMap[i] = node->predsList.size();
 	        }
 			
-			ofstream tsOutFile(outFile.c_str());
+			//ofstream tsOutFile(outFile.c_str());
 
 			// PERFORM TOPOLOGICAL SORT
 			int bitSetIndex = 0;
@@ -1335,9 +1324,9 @@ class DiskCDAG
 					readyNodeQ.pop_front();
 				}
 				++processedNodeCount;
-				tsOutFile << node->dynId << "\n";
-				int numSucc = node->succsList.size();
-				for(int i=0; i<numSucc; ++i)
+				//tsOutFile << node->dynId << "\n";
+				Id numSucc = node->succsList.size();
+				for(Id i=0; i<numSucc; ++i)
 				{
 					Id succId = node->succsList[i];
 					boost::unordered_map<Id, Id >::iterator it = nodeIdToUnprocSuccsCountMap.find(succId);
@@ -1380,7 +1369,7 @@ class DiskCDAG
 	 		}
 	 		// Prints the complete graph with successor
 	 		// and neighbor information (if available)
-	 		for(int i=0; i<numNodes; ++i)
+	 		for(Id i=0; i<numNodes; ++i)
 	 		{
 	 			CDAGNode *node = lruCache->getData(i);
 	 			node->print(out);
@@ -1930,7 +1919,7 @@ size_t DiskCDAGBuilder<Node>::incNumNodesCounter(Address addr)
 		Id temp = 0;
 		successorCountFile.seekp(0, fstream::end); // write to the end of the file
 		successorCountFile.write((const char*)&temp, sizeof(Id));
-		//successorCountFile.flush(); 
+		successorCountFile.flush(); 
 		Address addr = 0;
 		nodeAddrFile.seekp(0, fstream::end);
 		nodeAddrFile.write((const char*)&addr, sizeof(Address));
@@ -2001,24 +1990,24 @@ void DiskCDAGBuilderWithIV::visitLoopBegin(Id loopId)
 	{
 		cdag->maxDepth = curDepth;
 	}	
-	cout << "\n Loop Begin with ID :  " << loopId;
-	printCurIV(curIV);
+	//cout << "\n Loop Begin with ID :  " << loopId;
+	//printCurIV(curIV);
 }
 
 void DiskCDAGBuilderWithIV::visitLoopIterBegin()
 {
 	assert(curIV.size() > 0 );
 	curIV[curIV.size()-1] = 0; // reset the statement number column
-	cout << "\n Loop iter begin ";
-	printCurIV(curIV);
+	//cout << "\n Loop iter begin ";
+	//printCurIV(curIV);
 }
 
 void DiskCDAGBuilderWithIV::visitLoopIterEnd()
 {
 	assert(curIV.size() > 0 );
 	++curIV[curIV.size()-2]; // increment the column representing induction variable
-	cout << "\n Loop iter end ";
-	printCurIV(curIV);
+	//cout << "\n Loop iter end ";
+	//printCurIV(curIV);
 }
 
 void DiskCDAGBuilderWithIV::visitLoopEnd(Id loopId)
@@ -2028,8 +2017,8 @@ void DiskCDAGBuilderWithIV::visitLoopEnd(Id loopId)
 	curIV.pop_back();
 	curIV.pop_back();
 	curDepth--;
-	cout << "\n Loop end with ID :  " << loopId;
-	printCurIV(curIV);
+	//cout << "\n Loop end with ID :  " << loopId;
+	//printCurIV(curIV);
 }
 
 }

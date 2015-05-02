@@ -169,11 +169,18 @@ int main(int argc, char* argv[])
 			// ReadCDAG rcg;
 			// rcg.init(files[0]);
 
+			clock_t begin = clock();
+
 			ConvexPartitioning cp;
 			cp.init(files[0]);
 			cp.generateConvexComponents(Cs, NCOUNT, CHILDCOUNT);
 			cp.writeMemTraceForSchedule();
 			cp.writeMemTraceForScheduleWithPool();
+
+			clock_t end = clock();
+    		double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
+
+    		cout << "\n Time taken for ConvexPartitioning (Single level heuristics) : " << elapsed_time / 60;
 		}
 
 	}

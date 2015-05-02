@@ -145,7 +145,7 @@ public:
 
         if(cdag)
         {
-            cdag->printDOTGraph("diskgraph.dot");
+            //cdag->printDOTGraph("diskgraph.dot");
             //cdag->createMacroGraph();
             //cdag->printDOTGraph("diskgraphwithmacronodes.dot");
             numNodes = cdag->getNumNodes();
@@ -157,17 +157,7 @@ public:
 
             cdag->initNeighborCache();
             //ofstream out("diskgraphwithneighborinfo");
-            //cdag->printDiskGraph(out);
-
-            // begin = clock();
-            // // cdag->performBFSWithoutQ("bfsOut");
-            // //cdag->performBFS("bfsOut");
-            // end = clock();
-            // elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
-            // cout << "\n Time taken for BFS traversal (in mins) : " << elapsed_time / 60;
-
-
-            
+            //cdag->printDiskGraph(out);  
         }
         else
         {
@@ -178,7 +168,7 @@ public:
     bool isSpecialNode(Id &curNodeId)
     {
         return (cdag->getNode(curNodeId)->succsList.size() == 1 && 
-           cdag->getNode(curNodeId)->type != Instruction::Load &&
+           cdag->getNode(curNodeId)->type == Instruction::FMul &&
            cdag->getNode(curNodeId)->addr < maxStaticId);
     }
 
@@ -255,8 +245,8 @@ public:
 
     void createMacroNode(Id &curNodeId, deque<Id> &microNodeList)
     {
-        int predCount = cdag->getNode(curNodeId)->predsList.size();
-        for(int i=0; i<predCount; ++i)
+        Id predCount = cdag->getNode(curNodeId)->predsList.size();
+        for(Id i=0; i<predCount; ++i)
         {
             // If predecessor is special node then it can 
             // be added to the macro node
@@ -278,7 +268,7 @@ public:
         ofstream macroNodeListFile(macroNodeListFileName.c_str(), fstream::binary);
         deque<Id> microNodeList;
 
-        for(int i=numNodes-1; i >= 0; --i)
+        for(Id i=numNodes-1; i >= 0; --i)
         {
             microNodeList.clear();
             if(!utils::isBitSet(visitedNodeBitSet, i, numOfBytesForReadyNodeBitSet))
@@ -290,7 +280,7 @@ public:
             macroNodeListFile.write((const char*)&i, sizeof(Id));
             Id microNodesCount = microNodeList.size();
             macroNodeListFile.write((const char*)&microNodesCount, sizeof(Id));
-            for(int j=0; j<microNodesCount; ++j)
+            for(Id j=0; j<microNodesCount; ++j)
             {
                 macroNodeListFile.write((const char*)&microNodeList[j], sizeof(Id));
                 // Also mark these nodes as visited
@@ -298,7 +288,7 @@ public:
             }
         }
         macroNodeListFile.close();
-
+        delete []visitedNodeBitSet;
         // Initialize the macro node cache
         macroNodeCache = new DiskCache<DataList, Id>(1024, 4);
         if(!macroNodeCache->init(macroNodeListFileName))
@@ -307,12 +297,12 @@ public:
             return;
         }
 
-        // // Test Code
-        // cout << "\n Printing macro node information...";
-        // for(int i=0; i<numNodes; ++i)
-        // {
-        //     macroNodeCache->getData(i)->print(cout);
-        // }
+        // Test Code
+        cout << "\n Printing macro node information...";
+        for(int i=0; i<numNodes; ++i)
+        {
+            macroNodeCache->getData(i)->print(cout);
+        }
     }
 
     void generateConvexComponents(unsigned int cacheS,
@@ -386,8 +376,8 @@ public:
                 if(!isSpecialNode(nodeId))
                 {
                     // add it current convex component
-                    int microNodesCount = macroNodeCache->getData(nodeId)->list.size();
-                    for(int i=0; i<microNodesCount; ++i)
+                    Id microNodesCount = macroNodeCache->getData(nodeId)->list.size();
+                    for(Id i=0; i<microNodesCount; ++i)
                     {
                         curConvexComp.nodesList.push_back(macroNodeCache->getData(nodeId)->list[i]);
                     }
@@ -406,7 +396,7 @@ public:
 
                 // And we also need to decrease the unprocessed successor count 
                 // for its predecessor here
-                for(int i=0; i<curNode->predsList.size(); ++i)
+                for(Id i=0; i<curNode->predsList.size(); ++i)
                 {
                     Id predId = curNode->predsList[i];
                     if(nodeIdToUnprocPredsSuccsCountMap[predId][SUCC_INDEX] > 0)
@@ -472,7 +462,17 @@ public:
         //assert(readyNodeQ.size() == 0);
         cout <<"\n Ready Node Count (in the end) : " << readyNodeCount;
         cur_proc_node.close();
+        
+        // Perform cleanup to free some memory
         remove("cur_proc_node");
+        delete []idToNeighborsListMap;
+        delete []idToSuccsListMap;
+        nodeIdToUnprocPredsSuccsCountMap.clear();
+        if(macroNodeCache)
+        {
+            delete macroNodeCache;
+            macroNodeCache = 0;
+        }
 
     }
 
@@ -719,7 +719,7 @@ public:
 
         NodeNeighborInfo *neighbor = cdag->getNeighbor(curNode->dynId);
         Id neighborCount = neighbor->neighborList.size();
-        for(int i=0; i<neighborCount; ++i)
+        for(Id i=0; i<neighborCount; ++i)
         {
             if(isReady(neighbor->neighborList[i]) && !idToNeighborsListMap[neighbor->neighborList[i]])
             {
@@ -732,7 +732,7 @@ public:
             }
         }
 
-        for(int i=0; i<succCount; ++i)
+        for(Id i=0; i<succCount; ++i)
         {
             // GraphNode *succNode = cdag->getNode(curNode->succsList[i]);
 
@@ -811,101 +811,101 @@ public:
         //cout << " takenSuccs : " << cc.takenSuccs;
         if(cc.readyNeighborsList.size() > 0 || cc.readySuccsList.size() > 0)
         {
-            // Choose between a neighbor or a successor depending on the
-            // priority
-            if(selectNeighborFlag) 
-            {
-                //cout << "\nNeighbor turn...";
-                // It's ready neighbors turn...
-                if(cc.readyNeighborsList.size() > 0)
-                {
-                    // ... and there are neighbors.
+            // // Choose between a neighbor or a successor depending on the
+            // // priority
+            // if(selectNeighborFlag) 
+            // {
+            //     //cout << "\nNeighbor turn...";
+            //     // It's ready neighbors turn...
+            //     if(cc.readyNeighborsList.size() > 0)
+            //     {
+            //         // ... and there are neighbors.
 
-                    // no need to pop and erase the next node here
-                    // because in next call this will be erased
-                    // or if there is no next call then this data structure
-                    // will be reset before use.
-                    nextNodeId = cc.readyNeighborsList.front();
-                    ++cc.takenNeighbors;
-                    if(cc.takenNeighbors >= neighborPriorityCount)
-                    {
-                        cc.takenNeighbors = 0;
-                        selectNeighborFlag = false;
-                    }
-                    //cout << "selected neighbor with id : " <<nextNodeId;
-                }
-                else
-                {
-                    // but we ran out of neighbors..return ready successors
-                    // till we get a neighbor.
-                    // Do not increment takenSuccs count.
-                    nextNodeId = cc.readySuccsList.front();
-                    //cout << "selected successor with id : " <<nextNodeId;
-                }
-            }
-            else 
+            //         // no need to pop and erase the next node here
+            //         // because in next call this will be erased
+            //         // or if there is no next call then this data structure
+            //         // will be reset before use.
+            //         nextNodeId = cc.readyNeighborsList.front();
+            //         ++cc.takenNeighbors;
+            //         if(cc.takenNeighbors >= neighborPriorityCount)
+            //         {
+            //             cc.takenNeighbors = 0;
+            //             selectNeighborFlag = false;
+            //         }
+            //         //cout << "selected neighbor with id : " <<nextNodeId;
+            //     }
+            //     else
+            //     {
+            //         // but we ran out of neighbors..return ready successors
+            //         // till we get a neighbor.
+            //         // Do not increment takenSuccs count.
+            //         nextNodeId = cc.readySuccsList.front();
+            //         //cout << "selected successor with id : " <<nextNodeId;
+            //     }
+            // }
+            // else 
+            // {
+            //     //cout <<"\nSuccessor turn...";
+            //     // It's ready successors turn...
+            //     if(cc.readySuccsList.size() > 0)
+            //     {
+            //         // ... and there are successors
+            //         nextNodeId = cc.readySuccsList.front();
+            //         ++cc.takenSuccs;
+            //         if(cc.takenSuccs >= successorPriorityCount)
+            //         {
+            //             cc.takenSuccs = 0;
+            //             selectNeighborFlag = true;
+            //         }
+            //         //cout << "selected successor with id : "<<nextNodeId;
+            //     }
+            //     else
+            //     {
+            //         // but we ran out of successors..return ready neighbors
+            //         // till we get a successor.
+            //         // Do not increment takenNeighbors count.
+            //         nextNodeId = cc.readyNeighborsList.front();
+            //         //cout << "selected neighbor with id : " <<nextNodeId;
+            //     }
+            // }
+            // cout << "\n";
+            if(cc.takenNeighbors == neighborPriorityCount && 
+                cc.takenSuccs == successorPriorityCount)
             {
-                //cout <<"\nSuccessor turn...";
-                // It's ready successors turn...
+                cc.takenNeighbors = 0;
+                cc.takenSuccs = 0;
+            }
+
+            if(cc.takenSuccs < successorPriorityCount)
+            {
                 if(cc.readySuccsList.size() > 0)
                 {
-                    // ... and there are successors
                     nextNodeId = cc.readySuccsList.front();
                     ++cc.takenSuccs;
-                    if(cc.takenSuccs >= successorPriorityCount)
-                    {
-                        cc.takenSuccs = 0;
-                        selectNeighborFlag = true;
-                    }
                     //cout << "selected successor with id : "<<nextNodeId;
                 }
                 else
                 {
-                    // but we ran out of successors..return ready neighbors
-                    // till we get a successor.
-                    // Do not increment takenNeighbors count.
                     nextNodeId = cc.readyNeighborsList.front();
+                    ++cc.takenNeighbors;
                     //cout << "selected neighbor with id : " <<nextNodeId;
                 }
             }
-            // cout << "\n";
-            // if(cc.takenNeighbors == neighborPriorityCount && 
-            //     cc.takenSuccs == successorPriorityCount)
-            // {
-            //     cc.takenNeighbors = 0;
-            //     cc.takenSuccs = 0;
-            // }
-
-            // if(cc.takenSuccs < successorPriorityCount)
-            // {
-            //     if(cc.readySuccsList.size() > 0)
-            //     {
-            //         nextNodeId = cc.readySuccsList.front();
-            //         ++cc.takenSuccs;
-            //         cout << "selected successor with id : "<<nextNodeId;
-            //     }
-            //     else
-            //     {
-            //         nextNodeId = cc.readyNeighborsList.front();
-            //         ++cc.takenNeighbors;
-            //         cout << "selected neighbor with id : " <<nextNodeId;
-            //     }
-            // }
-            // else if(cc.takenNeighbors < neighborPriorityCount)
-            // {
-            //     if(cc.readyNeighborsList.size() > 0)
-            //     {
-            //         nextNodeId = cc.readyNeighborsList.front();
-            //         ++cc.takenNeighbors;
-            //         cout << "selected neighbor with id : "<<nextNodeId;
-            //     }
-            //     else
-            //     {
-            //         nextNodeId = cc.readySuccsList.front();
-            //         ++cc.takenSuccs;
-            //         cout << "selected successor with id : " <<nextNodeId;
-            //     }
-            // }
+            else if(cc.takenNeighbors < neighborPriorityCount)
+            {
+                if(cc.readyNeighborsList.size() > 0)
+                {
+                    nextNodeId = cc.readyNeighborsList.front();
+                    ++cc.takenNeighbors;
+                    // cout << "selected neighbor with id : "<<nextNodeId;
+                }
+                else
+                {
+                    nextNodeId = cc.readySuccsList.front();
+                    ++cc.takenSuccs;
+                    // cout << "selected successor with id : " <<nextNodeId;
+                }
+            }
         }
         else
         {
@@ -976,7 +976,7 @@ public:
         // Resurrecting a predecessor node or killing it if curNode was 
         // the last unprocessed successor for this predecessor
         Id predCount = curNode->predsList.size();
-        for(int i=0; i<predCount; ++i)
+        for(Id i=0; i<predCount; ++i)
         {
             // bool hasAnyUnprocSuccs = false;
             // GraphNode *predNode = cdag->getNode(curNode->predsList[i]);
@@ -1024,8 +1024,8 @@ public:
 
     void updateListOfReadyNodes(GraphNode *node)
     {
-        int succCount = node->succsList.size();
-        for(int i=0; i<succCount; ++i)
+        Id succCount = node->succsList.size();
+        for(Id i=0; i<succCount; ++i)
         {
             // If this successor has no more unprocessed predecessor 
             // then its ready
@@ -1058,7 +1058,7 @@ public:
         // Traverse over the graph once to mark all the nodes as ready
         // that have 0 preds i.e. all input vertices
         nodeIdToUnprocPredsSuccsCountMap.reserve(numNodes);
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {
             GraphNode *node = cdag->getNode(i);
             if(node->predsList.size() == 0)
@@ -1126,7 +1126,7 @@ public:
     void writeOriginalMemTrace()
     {
         ofstream origMemTraceFile("original_memtrace.txt");
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {
             GraphNode *curNode = cdag->getNode(i);
             if(curNode->type == Instruction::Load)
@@ -1136,7 +1136,7 @@ public:
             else
             {
                 Id predCount = curNode->predsList.size();
-                for(int j=0; j < predCount; ++j)
+                for(Id j=0; j < predCount; ++j)
                 {
                     GraphNode *predNode = cdag->getNode(curNode->predsList[j]);
                     origMemTraceFile << predNode->addr << "\n";
@@ -1148,8 +1148,8 @@ public:
 
     void assignAddr(Address *addr, deque<Address> &freeAddr, Address &nextAddr)
     {
-        *addr = nextAddr++;
-        return;
+        //*addr = nextAddr++;
+        //return;
         if(freeAddr.empty())
         {
             *addr = nextAddr++;
@@ -1173,7 +1173,7 @@ public:
         Address nextAddr = 1;
         ofstream memTraceFile("orig_memtrace_withpool.txt");
         int numOfCC = convexComponents.size();
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {
             GraphNode *curNode = cdag->getNode(i);
             size_t currId = curNode->dynId;
@@ -1185,10 +1185,10 @@ public:
             else
             {
                 Id predCount = curNode->predsList.size();
-                for(int k=0; k < predCount; ++k)
+                for(Id k=0; k < predCount; ++k)
                 {
                     GraphNode *predNode = cdag->getNode(curNode->predsList[k]);
-                    int pred = predNode->dynId;
+                    Id pred = predNode->dynId;
                     assert(pred < numNodes);
                     if(addr[pred] == 0)
                     {
@@ -1221,11 +1221,11 @@ public:
         deque<Address> freeAddr;
         Address nextAddr = 1;
         ofstream memTraceFile("memtrace_withpool.txt");
-        int numOfCC = convexComponents.size();
-        for(int i=0; i<numOfCC; ++i)
+        Id numOfCC = convexComponents.size();
+        for(Id i=0; i<numOfCC; ++i)
         {
-            int numNodesInCC = convexComponents[i].size();
-            for(int j=0; j<numNodesInCC; ++j)
+            Id numNodesInCC = convexComponents[i].size();
+            for(Id j=0; j<numNodesInCC; ++j)
             {
                 GraphNode *curNode = cdag->getNode(convexComponents[i][j]);
                 size_t currId = curNode->dynId;
@@ -1237,10 +1237,10 @@ public:
                 else
                 {
                     Id predCount = curNode->predsList.size();
-                    for(int k=0; k < predCount; ++k)
+                    for(Id k=0; k < predCount; ++k)
                     {
                         GraphNode *predNode = cdag->getNode(curNode->predsList[k]);
-                        int pred = predNode->dynId;
+                        Id pred = predNode->dynId;
                         assert(pred < numNodes);
                         if(addr[pred] == 0)
                         {
@@ -1266,11 +1266,11 @@ public:
     void writeMemTraceForSchedule()
     {
         ofstream memTraceFile("memtrace.txt");
-        int numOfCC = convexComponents.size();
-        for(int i=0; i<numOfCC; ++i)
+        Id numOfCC = convexComponents.size();
+        for(Id i=0; i<numOfCC; ++i)
         {
-            int numNodesInCC = convexComponents[i].size();
-            for(int j=0; j<numNodesInCC; ++j)
+            Id numNodesInCC = convexComponents[i].size();
+            for(Id j=0; j<numNodesInCC; ++j)
             {
                 GraphNode *curNode = cdag->getNode(convexComponents[i][j]);
                 if(curNode->type == Instruction::Load)
@@ -1280,7 +1280,7 @@ public:
                 else
                 {
                     Id predCount = curNode->predsList.size();
-                    for(int k=0; k < predCount; ++k)
+                    for(Id k=0; k < predCount; ++k)
                     {
                         GraphNode *predNode = cdag->getNode(curNode->predsList[k]);
                         memTraceFile <<predNode->addr << "\n";
@@ -1315,7 +1315,7 @@ private:
     // process more nodes then we should be writing and reading this
     // map from the file by making use of the DiskCache.
     //boost::unordered_map<Id, boost::array<Id, 2> > nodeIdToUnprocPredsSuccsCountMap;
-    vector<boost::array<int, 2> > nodeIdToUnprocPredsSuccsCountMap;
+    vector<boost::array<Id, 2> > nodeIdToUnprocPredsSuccsCountMap;
 
     deque<Id> readyNodeQ;
 

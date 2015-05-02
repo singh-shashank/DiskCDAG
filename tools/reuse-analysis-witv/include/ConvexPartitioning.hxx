@@ -33,7 +33,7 @@ class ConvexPartitioning{
 public:
     ConvexPartitioning()
     {
-        cacheSize = 256/8;
+        tCount = 0;
         readyNodeCount = 0;
         bitSetIndex = 0;
         maxStaticId = 0;
@@ -45,6 +45,10 @@ public:
         if(readyNodesBitSet)
         {
             delete []readyNodesBitSet;
+        }
+        if(processedNodesBitSet)
+        {
+            delete []processedNodesBitSet;
         }
         if(cdag)
         {
@@ -67,34 +71,12 @@ public:
         static unsigned int tileId;
         deque<Id> nodesList;
 
-        // IMPLEMENTATION NOTE :
-        // ConvexComponent instances are expected not to have a huge memory
-        // foot print because it is expected to contain just enough nodes
-        // to fit a passed in cache size.
-        // Now with neighbors and successor list we needed the following
-        // operations :
-        // 1) Insertion/Enqueue 2) Dequeue 3) Lookup 4) Erase
-        // Everything except erase is achieved in constant time by
-        // using a unordered map and deque.
-        deque<Id> readyNeighborsList;
-        //boost::unordered_set<Id> idToNeighborsListMap;
-
-        deque<Id> readySuccsList;
-        //boost::unordered_set<Id> idToSuccsListMap;
-
-        unsigned long takenNeighbors;
-        unsigned long takenSuccs;
-
         ConvexComponent()
         {
-            takenNeighbors = 0;
-            takenSuccs = 0;
         }
 
         void reset()
         {
-            readyNeighborsList.clear();
-            readySuccsList.clear();
             nodesList.clear();
             //idToNeighborsListMap.clear();
             //idToSuccsListMap.clear();
@@ -146,6 +128,7 @@ public:
         double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
         cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;
         readyNodesBitSet = 0;
+        processedNodesBitSet = 0;
 
         if(cdag)
         {
@@ -153,6 +136,7 @@ public:
             numNodes = cdag->getNumNodes();
             numOfBytesForReadyNodeBitSet = utils::convertNumNodesToBytes(numNodes);
             readyNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
+            processedNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
             
             writeOriginalMemTrace();
             writeOriginalMemTraceWithPool();            
@@ -187,8 +171,8 @@ public:
 
     void createMacroNode(Id &curNodeId, deque<Id> &microNodeList)
     {
-        int predCount = cdag->getNode(curNodeId)->predsList.size();
-        for(int i=0; i<predCount; ++i)
+        Id predCount = cdag->getNode(curNodeId)->predsList.size();
+        for(Id i=0; i<predCount; ++i)
         {
             // If predecessor is special node then it can 
             // be added to the macro node
@@ -210,7 +194,7 @@ public:
         ofstream macroNodeListFile(macroNodeListFileName.c_str(), fstream::binary);
         deque<Id> microNodeList;
 
-        for(int i=numNodes-1; i >= 0; --i)
+        for(Id i=numNodes-1; i >= 0; --i)
         {
             microNodeList.clear();
             if(!utils::isBitSet(visitedNodeBitSet, i, numOfBytesForReadyNodeBitSet))
@@ -222,7 +206,7 @@ public:
             macroNodeListFile.write((const char*)&i, sizeof(Id));
             Id microNodesCount = microNodeList.size();
             macroNodeListFile.write((const char*)&microNodesCount, sizeof(Id));
-            for(int j=0; j<microNodesCount; ++j)
+            for(Id j=0; j<microNodesCount; ++j)
             {
                 macroNodeListFile.write((const char*)&microNodeList[j], sizeof(Id));
                 // Also mark these nodes as visited
@@ -230,6 +214,7 @@ public:
             }
         }
         macroNodeListFile.close();
+        delete []visitedNodeBitSet;
 
         // Initialize the macro node cache
         macroNodeCache = new DiskCache<DataList, Id>(1024, 4);
@@ -247,37 +232,25 @@ public:
         // }
     }
 
-    void generateConvexComponents(unsigned int cacheS,
-                                    unsigned int nPC,
-                                    unsigned int sPC)
+    void generateConvexComponents(unsigned int T)
     {
+        tCount = T;
         ofstream cur_proc_node("cur_proc_node");
-
-        idToNeighborsListMap = new bool[numNodes];
-        memset(idToNeighborsListMap, 0, sizeof(bool)*numNodes);
-        idToSuccsListMap = new bool[numNodes];
-        memset(idToSuccsListMap, 0, sizeof(bool)*numNodes);
 
 
         prepareInitialReadyNodes();
         cout <<"\n Initial ready node count = " << readyNodeCount;
-
-        return;
 
         outFile.open("convex_out_file");
 
         ofstream prog("progress");
         int processedNodeCount = 0;
         int prev = -1;
-        unsigned int liveSetSize = 0;
-        bool firstPass = true;
         cout << "\n";
         
         Id nodeId = 0;
 
         ConvexComponent curConvexComp;
-        set<Id> liveSet;
-
 
         while(readyNodeCount > 0)
         {
@@ -293,17 +266,102 @@ public:
             }
             //cout << "\n\nSelected node (from selectReadyNode): " << nodeId;
             curConvexComp.nodesList.push_back(nodeId);
-            // set the bit for the node marking it processed
-            utils::setBitInBitset(readyNodesBitSet, nodeId, numOfBytesForReadyNodeBitSet);
-            --readyNodeCount;
+            markNodeAsProcessed(nodeId);
 
-            // Update the unprocessed predecessor count for current node's 
-            // successor here. For optimization its being done in the call
-            // to updateListOdReadyNodes() method before checking if succ
-            // has no more unprocessed predecessors
             updateListOfReadyNodes(cdag->getNode(nodeId));
 
+            // Check for all the iteration vectors
+
+            // First find iv map index
+            Id ivMapIndex =  nodeIdToIvMapIndexMap[nodeId];
+            // IV map contains all IV in sorted format
+            // So move forward in iv map till you hit the
+            // limit of <i+T-1, j+T-1, k+T-1>
+            vector<unsigned int> maxItVec(ivMap[ivMapIndex]->itVec);
+            unsigned loopNum = 1;
+            while(loopNum < maxItVec.size())
+            {
+                maxItVec[loopNum] += tCount-1;
+                maxItVec[loopNum+1] += 
+                loopNum += 2;
+            }
+            ++ivMapIndex;
+            while(isValidIV(ivMapIndex, maxItVec))
+            {
+                NodeIVInfo *ivInfo = ivMap[ivMapIndex];
+                if(!isNodeProcessed(ivInfo->nodeId))
+                {
+                    curConvexComp.nodesList.push_back(ivInfo->nodeId);
+                    markNodeAsProcessed(ivInfo->nodeId);
+                    // set the bit for the node marking it processed
+                    //utils::setBitInBitset(readyNodesBitSet, ivInfo->nodeId, numOfBytesForReadyNodeBitSet);
+                    //--readyNodeCount;
+
+                    updateListOfReadyNodes(cdag->getNode(ivInfo->nodeId));
+                }
+                ++ivMapIndex;
+            }
+
+            stack<Id> nodeStack;
+            // Check for all the nodes in the current partition
+            for(unsigned int j=0; j < curConvexComp.nodesList.size(); ++j)
+            {
+                Id tempId = curConvexComp.nodesList[j];
+                unsigned int predCount = cdag->getNode(tempId)->predsList.size();
+                for(unsigned int p = 0; p < predCount; ++p)
+                {
+                    Id predNodeId = cdag->getNode(tempId)->predsList[p];
+                    if(!isNodeProcessed(predNodeId))
+                    {
+                        nodeStack.push(predNodeId);
+                    }
+                }
+            }
+
+            while(!nodeStack.empty())
+            {
+                Id tempId = nodeStack.top();
+                if(!isNodeProcessed(tempId))
+                {
+                    curConvexComp.nodesList.push_back(tempId);
+                    markNodeAsProcessed(tempId);
+                    //utils::setBitInBitset(readyNodesBitSet, tempId, numOfBytesForReadyNodeBitSet);
+                    //--readyNodeCount;
+                    
+                    
+                    nodeStack.pop();
+
+                    updateListOfReadyNodes(cdag->getNode(tempId));
+                    
+                    unsigned int predCount = cdag->getNode(tempId)->predsList.size();
+                    for(unsigned int p = 0; p < predCount; ++p)
+                    {
+                        Id predNodeId = cdag->getNode(tempId)->predsList[p];
+                        if(!isNodeProcessed(predNodeId))
+                        {
+                            nodeStack.push(predNodeId);
+                        }
+                    }
+                }
+                else
+                {
+                    nodeStack.pop();
+                }
+            }
+
             //cout << "\nConvex component with id : " << ConvexComponent::tileId;
+
+            if(curConvexComp.nodesList.size() > 0)
+            {
+                convexComponents.push_back(curConvexComp.nodesList);
+                curConvexComp.writeNodesOfComponent(outFile, cdag);
+                //cout << "\n end of one convex component. live set size = " <<liveSet.size();
+                processedNodeCount += curConvexComp.nodesList.size();
+            }
+            else
+            {
+                outFile << "\n Exceeds the specified Max Live value of ";
+            }
 
             clock_t beg = clock();
 
@@ -332,7 +390,6 @@ public:
         cout <<"\n Ready Node Count (in the end) : " << readyNodeCount;
         cur_proc_node.close();
         remove("cur_proc_node");
-
     }
 
     void printDeque(deque<Id> &mydeque, string qname)
@@ -342,10 +399,46 @@ public:
             std::cout << ' ' << *it;
     }
 
+    void markNodeAsProcessed(Id &nodeId)
+    {
+        utils::setBitInBitset(processedNodesBitSet, nodeId, numOfBytesForReadyNodeBitSet);
+
+        // If this node was not ready already don't decrease the
+        // readyNodeCount
+        if(isReady(nodeId))
+        {
+            // set the bit for the node marking it processed
+            utils::setBitInBitset(readyNodesBitSet, nodeId, numOfBytesForReadyNodeBitSet);
+            --readyNodeCount;
+        }
+    }
+
+    bool isNodeProcessed(Id &nodeId)
+    {
+        return utils::isBitSet(processedNodesBitSet, nodeId, numOfBytesForReadyNodeBitSet);        
+    }
+
+    bool isValidIV(Id &ivMapIndex, vector<unsigned int> &maxItVec)
+    {
+        if(ivMapIndex >= ivMap.size())
+        {
+            return false;
+        }
+        bool retVal = true;
+        for(int i =0; i<maxItVec.size(); ++i)
+        {
+            if(ivMap[ivMapIndex]->itVec[i] > maxItVec[i])
+            {
+                retVal = false;
+            }
+        }
+        return retVal;
+    }
+
     void updateListOfReadyNodes(GraphNodeWithIV *node)
     {
-        int succCount = node->succsList.size();
-        for(int i=0; i<succCount; ++i)
+        Id succCount = node->succsList.size();
+        for(Id i=0; i<succCount; ++i)
         {
             // If this successor has no more unprocessed predecessor 
             // then its ready
@@ -358,7 +451,7 @@ public:
             {
                 --nodeIdToUnprocPredsSuccsCountMap[succId][PRED_INDEX];
                 // Now check if there are any unprocessed nodes
-                if(nodeIdToUnprocPredsSuccsCountMap[succId][PRED_INDEX] == 0)
+                if(!isNodeProcessed(succId) && nodeIdToUnprocPredsSuccsCountMap[succId][PRED_INDEX] == 0)
                 {
                     // mark this successor as ready
                     utils::unsetBitInBitset(readyNodesBitSet, succId, numOfBytesForReadyNodeBitSet);
@@ -368,17 +461,13 @@ public:
                 }
             }
         }
-    }
-
-    void postProcessIV(deque<Id> &iv, const unsigned int &fixedLen)
-    {
-
-    }
+    } 
 
     void prepareInitialReadyNodes()
     {
         // First set all the bits i.e. mark all nodes as 'not' ready
         memset(readyNodesBitSet, ~0, numOfBytesForReadyNodeBitSet);
+        memset(processedNodesBitSet, 0, numOfBytesForReadyNodeBitSet);
 
         // Traverse over the graph once to mark all the nodes as ready
         // that have 0 preds i.e. all input vertices
@@ -389,13 +478,13 @@ public:
         cout << "\n Max Depth Value : " << cdag->maxDepth;
         
         ivMap.reserve(numNodes);
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {
             NodeIVInfo *tempIVInfo = new NodeIVInfo(i, fixedLen);
             ivMap.push_back(tempIVInfo);
         }
 
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {            
             // Store IV for this node in the map
             assert(ivMap[i]->itVec.size() >= cdag->getNode(i)->loopItVec.size());
@@ -429,6 +518,17 @@ public:
         {
             nodeIdToIvMapIndexMap[ivMap[i]->nodeId] = i;
         }
+
+        // Test code : Printing sorted IVs
+        // cout << "\n Printing sorted Iteration vectors ";
+        // for(int i=0; i < ivMap.size(); ++i)
+        // {
+        //     cout << "\n" << ivMap[i]->nodeId << " : ";
+        //     for(int j=0; j < ivMap[i]->itVec.size(); ++j)
+        //     {
+        //         cout << ivMap[i]->itVec[j] << ",";
+        //     }
+        // }
     }
 
     Id selectReadyNode(bool &empQ)
@@ -470,7 +570,7 @@ public:
     void writeOriginalMemTrace()
     {
         ofstream origMemTraceFile("original_memtrace.txt");
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {
             GraphNodeWithIV *curNode = cdag->getNode(i);
             if(curNode->type == Instruction::Load)
@@ -480,7 +580,7 @@ public:
             else
             {
                 Id predCount = curNode->predsList.size();
-                for(int j=0; j < predCount; ++j)
+                for(Id j=0; j < predCount; ++j)
                 {
                     GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[j]);
                     origMemTraceFile << predNode->addr << "\n";
@@ -492,8 +592,8 @@ public:
 
     void assignAddr(Address *addr, deque<Address> &freeAddr, Address &nextAddr)
     {
-        *addr = nextAddr++;
-        return;
+        //*addr = nextAddr++;
+        //return;
         if(freeAddr.empty())
         {
             *addr = nextAddr++;
@@ -517,7 +617,7 @@ public:
         Address nextAddr = 1;
         ofstream memTraceFile("orig_memtrace_withpool.txt");
         int numOfCC = convexComponents.size();
-        for(int i=0; i<numNodes; ++i)
+        for(Id i=0; i<numNodes; ++i)
         {
             GraphNodeWithIV *curNode = cdag->getNode(i);
             size_t currId = curNode->dynId;
@@ -529,10 +629,10 @@ public:
             else
             {
                 Id predCount = curNode->predsList.size();
-                for(int k=0; k < predCount; ++k)
+                for(Id k=0; k < predCount; ++k)
                 {
                     GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[k]);
-                    int pred = predNode->dynId;
+                    Id pred = predNode->dynId;
                     assert(pred < numNodes);
                     if(addr[pred] == 0)
                     {
@@ -568,8 +668,8 @@ public:
         int numOfCC = convexComponents.size();
         for(int i=0; i<numOfCC; ++i)
         {
-            int numNodesInCC = convexComponents[i].size();
-            for(int j=0; j<numNodesInCC; ++j)
+            Id numNodesInCC = convexComponents[i].size();
+            for(Id j=0; j<numNodesInCC; ++j)
             {
                 GraphNodeWithIV *curNode = cdag->getNode(convexComponents[i][j]);
                 size_t currId = curNode->dynId;
@@ -581,10 +681,10 @@ public:
                 else
                 {
                     Id predCount = curNode->predsList.size();
-                    for(int k=0; k < predCount; ++k)
+                    for(Id k=0; k < predCount; ++k)
                     {
                         GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[k]);
-                        int pred = predNode->dynId;
+                        Id pred = predNode->dynId;
                         assert(pred < numNodes);
                         if(addr[pred] == 0)
                         {
@@ -613,8 +713,8 @@ public:
         int numOfCC = convexComponents.size();
         for(int i=0; i<numOfCC; ++i)
         {
-            int numNodesInCC = convexComponents[i].size();
-            for(int j=0; j<numNodesInCC; ++j)
+            Id numNodesInCC = convexComponents[i].size();
+            for(Id j=0; j<numNodesInCC; ++j)
             {
                 GraphNodeWithIV *curNode = cdag->getNode(convexComponents[i][j]);
                 if(curNode->type == Instruction::Load)
@@ -624,7 +724,7 @@ public:
                 else
                 {
                     Id predCount = curNode->predsList.size();
-                    for(int k=0; k < predCount; ++k)
+                    for(Id k=0; k < predCount; ++k)
                     {
                         GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[k]);
                         memTraceFile <<predNode->addr << "\n";
@@ -639,7 +739,7 @@ public:
 
 private:
     DiskCDAG<GraphNodeWithIV> *cdag;
-    unsigned int cacheSize;
+    unsigned int tCount;
     ofstream outFile;
 
     struct NodeIVInfo
@@ -708,6 +808,7 @@ private:
 
     size_t numOfBytesForReadyNodeBitSet;
     BYTE *readyNodesBitSet; // a bit set for quick lookup
+    BYTE *processedNodesBitSet; //  a bit set marking processed nodes
     Id readyNodeCount;
     unsigned int bitSetIndex;
     //boost::unordered_map<Id, bool>; // a map for quick lookup
@@ -718,7 +819,7 @@ private:
     // process more nodes then we should be writing and reading this
     // map from the file by making use of the DiskCache.
     //boost::unordered_map<Id, boost::array<Id, 2> > nodeIdToUnprocPredsSuccsCountMap;
-    vector<boost::array<int, 1> > nodeIdToUnprocPredsSuccsCountMap;
+    vector<boost::array<Id, 1> > nodeIdToUnprocPredsSuccsCountMap;
 
     deque<Id> readyNodeQ;
 
