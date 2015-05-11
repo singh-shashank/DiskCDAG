@@ -73,39 +73,6 @@ bool InstrumentDDG::runOnModule(Module &module)
   if (stopTraceFn) {
     splitAtUse(stopTraceFn);
   }
-
-  Function *regionBeginFn = module.getFunction("ddg_region_begin");
-  if(!regionBeginFn) {
-    regionBeginFn = module.getFunction("ddg_region_begin_");
-  }
-  Function *regionEndFn = module.getFunction("ddg_region_end");
-  if(!regionEndFn) {
-    regionEndFn = module.getFunction("ddg_region_end_");
-  }
-  if(startTraceFn && stopTraceFn)
-  {
-    if(!regionBeginFn)
-    {
-      std::cout << "\n ddg_region_begin marker not found...";
-    }
-    else
-    {
-      std::cout << "\n ddg_region_begin marker found at ";
-      splitAtUse(regionBeginFn);
-    }
-
-    
-
-    if(!regionEndFn)
-    {
-      std::cout << "\n ddg_region_end marker not found...";
-    }
-    else
-    {
-      std::cout << "\n ddg_region_end marker found at ";
-      splitAtUse(regionEndFn);
-    }
-  }
   else
   {
     std::cout << "\n ddg_start_trace && ddg_ stop_trace markers are missing...exiting!";
@@ -114,7 +81,6 @@ bool InstrumentDDG::runOnModule(Module &module)
 
 
   NumberingVisitor numberingVisitor(context, startTraceFn, stopTraceFn);
-  numberingVisitor.setBeginEndRegionFunction(regionBeginFn, regionEndFn);
   numberingVisitor.visit(module);
 
   BBVisitor bbVisitor(context);

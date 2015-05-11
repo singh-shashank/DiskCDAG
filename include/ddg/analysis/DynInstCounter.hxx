@@ -16,13 +16,11 @@ class DynInstCounter : public TraceVisitor<DynInstCounter>
 {
 private:
 	int numInstrs;
-	int numRegions;
 	Ids &ids;
 
 public:
 	DynInstCounter(Ids& ids);
 	int getCount();
-	int getRegionCount();
 
 	void newTraceFile(string &fileName);
 	void visitPHIs(BasicBlock::iterator begin, BasicBlock::iterator end, ExecutionId executionId, BasicBlock *prevBlock);
@@ -30,9 +28,6 @@ public:
 	void visitLoad(LoadInst *loadInst, Address addr, ExecutionId executionId);
 	void visitStore(StoreInst *storeInst, Address addr, ExecutionId executionId);
 	void visitReturn(Instruction *call, ExecutionId callExecutionId, ReturnInst *ret, ExecutionId retExecutionId);
-
-	void regionBegin();
-	void regionEnd();
 };
 
 }

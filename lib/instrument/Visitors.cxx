@@ -30,9 +30,7 @@ void NumberingVisitor::visitCallInst(CallInst &callInst)
 {
   Function *fn = dyn_cast<Function>(callInst.getCalledValue()->stripPointerCasts());
   if (   (startTraceFn && fn == startTraceFn) 
-      || (stopTraceFn && fn == stopTraceFn)
-      || (regionBeginFn && fn == regionBeginFn)
-      || (regionEndFn && fn == regionEndFn)) {
+      || (stopTraceFn && fn == stopTraceFn)) {
     return;
   }
   visitInstruction(callInst);
@@ -43,12 +41,6 @@ void NumberingVisitor::visitInstruction(Instruction &instruction)
   Value *mdValues = ConstantInt::get(int32Ty, nextInstrId);
   instruction.setMetadata("id", MDNode::get(context, mdValues));
   ++nextInstrId;
-}
-
-void NumberingVisitor::setBeginEndRegionFunction(Constant *regionBeginFn, Constant *regionEndFn)
-{
-  this->regionBeginFn = regionBeginFn;
-  this->regionEndFn = regionEndFn;
 }
 
 void BBVisitor::visitModule(Module &module)

@@ -175,8 +175,15 @@ int main(int argc, char* argv[])
 			ConvexPartitioning cp;
 			cp.init(files[0]);
 			cp.generateConvexComponents(TCOUNT);
-			cp.writeMemTraceForSchedule();
-			cp.writeMemTraceForScheduleWithPool();
+			// if(costCalc > 0)
+			// {
+			// 	cp.calculateCost();
+			// }
+			// else
+			{
+				//cp.writeMemTraceForSchedule();
+				cp.writeMemTraceForScheduleWithPool();
+			}
 
 			clock_t end = clock();
     		double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;

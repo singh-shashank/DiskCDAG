@@ -64,7 +64,7 @@ static bool   g_verbose            = false;
 static bool   g_script             = false;
 static bool   g_printPartitions    = false;
 static std::ofstream g_outStream;
-
+static int costCalc = 0;
 
 double rtclock();
 
@@ -88,6 +88,11 @@ int main(int argc, char* argv[])
 
 	if(argc>3) NCOUNT = atoi(argv[3]);
 	if(argc>4) CHILDCOUNT = atoi(argv[4]);
+
+	if(argc > 5)
+	{
+		costCalc = atoi(argv[5]);
+	}
 
 	#if 0
 	int flag=0;
@@ -174,8 +179,16 @@ int main(int argc, char* argv[])
 			ConvexPartitioning cp;
 			cp.init(files[0]);
 			cp.generateConvexComponents(Cs, NCOUNT, CHILDCOUNT);
-			cp.writeMemTraceForSchedule();
-			cp.writeMemTraceForScheduleWithPool();
+			
+			if(costCalc > 0)
+			{
+				cp.calculateCost();
+			}
+			else
+			{
+				// cp.writeMemTraceForSchedule();
+				cp.writeMemTraceForScheduleWithPool();
+			}
 
 			clock_t end = clock();
     		double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;

@@ -53,9 +53,7 @@ enum TraceType {
   LoopIndVar32,
   LoopIndVar64,
   LoopEnter,
-  LoopExit,
-  RegionBegin,
-  RegionEnd
+  LoopExit
 };
 
 static set<int> sampleNums;
@@ -115,40 +113,6 @@ void ddg_stop_trace()
 void ddg_stop_trace_()
 {
   ddg_stop_trace();
-}
-
-void ddg_region_begin()
-{
-  CHECK_TRACING
-  trace.put(RegionBegin);
-  Id instrId= 1089;
-  write_as_chars(trace, &instrId);
-
-  string type = "ddg_region_begin";
-  write_trace_as_txt(&type);
-  write_trace_as_txt(&linend);
-}
-
-void ddg_region_begin_()
-{
-  ddg_region_begin();
-}
-
-void ddg_region_end()
-{
-  CHECK_TRACING
-  trace.put(RegionEnd);
-  Id instrId= 1090;
-  write_as_chars(trace, &instrId);
-
-  string type = "ddg_region_end";
-  write_trace_as_txt(&type);
-  write_trace_as_txt(&linend);
-}
-
-void ddg_region_end_()
-{
-  ddg_region_end();
 }
 
 void ddg_load(Id dest, void* src)

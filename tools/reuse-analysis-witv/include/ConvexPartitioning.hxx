@@ -16,6 +16,7 @@
 #include <boost/array.hpp>
 
 #include "ddg/analysis/DiskCDAG.hxx"
+#include "MacroDAG.hxx"
 
 using namespace std;
 
@@ -50,15 +51,29 @@ public:
         {
             delete []processedNodesBitSet;
         }
-        if(cdag)
+        if(mergedNodesBitSet)
         {
-            delete cdag;
-            cdag = 0;
+            delete []mergedNodesBitSet;
+        }
+        if(cdagOrigCDAG)
+        {
+            delete cdagOrigCDAG;
+            cdagOrigCDAG = 0;
+        }
+        if(cdagMacroCDAG)
+        {
+            delete cdagMacroCDAG;
+            cdagMacroCDAG = 0;
         }
         if(macroNodeCache)
         {
             delete macroNodeCache;
             macroNodeCache = 0;
+        }
+
+        if(mDag)
+        {
+            delete mDag;
         }
         for(int i=0; i<ivMap.size(); ++i)
         {
@@ -123,62 +138,69 @@ public:
         const string programName = llvmBCFilename.substr(0, llvmBCFilename.find("."));
 
         clock_t begin = clock();
-        cdag = DiskCDAG<GraphNodeWithIV>::generateGraph<GraphNodeWithIV, DiskCDAGBuilderWithIV>(ids, programName); 
+        cdagOrigCDAG = DiskCDAG<GraphNodeWithIV>::generateGraph<GraphNodeWithIV, DiskCDAGBuilderWithIV>(ids, programName); 
         clock_t end = clock();
         double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
         cout << " \n\n Time taken to build the graph (in mins) : " << elapsed_time / 60;
         readyNodesBitSet = 0;
         processedNodesBitSet = 0;
+        mergedNodesBitSet = 0;
 
-        if(cdag)
+        if(cdagOrigCDAG)
         {
-            cdag->printDOTGraph("diskgraph.dot");
-            numNodes = cdag->getNumNodes();
+            NUM_SLOTS = cdagOrigCDAG->getNumSlots();
+            BLOCK_SIZE = cdagOrigCDAG->getBlockSize();
+            //cdagOrigCDAG->printDOTGraph("diskgraph.dot");
+            numNodes = cdagOrigCDAG->getNumNodes();
             numOfBytesForReadyNodeBitSet = utils::convertNumNodesToBytes(numNodes);
+            
+            writeOriginalMemTrace();
+            writeOriginalMemTraceWithPool();   
+
+            cout <<"\n Generating Macro CDAG..." << flush;
+            mergedNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
+            writeMacroNodeInformation();
+
+            // Switch to MACRO cdagOrigCDAG
+            cdagMacroCDAG = DiskCDAG<GraphNodeWithIV>::generateGraphUsingFile<GraphNodeWithIV>("diskmacrograph");
+            ofstream outmacro("diskmacrographfile");            
+
+            numNodes = cdagMacroCDAG->getNumNodes();
+            numOfBytesForReadyNodeBitSet = utils::convertNumNodesToBytes(numNodes);
+            cout <<"done!" << flush;
+
             readyNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
             processedNodesBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
             
-            writeOriginalMemTrace();
-            writeOriginalMemTraceWithPool();            
+                     
         }
         else
         {
-          std::cerr << "Fatal : Failed to generate CDAG \n";
+          std::cerr << "Fatal : Failed to generate cdagOrigCDAG \n";
         }
-    }
-
-    bool isSpecialNode(Id &curNodeId)
-    {
-        return (cdag->getNode(curNodeId)->succsList.size() == 1 && 
-           cdag->getNode(curNodeId)->type != Instruction::Load &&
-           cdag->getNode(curNodeId)->addr < maxStaticId);
-    }
-
-    bool isSpecialChain(Id &curNodeId)
-    {
-        bool retVal = true;
-        for(deque<Id>::iterator it = cdag->getNode(curNodeId)->predsList.begin(); it != cdag->getNode(curNodeId)->predsList.end(); ++it)
-        {
-            if((!isSpecialNode(*it) &&
-             nodeIdToUnprocPredsSuccsCountMap[*it][PRED_INDEX] != -1) || (isSpecialNode(*it) && !isReady(*it)))
-            {
-                retVal = false;
-                break;
-            }
-        }
-        return retVal;
     }  
+
+    bool canBeMerged(Id &curNodeId, Address &succAddr)
+    {
+        return (cdagOrigCDAG->getNode(curNodeId)->succsList.size() == 1  
+                && cdagOrigCDAG->getNode(curNodeId)->type != Instruction::Load
+                && (cdagOrigCDAG->getNode(curNodeId)->addr < maxStaticId
+                    || cdagOrigCDAG->getNode(curNodeId)->addr == succAddr
+                    )
+                );
+    } 
 
     void createMacroNode(Id &curNodeId, deque<Id> &microNodeList)
     {
-        Id predCount = cdag->getNode(curNodeId)->predsList.size();
+        Id predCount = cdagOrigCDAG->getNode(curNodeId)->predsList.size();
         for(Id i=0; i<predCount; ++i)
         {
             // If predecessor is special node then it can 
             // be added to the macro node
-            Id predId = cdag->getNode(curNodeId)->predsList[i];
-            if(isSpecialNode(predId))
+            Id predId = cdagOrigCDAG->getNode(curNodeId)->predsList[i];
+            if(canBeMerged(predId, cdagOrigCDAG->getNode(curNodeId)->addr))
             {
+                utils::setBitInBitset(mergedNodesBitSet, predId, numOfBytesForReadyNodeBitSet);
                 microNodeList.push_back(predId);
                 createMacroNode(predId, microNodeList);
             }
@@ -187,12 +209,14 @@ public:
 
     void writeMacroNodeInformation()
     {
+        memset(mergedNodesBitSet, 0, numOfBytesForReadyNodeBitSet);
         BYTE *visitedNodeBitSet = new BYTE[numOfBytesForReadyNodeBitSet];
         memset(visitedNodeBitSet, 0, numOfBytesForReadyNodeBitSet);
         string macroNodeListFileName = "diskgraphmacronodeinfo";
 
         ofstream macroNodeListFile(macroNodeListFileName.c_str(), fstream::binary);
         deque<Id> microNodeList;
+        Id macroGraphSize = numNodes;
 
         for(Id i=numNodes-1; i >= 0; --i)
         {
@@ -201,6 +225,7 @@ public:
             {
                 createMacroNode(i, microNodeList);
             }
+            macroGraphSize -= microNodeList.size();
 
             // Write Macro node to a file
             macroNodeListFile.write((const char*)&i, sizeof(Id));
@@ -215,7 +240,6 @@ public:
         }
         macroNodeListFile.close();
         delete []visitedNodeBitSet;
-
         // Initialize the macro node cache
         macroNodeCache = new DiskCache<DataList, Id>(1024, 4);
         if(!macroNodeCache->init(macroNodeListFileName))
@@ -224,19 +248,29 @@ public:
             return;
         }
 
-        // // Test Code
+        // Test Code to print macro nodes
         // cout << "\n Printing macro node information...";
-        // for(int i=0; i<numNodes; ++i)
+        // for(Id i=0; i<numNodes; ++i)
         // {
         //     macroNodeCache->getData(i)->print(cout);
         // }
+        // cout << "\nNum of macro nodes  = " << macroGraphSize;
+
+        writeMacroGraph(macroGraphSize);
+    }
+
+    void writeMacroGraph(Id macroGraphSize)
+    {
+        mDag = new MacroDAG();
+        mDag->generateMacroDAG(cdagOrigCDAG, macroNodeCache, mergedNodesBitSet, macroGraphSize);
+        //mDag->printMacroNodeToOrigNodeMap();
     }
 
     void generateConvexComponents(unsigned int T)
     {
         tCount = T;
         ofstream cur_proc_node("cur_proc_node");
-
+        ofstream actualScheduleFile("actual_schedule");
 
         prepareInitialReadyNodes();
         cout <<"\n Initial ready node count = " << readyNodeCount;
@@ -268,7 +302,7 @@ public:
             curConvexComp.nodesList.push_back(nodeId);
             markNodeAsProcessed(nodeId);
 
-            updateListOfReadyNodes(cdag->getNode(nodeId));
+            updateListOfReadyNodes(cdagMacroCDAG->getNode(nodeId));
 
             // Check for all the iteration vectors
 
@@ -297,7 +331,7 @@ public:
                     //utils::setBitInBitset(readyNodesBitSet, ivInfo->nodeId, numOfBytesForReadyNodeBitSet);
                     //--readyNodeCount;
 
-                    updateListOfReadyNodes(cdag->getNode(ivInfo->nodeId));
+                    updateListOfReadyNodes(cdagMacroCDAG->getNode(ivInfo->nodeId));
                 }
                 ++ivMapIndex;
             }
@@ -307,10 +341,10 @@ public:
             for(unsigned int j=0; j < curConvexComp.nodesList.size(); ++j)
             {
                 Id tempId = curConvexComp.nodesList[j];
-                unsigned int predCount = cdag->getNode(tempId)->predsList.size();
+                unsigned int predCount = cdagMacroCDAG->getNode(tempId)->predsList.size();
                 for(unsigned int p = 0; p < predCount; ++p)
                 {
-                    Id predNodeId = cdag->getNode(tempId)->predsList[p];
+                    Id predNodeId = cdagMacroCDAG->getNode(tempId)->predsList[p];
                     if(!isNodeProcessed(predNodeId))
                     {
                         nodeStack.push(predNodeId);
@@ -331,12 +365,12 @@ public:
                     
                     nodeStack.pop();
 
-                    updateListOfReadyNodes(cdag->getNode(tempId));
+                    updateListOfReadyNodes(cdagMacroCDAG->getNode(tempId));
                     
-                    unsigned int predCount = cdag->getNode(tempId)->predsList.size();
+                    unsigned int predCount = cdagMacroCDAG->getNode(tempId)->predsList.size();
                     for(unsigned int p = 0; p < predCount; ++p)
                     {
-                        Id predNodeId = cdag->getNode(tempId)->predsList[p];
+                        Id predNodeId = cdagMacroCDAG->getNode(tempId)->predsList[p];
                         if(!isNodeProcessed(predNodeId))
                         {
                             nodeStack.push(predNodeId);
@@ -353,8 +387,36 @@ public:
 
             if(curConvexComp.nodesList.size() > 0)
             {
-                convexComponents.push_back(curConvexComp.nodesList);
-                curConvexComp.writeNodesOfComponent(outFile, cdag);
+                //convexComponents.push_back(curConvexComp.nodesList);                
+                deque<Id> expandedConvexComp;
+                for(Id i=0; i < curConvexComp.nodesList.size(); ++i)
+                {
+                    // if we added a MACRO node to CC, add all 
+                    // other nodes in that node first
+                    Id origNodeId = mDag->getOrigCDAGNodeId(curConvexComp.nodesList[i]);
+                    Id microNodesCount = macroNodeCache->getData(origNodeId)->list.size();
+                    sort(macroNodeCache->getData(origNodeId)->list.begin(), 
+                        macroNodeCache->getData(origNodeId)->list.end());
+                    for(Id j=0; j<microNodesCount; ++j)
+                    {
+                        expandedConvexComp.push_back(macroNodeCache->getData(origNodeId)->list[j]);
+                    }
+                    // and then the current node
+                    expandedConvexComp.push_back(origNodeId);
+                }
+                convexComponents.push_back(expandedConvexComp);
+                actualScheduleFile << "Tile " << ConvexComponent::tileId;
+                for(deque<Id>::iterator it = expandedConvexComp.begin();
+                    it != expandedConvexComp.end(); ++it)
+                {
+                    GraphNode *temp = cdagOrigCDAG->getNode(*it);
+                    actualScheduleFile << "\nStatic ID: " << temp->staticId << ";";
+                    actualScheduleFile << "Dyn ID: " << temp->dynId << ";";
+                    actualScheduleFile << " " << llvm::Instruction::getOpcodeName(temp->type) << ";";
+                }
+                actualScheduleFile << "\n";
+                actualScheduleFile << flush;
+                curConvexComp.writeNodesOfComponent(outFile, cdagMacroCDAG);
                 //cout << "\n end of one convex component. live set size = " <<liveSet.size();
                 processedNodeCount += curConvexComp.nodesList.size();
             }
@@ -390,6 +452,22 @@ public:
         cout <<"\n Ready Node Count (in the end) : " << readyNodeCount;
         cur_proc_node.close();
         remove("cur_proc_node");
+        if(macroNodeCache)
+        {
+            delete macroNodeCache;
+            macroNodeCache = 0;
+        }
+
+        // switch back to original CDAG
+        numNodes = cdagOrigCDAG->getNumNodes();
+        numOfBytesForReadyNodeBitSet = utils::convertNumNodesToBytes(numNodes);
+
+        cout << "\n Done with the heuristics...switching to original CDAG." << flush;
+        if(cdagMacroCDAG)
+        {
+            delete cdagMacroCDAG;
+            cdagMacroCDAG = 0;
+        }
     }
 
     void printDeque(deque<Id> &mydeque, string qname)
@@ -474,8 +552,10 @@ public:
         nodeIdToUnprocPredsSuccsCountMap.reserve(numNodes);
 
         // Setup the IV map for fast lookup
-        unsigned int fixedLen = 2*(cdag->maxDepth)+1;
-        cout << "\n Max Depth Value : " << cdag->maxDepth;
+        //unsigned int fixedLen = 2*(cdagOrigCDAG->maxDepth)+1;
+        //cout << "\n Max Depth Value : " << cdagOrigCDAG->maxDepth;
+        unsigned int fixedLen = 2*(7)+1;
+        cout << "\n Max Depth Value : " << 7;
         
         ivMap.reserve(numNodes);
         for(Id i=0; i<numNodes; ++i)
@@ -487,24 +567,24 @@ public:
         for(Id i=0; i<numNodes; ++i)
         {            
             // Store IV for this node in the map
-            assert(ivMap[i]->itVec.size() >= cdag->getNode(i)->loopItVec.size());
-            for(int j=0; j<cdag->getNode(i)->loopItVec.size(); ++j)
+            assert(ivMap[i]->itVec.size() >= cdagMacroCDAG->getNode(i)->loopItVec.size());
+            for(int j=0; j<cdagMacroCDAG->getNode(i)->loopItVec.size(); ++j)
             {
-                ivMap[i]->itVec[j+1] = cdag->getNode(i)->loopItVec[j];
+                ivMap[i]->itVec[j+1] = cdagMacroCDAG->getNode(i)->loopItVec[j];
             }
 
             // Find all nodes ready for processing 
-            if(cdag->getNode(i)->predsList.size() == 0)
+            if(cdagMacroCDAG->getNode(i)->predsList.size() == 0)
             {
                 // a node with zero predecessors
                 // it should be the load node
-                assert(cdag->getNode(i)->type == 27); 
+                assert(cdagMacroCDAG->getNode(i)->type == 27); 
                 // mark this node as ready i.e. unset the corresponding bit
                 utils::unsetBitInBitset(readyNodesBitSet, i, numOfBytesForReadyNodeBitSet);
                 readyNodeQ.push_back(i);
                 ++readyNodeCount;
             }
-            boost::array<Id,1> temp = {{cdag->getNode(i)->predsList.size()}};
+            boost::array<Id,1> temp = {{cdagMacroCDAG->getNode(i)->predsList.size()}};
             nodeIdToUnprocPredsSuccsCountMap.push_back(temp);
         }
 
@@ -564,7 +644,7 @@ public:
 
     DiskCDAG<GraphNodeWithIV>* getCdagPtr()
     {
-        return cdag;
+        return cdagOrigCDAG;
     }
 
     void writeOriginalMemTrace()
@@ -572,7 +652,7 @@ public:
         ofstream origMemTraceFile("original_memtrace.txt");
         for(Id i=0; i<numNodes; ++i)
         {
-            GraphNodeWithIV *curNode = cdag->getNode(i);
+            GraphNodeWithIV *curNode = cdagOrigCDAG->getNode(i);
             if(curNode->type == Instruction::Load)
             {
                 continue;
@@ -582,7 +662,7 @@ public:
                 Id predCount = curNode->predsList.size();
                 for(Id j=0; j < predCount; ++j)
                 {
-                    GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[j]);
+                    GraphNodeWithIV *predNode = cdagOrigCDAG->getNode(curNode->predsList[j]);
                     origMemTraceFile << predNode->addr << "\n";
                 }
                 origMemTraceFile << curNode->addr << "\n";
@@ -611,7 +691,7 @@ public:
         int *remUses = new int[numNodes];
         for(Id i=0; i<numNodes; ++i)
         {
-            remUses[i] = cdag->getNode(i)->succsList.size();
+            remUses[i] = cdagOrigCDAG->getNode(i)->succsList.size();
         }
         deque<Address> freeAddr;
         Address nextAddr = 1;
@@ -619,7 +699,7 @@ public:
         int numOfCC = convexComponents.size();
         for(Id i=0; i<numNodes; ++i)
         {
-            GraphNodeWithIV *curNode = cdag->getNode(i);
+            GraphNodeWithIV *curNode = cdagOrigCDAG->getNode(i);
             size_t currId = curNode->dynId;
             assert(currId < numNodes);
             if(curNode->type == Instruction::Load)
@@ -631,7 +711,7 @@ public:
                 Id predCount = curNode->predsList.size();
                 for(Id k=0; k < predCount; ++k)
                 {
-                    GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[k]);
+                    GraphNodeWithIV *predNode = cdagOrigCDAG->getNode(curNode->predsList[k]);
                     Id pred = predNode->dynId;
                     assert(pred < numNodes);
                     if(addr[pred] == 0)
@@ -656,22 +736,23 @@ public:
 
     void writeMemTraceForScheduleWithPool()
     {
+        cout << "\n Writing memtrace for schedule with pool..." <<flush;
         Address *addr = new Address[numNodes]();
         int *remUses = new int[numNodes];
         for(Id i=0; i<numNodes; ++i)
         {
-            remUses[i] = cdag->getNode(i)->succsList.size();
+            remUses[i] = cdagOrigCDAG->getNode(i)->succsList.size();
         }
         deque<Address> freeAddr;
         Address nextAddr = 1;
         ofstream memTraceFile("memtrace_withpool.txt");
-        int numOfCC = convexComponents.size();
-        for(int i=0; i<numOfCC; ++i)
+        Id numOfCC = convexComponents.size();
+        for(Id i=0; i<numOfCC; ++i)
         {
             Id numNodesInCC = convexComponents[i].size();
             for(Id j=0; j<numNodesInCC; ++j)
             {
-                GraphNodeWithIV *curNode = cdag->getNode(convexComponents[i][j]);
+                GraphNodeWithIV *curNode = cdagOrigCDAG->getNode(convexComponents[i][j]);
                 size_t currId = curNode->dynId;
                 assert(currId < numNodes);
                 if(curNode->type == Instruction::Load)
@@ -683,8 +764,7 @@ public:
                     Id predCount = curNode->predsList.size();
                     for(Id k=0; k < predCount; ++k)
                     {
-                        GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[k]);
-                        Id pred = predNode->dynId;
+                        Id pred = curNode->predsList[k];
                         assert(pred < numNodes);
                         if(addr[pred] == 0)
                         {
@@ -702,6 +782,7 @@ public:
                 }
             }
         }
+        cout << "done!" << flush;
 
         delete []addr;
         delete []remUses;
@@ -709,14 +790,21 @@ public:
 
     void writeMemTraceForSchedule()
     {
+        cout << "\n Writing memtrace for schedule without pool..." <<flush;
         ofstream memTraceFile("memtrace.txt");
-        int numOfCC = convexComponents.size();
-        for(int i=0; i<numOfCC; ++i)
+        ofstream tempMemTraceFileWrite("temp_memtrace.txt", ios::binary);
+        Id numOfCC = convexComponents.size();
+
+        // Optimization trick :  Write the Ids first and then
+        // do a second pass to fetch corresponding addresses.
+        // Otherwise two calls were need to the cache : first
+        // to fetch the current node and then to fetch its predecessors.
+        for(Id i=0; i<numOfCC; ++i)
         {
             Id numNodesInCC = convexComponents[i].size();
             for(Id j=0; j<numNodesInCC; ++j)
             {
-                GraphNodeWithIV *curNode = cdag->getNode(convexComponents[i][j]);
+                GraphNodeWithIV *curNode = cdagOrigCDAG->getNode(convexComponents[i][j]);
                 if(curNode->type == Instruction::Load)
                 {
                     continue;
@@ -725,21 +813,34 @@ public:
                 {
                     Id predCount = curNode->predsList.size();
                     for(Id k=0; k < predCount; ++k)
-                    {
-                        GraphNodeWithIV *predNode = cdag->getNode(curNode->predsList[k]);
-                        memTraceFile <<predNode->addr << "\n";
+                    {                        
+                        tempMemTraceFileWrite.write((const char*)&curNode->predsList[k], sizeof(Id));
                     }
-                    memTraceFile <<curNode->addr << "\n";
+                    tempMemTraceFileWrite.write((const char*)&curNode->dynId, sizeof(Id));
                 }
             }
         }
+
+        tempMemTraceFileWrite.close();
+        ifstream tempMemTraceFileRead("temp_memtrace.txt");
+        Id curId = 0;
+        while(tempMemTraceFileRead.read((char*)&curId, sizeof(Id)))
+        {
+            memTraceFile << cdagOrigCDAG->getNode(curId)->addr << "\n";
+        }
+
+        remove("temp_memtrace.txt");
+        cout << "done!" << flush;
     }
 
     
 
 private:
-    DiskCDAG<GraphNodeWithIV> *cdag;
+    DiskCDAG<GraphNodeWithIV> *cdagOrigCDAG;
+    DiskCDAG<GraphNodeWithIV> *cdagMacroCDAG;
     unsigned int tCount;
+    unsigned int NUM_SLOTS;
+    unsigned int BLOCK_SIZE;
     ofstream outFile;
 
     struct NodeIVInfo
@@ -809,6 +910,7 @@ private:
     size_t numOfBytesForReadyNodeBitSet;
     BYTE *readyNodesBitSet; // a bit set for quick lookup
     BYTE *processedNodesBitSet; //  a bit set marking processed nodes
+    BYTE *mergedNodesBitSet;
     Id readyNodeCount;
     unsigned int bitSetIndex;
     //boost::unordered_map<Id, bool>; // a map for quick lookup
@@ -829,6 +931,7 @@ private:
 
     size_t numNodes;
     DiskCache<DataList, Id> *macroNodeCache;
+    MacroDAG *mDag;
 
 private:
 

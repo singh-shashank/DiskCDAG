@@ -1,0 +1,154 @@
+User guide to Disk-Graph API v1.0
+########################################
+
+Introduction:
+--------------
+--------------
+
+Disk-Graph API provides an out-of-core Dynamic Dependency Graphs (DDG) implementation that allows a client to perform dynamic analysis on large DDGs. It is specially useful for running analysis on machines that have limited memory sizes i.e. not enough memory to hold complete dynamic graphs in memory. The API maintains a serialized disk graph which is streamed through on-demand and has an efficient implementation to handle a large number of nodes in a reasonable amount of time.
+
+
+This API builds upon the existing dynamic analysis framework called DDGVec. This dynamic analyis framework has a Dynamic Graph builder component which is extended by this API.  incrementally build a dynamic dependency graph out of it, which is then written to a file as a “diskgraph”. It then makes use of a Disk-Cache component for reading the "diskgraph" file and caching its content, on-demand" in memory. 
+
+Notes and Pre-requisites:
+--------------------------
+--------------------------
+
+For details on what Dynamic Dependency Graphs (DDG) are and how Dynamic Graph Builder works, please look at Chapter 1 and 2 from [1] and Chapter 1, Section 1.1 from [2].
+
+Make sure you have dynamic analysis framework, DDGVec [3], installed on the machine. Please look at the README file in the source package for more details. Verify that you have a working installation by running some simple tools like "disk-graph", and verifying its output. Please go through the section "Generating DDGs and CDAGs as Disk-Graph and running simple graph algorithms" in the README file for more details.
+
+API Usage:
+------------
+------------
+
+A very simple and working example of usage of this API is the implementation of "disk-graph" tool in the framework. Look at the file  "/tool/disk-graph/Main.cxx" which is also a very good example of building a tool on top of existing dynamic analysis framework.
+
+
+API Details:
+--------------
+--------------
+
+The API depends on a user configuration file that contains a list of user specified options and values. For more details on this please look at 
+
+
+Following list of methods are exposed by this API:
+
+generateGraph 
+------------------
+
+Signature : template<typename Node, typename GraphBuilder> static DiskCDAG<Node>* generateGraph(Ids& ids, const string &bcFileName)
+
+Input Arguments : a reference to class Ids, a string have program name thats being instrumented
+
+Output Values : returns a pointer to an instance of DiskCDAG
+
+getNumNodes
+------------------
+
+Signature : Id getNumNodes()
+
+Input Arguments : 
+
+Output Values : return number of nodes in the disk graph
+
+getNode
+--------
+
+Signature : CDAGNode* getNode(const Id &nodeId)
+
+Input Arguments : nodeId of the node that needs to be accessed
+
+Output Values : will return a pointer, of type CDAGNode, for the requested node.
+
+getNumSlots
+------------
+
+Signature : unsigned int getNumSlots()
+
+Input Arguments : 
+
+Output Values : return number of slots that are specified in the user configuration file
+
+initNeighborCache
+-----------------
+
+Signature : bool initNeighborCache()
+
+Input Arguments :
+
+Output Arguments :  true if the neighbor information for every node was calculated successfully and neigbor cache initialization was successful.
+
+getNeighbor
+-------------
+(initNeighborCache should be called once before using this method)
+
+Signature : NodeNeighborInfo* getNeighbor(const Id &nodeId)
+
+Input Arguments : id of a node for which neighbor list is needed
+
+Ouput Values : returns an objet of NodeNeighborInfo that holds node id and a neighbor list
+
+
+Example Usage :
+-----------------
+-----------------
+
+1.
+
+Creating a CDAG with graph node information
+
+DiskCDAG<GraphNode> *cdag = DiskCDAG<GraphNode>::generateGraph<GraphNode, DiskCDAGBuilder<GraphNode> >(ids, programName); 
+
+2.
+
+Creating a CDAG with iteration vector values computed.
+
+DiskCDAG<GraphNodeWithIV> *cdag = DiskCDAG<GraphNodeWithIV>::generateGraph<GraphNodeWithIV, DiskCDAGBuilderWithIV>(ids, programName);
+
+3. 
+
+Initializing a CDAG with neighbor information (one time initializtion)
+
+cdag->initNeighborCache();
+
+and then later using cdag pointer to get neighbor list...
+
+NodeNeighborInfo *neighbor = cdagMacroCDAG->getNeighbor(curNode->dynId);
+Id neighborCount = neighbor->neighborList.size();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+References:
+--------------------
+[1] Ragavendar Nagapattinam Ramamurthi. Dynamic trace-based analysis of vectorization
+potential of programs. Master’s thesis, The Ohio State University,
+U.S.A, 2012.
+
+[2] Shashank Singh.  .Master’s thesis, The Ohio State University,
+U.S.A, 2012.
+
+[3] http://hpcrl.cse.ohio-state.edu/wiki/index.php/DDGVec

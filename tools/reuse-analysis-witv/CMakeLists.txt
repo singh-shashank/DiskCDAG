@@ -12,7 +12,8 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/include")
 #
 SET(_SOURCES  "src/Main.cxx")
               
-SET(_HEADERS  "include/ConvexPartitioning.hxx")
+SET(_HEADERS  "include/ConvexPartitioning.hxx"
+				"include/MacroDAG.hxx")
 
 
 

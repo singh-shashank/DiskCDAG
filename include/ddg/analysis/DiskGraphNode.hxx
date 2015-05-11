@@ -9,6 +9,13 @@
 
 using namespace std;
 
+
+/*
+TODO:
+------
+1. Define a base class for GraphNode class
+*/
+
 namespace ddg
 {
 struct GraphNode{

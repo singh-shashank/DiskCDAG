@@ -1,1 +1,0 @@
-CC=/usr/bin/gcc-4.6 CXX=/usr/bin/g++-4.6 cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/shashank/ddg -DDB_INCLUDE_DIR=$HOME/bdb-5.3.28/include -DDB_LIBRARY=$HOME/bdb-5.3.28/lib/libdb_cxx.so

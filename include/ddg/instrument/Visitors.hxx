@@ -29,13 +29,11 @@ class NumberingVisitor : public InstVisitor<NumberingVisitor, void>
 public:
   NumberingVisitor(LLVMContext &context, Constant *startTraceFn, Constant *stopTraceFn)
     : context(context), nextInstrId(0), int32Ty(Type::getInt32Ty(context)), 
-      startTraceFn(startTraceFn), stopTraceFn(stopTraceFn),
-      regionBeginFn(0), regionEndFn(0)
+      startTraceFn(startTraceFn), stopTraceFn(stopTraceFn)
   { }
 
   void visitCallInst(CallInst &callInst);
   void visitInstruction(Instruction &instruction);
-  void setBeginEndRegionFunction(Constant *regionBeginFn, Constant *regionEndFn);
 
 private:
   LLVMContext &context;
@@ -43,8 +41,6 @@ private:
 
   Constant *startTraceFn;
   Constant *stopTraceFn;
-  Constant *regionBeginFn;
-  Constant *regionEndFn;
 
   Id nextInstrId;
 };

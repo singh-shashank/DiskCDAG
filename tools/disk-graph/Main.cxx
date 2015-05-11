@@ -8,8 +8,6 @@
 
 #include "ddg/analysis/DiskCDAG.hxx"
 
-#include <queue>
-
 using namespace ddg;
 using namespace llvm;
 

@@ -51,8 +51,6 @@ public:
     LoopIndVar64Type,
     LoopEnterType,
     LoopExitType,
-    RegionBeginType,
-    RegionEndType,
     TraceEnd
   };
 };
@@ -288,14 +286,6 @@ public:
   void loopExit(LoopExit *loopExit)
   {
   }
-
-  void regionBegin()
-  {
-  }
-
-  void regionEnd()
-  {
-  }
 };
 
 
@@ -330,9 +320,6 @@ public:
   void handleLoopEnter(LoopEnter *loopEnter);
   void handleLoopExit(LoopExit *loopExit);
   void handleLoopIndVar(LoopIndVar *loopIndVar);
-
-  void handleRegionBegin();
-  void handleRegionEnd();
 
   void handleEndTrace();
 
@@ -555,26 +542,6 @@ void TraceEventsHandler<Visitor>::handleLoopIndVar(LoopIndVar *loopIndVar)
 }
 
 template <typename Visitor>
-void TraceEventsHandler<Visitor>::handleRegionBegin()
-{
-  // if (mustVisitPrevBB) {
-  //   SUBCLASS(Visitor, visitor)->visitBasicBlockRange(prevInstr, prevBB->end(), prevExecId);
-  // }
-  //cout << "\n in handleRegionBegin()";
-  SUBCLASS(Visitor, visitor)->regionBegin();
-}
-
-template <typename Visitor>
-void TraceEventsHandler<Visitor>::handleRegionEnd()
-{
-  // if (mustVisitPrevBB) {
-  //   SUBCLASS(Visitor, visitor)->visitBasicBlockRange(prevInstr, prevBB->end(), prevExecId);
-  // }
-  //cout << "\n in handleRegionEnd()";
-  SUBCLASS(Visitor, visitor)->regionEnd();
-}
-
-template <typename Visitor>
 void TraceEventsHandler<Visitor>::handleEndTrace()
 {
   if (mustVisitPrevBB) {
@@ -705,18 +672,6 @@ void TraceParser::parse(TraceEventsHandler<Visitor> &handler)
         Id loopId = next<Id>();
         LoopExit loopExit = {loopId};
         handler.handleLoopExit(&loopExit);
-        break;
-      }
-      case Trace::RegionBeginType: {
-        Id loopId = next<Id>(); // this is useless
-        //LoopExit loopExit = {loopId};
-        handler.handleRegionBegin();
-        break;
-      }
-      case Trace::RegionEndType: {
-        Id loopId = next<Id>(); // this is useless
-        //LoopExit loopExit = {loopId};
-        handler.handleRegionEnd();
         break;
       }
       default: {

@@ -3,7 +3,7 @@
 namespace ddg
 {
 
-DynInstCounter::DynInstCounter(Ids& ids) : numInstrs(0), ids(ids), numRegions(0)
+DynInstCounter::DynInstCounter(Ids& ids) : numInstrs(0), ids(ids)
 {
 }
 
@@ -12,13 +12,6 @@ int DynInstCounter::getCount()
 	TraceTraversal traversal(ids);
 	traversal.traverse(*this);
 	return numInstrs;
-}
-
-int DynInstCounter::getRegionCount()
-{
-	TraceTraversal traversal(ids);
-	traversal.traverse(*this);
-	return numRegions;
 }
 
 void DynInstCounter::newTraceFile(string &fileName)
@@ -56,16 +49,6 @@ void DynInstCounter::visitStore(StoreInst *storeInst, Address addr, ExecutionId 
 void DynInstCounter::visitReturn(Instruction *call, ExecutionId callExecutionId, ReturnInst *ret, ExecutionId retExecutionId)
 {
 	++numInstrs;
-}
-
-void DynInstCounter::regionBegin()
-{
-	++numRegions;
-}
-
-void DynInstCounter::regionEnd()
-{
-	//++numRegions;
 }
 
 }
